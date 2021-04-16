@@ -192,12 +192,12 @@
             .force("y", d3.forceY());
 
         const link = svg.append("g")
-            .attr("stroke", "#999")
-            .attr("stroke-width", 1.5)
-            .attr("stroke-opacity", 0.4)
             .selectAll("line")
             .data(links)
             .join("line")
+            .attr("stroke-width", 1.5)
+            .attr("stroke-opacity", 0.4)
+            .attr("stroke", "#999")
 
         const node = svg
             .selectAll("svg")
@@ -224,32 +224,106 @@
         node.append("title")
             .text(d => d.name);
 
+        // START HOVER EVENT
+
         leaf.on('mouseover', function(e, data, i) {
-            leaf.attr('opacity', '.50');
-            group.attr('opacity', '.50');
+            leaf.attr('opacity', '.30');
+            group.attr('opacity', '.30');
             link
                 .attr("stroke-opacity", 0.1)
+            d3.select(this)
+                .attr('opacity', '1')
+                .attr("id", "node-active");
+            const top_g = svg
+                .insert("g", "#node-active")
+                .attr("id", "top-container")
             const activeLink = link
                 .filter(e => e.target.name == data.name)
                 .attr("stroke-opacity", 1)
                 .attr("stroke-width", 3)
-                .attr("id", "active-link")
-            activeLink.each(d => {
-                group.filter(d => data.set.includes(d.name))
-                    .attr('opacity', '1');
+                .attr("id", (_, i, node) => {
+                    return "link-active-" + i
+                })
+            activeLink.each((l, i, node) => {
+                top_g.append("use")
+                    .attr("xlink:href", "#link-active-" + i)
             })
-            d3.select(this)
-                .attr('opacity', '1');
+            const activeGroup = group
+                .filter(d => data.set.includes(d.name))
+                .attr('opacity', '1')
+                .attr("id", (_, i) => "group-active-" + i);
+
+            activeGroup.each((l, i, node) => {
+                top_g.append("use")
+                    .attr("xlink:href", "#group-active-" + i)
+            })
         });
         leaf.on('mouseout', function(d, i) {
-            leaf.attr('opacity', '1');
-            group.attr('opacity', '1');
+            leaf.attr('opacity', '1').attr("id", null);
+            group.attr('opacity', '1').attr("id", null)
 
             link
                 .attr("stroke-opacity", 0.4)
                 .attr("stroke-width", 1.5)
                 .classed("active", false)
+                .attr("id", null)
+            const top = d3.select("g#top-container")
+            if (top) {
+                top.remove()
+            }
         });
+
+        // END HOVER EVENT
+
+        //START HOVER EVENT ON GROUP
+
+        group.on('mouseover', function(e, data) {
+            console.log(d3.select(this).node())
+            leaf.attr('opacity', '.30');
+            group.attr('opacity', '.30');
+            link
+                .attr("stroke-opacity", 0.1)
+            d3.select(this)
+                .attr('opacity', '1')
+                .attr("id", "node-active");
+            const top_g = svg
+                .insert("g", "#node-active")
+                .attr("id", "top-container")
+            const activeLink = link
+                .filter(e => e.source.name == data.name)
+                .attr("stroke-opacity", 1)
+                .attr("stroke-width", 3)
+                .attr("id", (_, i, node) => {
+                    return "link-active-" + i
+                })
+            activeLink.each((l, i, node) => {
+                top_g.append("use")
+                    .attr("xlink:href", "#link-active-" + i)
+            })
+            const activeLeaf = leaf
+                .filter(d => d.set.includes(data.name))
+                .attr('opacity', '1')
+                .attr("id", (_, i) => "leaf-active-" + i);
+            activeLeaf.each((l, i, node) => {
+                top_g.append("use")
+                    .attr("xlink:href", "#leaf-active-" + i)
+            })
+        });
+        group.on('mouseout', function(d, i) {
+            leaf.attr('opacity', '1').attr("id", null);
+            group.attr('opacity', '1').attr("id", null)
+
+            link
+                .attr("stroke-opacity", 0.4)
+                .attr("stroke-width", 1.5)
+                .classed("active", false)
+                .attr("id", null)
+            const top = d3.select("g#top-container")
+            if (top) {
+                top.remove()
+            }
+        });
+
 
         simulation.on("tick", () => {
             link
