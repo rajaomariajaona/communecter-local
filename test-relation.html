@@ -79,8 +79,8 @@
             .selectAll("line")
             .data(links)
             .join("line")
-            .attr("stroke-width", 1.5)
-            .attr("stroke-opacity", 0.4)
+            .attr("stroke-width", 1.1)
+            .attr("stroke-opacity", 0.3)
             .attr("stroke", "#999")
 
         const node = svg
@@ -153,8 +153,8 @@
             group.attr('opacity', '1').attr("id", null)
 
             link
-                .attr("stroke-opacity", 0.4)
-                .attr("stroke-width", 1.5)
+                .attr("stroke-opacity", 0.3)
+                .attr("stroke-width", 1.1)
                 .classed("active", false)
                 .attr("id", null)
             const top = d3.select("g#top-container")
@@ -204,8 +204,8 @@
             group.attr('opacity', '1').attr("id", null)
 
             link
-                .attr("stroke-opacity", 0.4)
-                .attr("stroke-width", 1.5)
+                .attr("stroke-opacity", 0.3)
+                .attr("stroke-width", 1.1)
                 .classed("active", false)
                 .attr("id", null)
             const top = d3.select("g#top-container")
