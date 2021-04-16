@@ -1,0 +1,256 @@
+<svg id="graph" viewBox="0 0 820 820" text-anchor="middle">
+    <g transform="translate(9.756097560974752,9.756097560975036) scale(0.9756097560975628)" clip-path="url(#clip-root)">
+        <circle r="399.99999999999994" cx="400" cy="400" stroke="none" fill="white" filter="url(#ombre)"
+            id="root-circle"></circle>
+        <path stroke="none" fill="none" id="path-root" d="M 13.000000000000057 400 A 1 1 0 1 1 787 400"></path><text>
+            <textPath class="svg-text" xlink:href="#path-root" dx="400" dy="800" text-anchor="middle" startOffset="50%"
+                style="fill: white;">TAGS</textPath>
+        </text>
+        <g>
+            <g clip-path="url(#clip-tags)">
+                <circle r="196.79160694261066" cx="262.90785433355927" cy="452.0664492047367" stroke="none"
+                    fill="steelblue" filter="url(#ombre)"></circle>
+                <path stroke="none" fill="none" id="path-tags"
+                    d="M 79.11624739094862 452.0664492047367 A 1 1 0 1 1 446.6994612761699 452.0664492047367"></path>
+                <text>
+                    <textPath class="svg-text" xlink:href="#path-tags" dx="262.90785433355927" dy="648.8580561473474"
+                        text-anchor="middle" startOffset="50%" style="fill: white;">TAGS</textPath>
+                </text>
+                <g transform="translate(35.45988841231531,74.60379062589953) scale(0.8742561344946098)">
+                    <g>
+                        <circle r="29.423573948685323" cx="226.20446387357993" cy="430.8757368424957" stroke="none"
+                            fill="#ddd"></circle><text class="fa" dx="226.20446387357993" dy="430.8757368424957"
+                            text-anchor="middle" style="fill: black; cursor: default;"> tag_project</text>
+                    </g>
+                    <g>
+                        <circle r="29.423573948685323" cx="299.6112447935386" cy="430.8757368424957" stroke="none"
+                            fill="#ddd"></circle><text class="fa" dx="299.6112447935386" dy="430.8757368424957"
+                            text-anchor="middle" style="fill: black; cursor: default;"> commoner</text>
+                    </g>
+                    <g>
+                        <circle r="29.423573948685323" cx="262.90785433355927" cy="494.44787392921876" stroke="none"
+                            fill="#ddd"></circle><text class="fa" dx="262.90785433355927" dy="494.44787392921876"
+                            text-anchor="middle" style="fill: black; cursor: default;"> freediver</text>
+                    </g>
+                    <g>
+                        <circle r="29.423573948685323" cx="262.90785433355927" cy="367.30359975577267" stroke="none"
+                            fill="#ddd"></circle><text class="fa" dx="262.90785433355927" dy="367.30359975577267"
+                            text-anchor="middle" style="fill: black; cursor: default;"> libriste</text>
+                    </g>
+                    <g>
+                        <circle r="29.423573948685323" cx="189.50107341360058" cy="367.30359975577267" stroke="none"
+                            fill="#ddd"></circle><text class="fa" dx="189.50107341360058" dy="367.30359975577267"
+                            text-anchor="middle" style="fill: black; cursor: default;"> anarchiste</text>
+                    </g>
+                    <g>
+                        <circle r="29.423573948685323" cx="336.31463525351796" cy="367.30359975577267" stroke="none"
+                            fill="#ddd"></circle><text class="fa" dx="336.31463525351796" dy="367.30359975577267"
+                            text-anchor="middle" style="fill: black; cursor: default;"> creatif</text>
+                    </g>
+                    <g>
+                        <circle r="29.423573948685323" cx="336.31463525351796" cy="494.44787392921876" stroke="none"
+                            fill="#ddd"></circle><text class="fa" dx="336.31463525351796" dy="494.44787392921876"
+                            text-anchor="middle" style="fill: black; cursor: default;"> developper</text>
+                    </g>
+                    <g>
+                        <circle r="29.423573948685323" cx="189.50107341360058" cy="494.44787392921876" stroke="none"
+                            fill="#ddd"></circle><text class="fa" dx="189.50107341360058" dy="494.44787392921876"
+                            text-anchor="middle" style="fill: black; cursor: default;"> project manager</text>
+                    </g>
+                    <g>
+                        <circle r="29.423573948685323" cx="152.79768295362123" cy="430.8757368424957" stroke="none"
+                            fill="#ddd"></circle><text class="fa" dx="152.79768295362123" dy="430.8757368424957"
+                            text-anchor="middle" style="fill: black; cursor: default;"> thought dancer</text>
+                    </g>
+                    <g>
+                        <circle r="29.423573948685323" cx="373.0180257134973" cy="430.8757368424957" stroke="none"
+                            fill="#ddd"></circle><text class="fa" dx="373.0180257134973" dy="430.8757368424957"
+                            text-anchor="middle" style="fill: black; cursor: default;"> programmer</text>
+                    </g>
+                    <g>
+                        <circle r="29.423573948685323" cx="409.72141617347665" cy="494.44787392921876" stroke="none"
+                            fill="#ddd"></circle><text class="fa" dx="409.72141617347665" dy="494.44787392921876"
+                            text-anchor="middle" style="fill: black; cursor: default;"> tag_orga</text>
+                    </g>
+                    <g>
+                        <circle r="29.423573948685323" cx="116.09429249364189" cy="494.44787392921876" stroke="none"
+                            fill="#ddd"></circle><text class="fa" dx="116.09429249364189" dy="494.44787392921876"
+                            text-anchor="middle" style="fill: black; cursor: default;"> tag_orga2</text>
+                    </g>
+                    <g>
+                        <circle r="29.423573948685323" cx="226.20446387357993" cy="303.7314626690496" stroke="none"
+                            fill="#ddd"></circle><text class="fa" dx="226.20446387357993" dy="303.7314626690496"
+                            text-anchor="middle" style="fill: black; cursor: default;"> tag_subevent</text>
+                    </g>
+                    <g>
+                        <circle r="29.423573948685323" cx="299.6112447935386" cy="558.0200110159418" stroke="none"
+                            fill="#ddd"></circle><text class="fa" dx="299.6112447935386" dy="558.0200110159418"
+                            text-anchor="middle" style="fill: black; cursor: default;"> tag_event</text>
+                    </g>
+                </g>
+            </g>
+            <g clip-path="url(#clip-follows)">
+                <circle r="105.061884197319" cx="579.320978496077" cy="452.0664492047367" stroke="none" fill="#FFC600"
+                    filter="url(#ombre)"></circle>
+                <path stroke="none" fill="none" id="path-follows"
+                    d="M 487.25909429875804 452.0664492047367 A 1 1 0 1 1 671.3828626933961 452.0664492047367"></path>
+                <text>
+                    <textPath class="svg-text" xlink:href="#path-follows" dx="579.320978496077" dy="557.1283334020558"
+                        text-anchor="middle" startOffset="50%" style="fill: white;">FOLLOWS</textPath>
+                </text>
+                <g clip-path="url(#clip-follows)">
+                    <g clip-path="url(#clip-follows)">
+                        <image xlink:href="/assets/69bafdf4/images/thumbnail-citoyens.png" width="50" height="50"
+                            x="505.4299446530646" y="427.0664492047367"></image><text clip-path="url(#clip-follows)" dx="530.4299446530646"
+                            dy="497.0664492047367" style="fill: black; cursor: default;">Yorre Rajaonarivelo</text>
+                    </g>
+                    <g>
+                        <image xlink:href="/assets/69bafdf4/images/thumbnail-citoyens.png" width="50" height="50"
+                            x="603.2120123390895" y="427.0664492047367"></image><text dx="628.2120123390895"
+                            dy="497.0664492047367" style="fill: black; cursor: default;">test test</text>
+                    </g>
+                </g>
+            </g>
+            <g clip-path="url(#clip-friends)">
+                <circle r="105.061884197319" cx="499.5476900049125" cy="662.1113332550744" stroke="none" fill="#FFC600"
+                    filter="url(#ombre)"></circle>
+                <path stroke="none" fill="none" id="path-friends"
+                    d="M 407.4858058075935 662.1113332550744 A 1 1 0 1 1 591.6095742022316 662.1113332550744"></path>
+                <text>
+                    <textPath class="svg-text" xlink:href="#path-friends" dx="499.5476900049125" dy="767.1732174523935"
+                        text-anchor="middle" startOffset="50%" style="fill: white;">FRIENDS</textPath>
+                </text>
+                <g>
+                    <g>
+                        <image xlink:href="/assets/69bafdf4/images/thumbnail-citoyens.png" width="50" height="50"
+                            x="425.6566561619" y="637.1113332550744"></image><text dx="450.6566561619"
+                            dy="707.1113332550744" style="fill: black; cursor: default;">Rabarison Cyri</text>
+                    </g>
+                    <g>
+                        <image
+                            xlink:href="/upload/communecter/citoyens/5534fd9da1aa14201b0041cb/thumb/profil-resized.png?t=1608573391"
+                            width="50" height="50" x="523.438723847925" y="637.1113332550744"></image><text
+                            dx="548.438723847925" dy="707.1113332550744" style="fill: black; cursor: default;">Tibor
+                            Katelbach</text>
+                    </g>
+                </g>
+            </g>
+            <g clip-path="url(#clip-memberof)">
+                <circle r="105.061884197319" cx="499.5476900049125" cy="242.02156515439916" stroke="none" fill="#93C020"
+                    filter="url(#ombre)"></circle>
+                <path stroke="none" fill="none" id="path-memberof"
+                    d="M 407.4858058075935 242.02156515439916 A 1 1 0 1 1 591.6095742022316 242.02156515439916"></path>
+                <text>
+                    <textPath class="svg-text" xlink:href="#path-memberof" dx="499.5476900049125" dy="347.0834493517182"
+                        text-anchor="middle" startOffset="50%" style="fill: white;">MEMBER OF</textPath>
+                </text>
+                <g>
+                    <g>
+                        <image
+                            xlink:href="/upload/communecter/organizations/604f539d173193379310c567/thumb/profil-resized.png?t=1616046811"
+                            width="50" height="50" x="425.6566561619" y="217.02156515439916"></image><text
+                            dx="450.6566561619" dy="287.0215651543991" style="fill: black; cursor: default;">Mon
+                            Organisation</text>
+                    </g>
+                    <g>
+                        <image xlink:href="/assets/69bafdf4/images/thumbnail-organizations.png" width="50" height="50"
+                            x="523.438723847925" y="217.02156515439916"></image><text dx="548.438723847925"
+                            dy="287.0215651543991" style="fill: black; cursor: default;">Orga 2</text>
+                    </g>
+                </g>
+            </g>
+            <g clip-path="url(#clip-events)">
+                <circle r="105.061884197319" cx="300.4523099950875" cy="137.88866674492562" stroke="none" fill="#FFA200"
+                    filter="url(#ombre)"></circle>
+                <path stroke="none" fill="none" id="path-events"
+                    d="M 208.3904257977685 137.88866674492562 A 1 1 0 1 1 392.5141941924065 137.88866674492562"></path>
+                <text>
+                    <textPath class="svg-text" xlink:href="#path-events" dx="300.4523099950875" dy="242.9505509422446"
+                        text-anchor="middle" startOffset="50%" style="fill: white;">EVENTS</textPath>
+                </text>
+                <g>
+                    <g>
+                        <image xlink:href="/assets/69bafdf4/images/thumbnail-events.png" width="50" height="50"
+                            x="226.561276152075" y="112.88866674492562"></image><text dx="251.561276152075"
+                            dy="182.88866674492562" style="fill: black; cursor: default;">asdasd</text>
+                    </g>
+                    <g>
+                        <image xlink:href="/assets/69bafdf4/images/thumbnail-events.png" width="50" height="50"
+                            x="324.3433438381" y="112.88866674492562"></image><text dx="349.3433438381"
+                            dy="182.88866674492562" style="fill: black; cursor: default;">Coucou</text>
+                    </g>
+                </g>
+            </g>
+            <g clip-path="url(#clip-projects)">
+                <circle r="56.170850354306516" cx="330.6523167037134" cy="710.8689929076461" stroke="none" fill="purple"
+                    filter="url(#ombre)"></circle>
+                <path stroke="none" fill="none" id="path-projects"
+                    d="M 287.48146634940684 710.8689929076461 A 1 1 0 1 1 373.8231670580199 710.8689929076461"></path>
+                <text>
+                    <textPath class="svg-text" xlink:href="#path-projects" dx="330.6523167037134" dy="767.0398432619526"
+                        text-anchor="middle" startOffset="50%" style="fill: white;">PROJECTS</textPath>
+                </text>
+                <g>
+                    <g>
+                        <image
+                            xlink:href="/upload/communecter/projects/604f5d32173193379310c56d/thumb/profil-resized.png?t=1616055112"
+                            width="50" height="50" x="305.6523167037134" y="685.8689929076461"></image><text
+                            dx="330.6523167037134" dy="755.8689929076461" style="fill: black; cursor: default;">Test
+                            Projet</text>
+                    </g>
+                </g>
+            </g>
+            <g clip-path="url(#clip-followers)">
+                <circle r="56.170850354306516" cx="665.8370833153595" cy="299.0373013137342" stroke="none"
+                    fill="#FFC600" filter="url(#ombre)"></circle>
+                <path stroke="none" fill="none" id="path-followers"
+                    d="M 622.666232961053 299.0373013137342 A 1 1 0 1 1 709.0079336696659 299.0373013137342"></path>
+                <text>
+                    <textPath class="svg-text" xlink:href="#path-followers" dx="665.8370833153595"
+                        dy="355.2081516680407" text-anchor="middle" startOffset="50%" style="fill: white;">FOLLOWERS
+                    </textPath>
+                </text>
+                <g>
+                    <g>
+                        <image xlink:href="/assets/69bafdf4/images/thumbnail-citoyens.png" width="50" height="50"
+                            x="640.8370833153595" y="274.0373013137342"></image><text dx="665.8370833153595"
+                            dy="344.0373013137342" style="fill: black; cursor: default;">test test</text>
+                    </g>
+                </g>
+            </g><text>
+                <textPath xlink:href="#root" dx="400" dy="-12.999999999999943" text-anchor="middle" startOffset="50%">
+                    Rajaomaria Jaona</textPath>
+            </text>
+        </g>
+        <path stroke="none" fill="none" id="root" d="M 13.000000000000057 400 A 1 1 0 1 1 787 400"></path>
+    </g>
+    <defs>
+        <filter id="ombre">
+            <feDropShadow flood-opacity="0.3" dx="0" dy="1"></feDropShadow>
+        </filter>
+        <clip-path id="clip-root">
+            <circle r="399.99999999999994" cx="400" cy="400"></circle>
+        </clip-path>
+        <clip-path id="clip-tags">
+            <circle r="196.79160694261066" cx="262.90785433355927" cy="452.0664492047367"></circle>
+        </clip-path>
+        <clip-path id="clip-follows">
+            <circle r="105.061884197319" cx="579.320978496077" cy="452.0664492047367"></circle>
+        </clip-path>
+        <clip-path id="clip-friends">
+            <circle r="105.061884197319" cx="499.5476900049125" cy="662.1113332550744"></circle>
+        </clip-path>
+        <clip-path id="clip-memberof">
+            <circle r="105.061884197319" cx="499.5476900049125" cy="242.02156515439916"></circle>
+        </clip-path>
+        <clip-path id="clip-events">
+            <circle r="105.061884197319" cx="300.4523099950875" cy="137.88866674492562"></circle>
+        </clip-path>
+        <clip-path id="clip-projects">
+            <circle r="56.170850354306516" cx="330.6523167037134" cy="710.8689929076461"></circle>
+        </clip-path>
+        <clip-path id="clip-followers">
+            <circle r="56.170850354306516" cx="665.8370833153595" cy="299.0373013137342"></circle>
+        </clip-path>
+    </defs>
+</svg>

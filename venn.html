@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venn</title>
+    <script src="d3.v3.min.js"></script>
+    <script src="d3-venn.js"></script>
+</head>
+
+<body>
+    <svg></svg>
+</body>
+<script>
+    var width = window.innerWidth,
+        height = width,
+        colors = d3.scale.category10();
+
+    var setChar = 'ABCDEFGHIJKLMN',
+        charFn = i => setChar[i],
+        setLength = 3,
+        sets = d3.range(setLength).map(function(d, i) {
+            return setChar[i]
+        })
+
+
+
+
+
+    // var dataLength = 130,
+    //     ii = 0,
+    //     data = d3.range(dataLength).map((d, i) => {
+    //         var l = Math.floor((Math.random() * setLength + 0.2)),
+    //             set = [],
+    //             c,
+    //             i;
+    //         for (i = -1; ++i < l;) {
+    //             c = charFn(Math.floor((Math.random() * setLength)));
+    //             if (set.indexOf(c) == -1) {
+    //                 set.push(c)
+    //             }
+    //         }
+    //         return {
+    //             set: set,
+    //             name: 'set_' + ii++
+    //         }
+    //     });
+    // console.log(data)
+    const data = [{
+        set: ["A"],
+        name: "set_159"
+    }, {
+        set: ["D"],
+        name: "set_158"
+    }, {
+        set: ["D"],
+        name: "set_157"
+    }, {
+        set: ["D"],
+        name: "set_156"
+    }, {
+        set: ["B"],
+        name: "set_155"
+    }, {
+        set: ["C"],
+        name: "set_154"
+    }, {
+        set: ["A", "B"],
+        name: "set_153"
+    }, {
+        set: ["A", "C"],
+        name: "set_152"
+    }, {
+        set: ["B", "C"],
+        name: "set_151"
+    }, {
+        set: ["A", "D"],
+        name: "set_2150"
+    }, {
+        set: ["A"],
+        name: "set_149"
+    }, {
+        set: ["B"],
+        name: "set_148"
+    }, {
+        set: ["C"],
+        name: "set_147"
+    }, {
+        set: ["A"],
+        name: "set_146"
+    }, {
+        set: ["B"],
+        name: "set_145"
+    }, {
+        set: ["C"],
+        name: "set_144"
+    }, {
+        set: ["A", "B"],
+        name: "set_143"
+    }, {
+        set: ["D", "C"],
+        name: "set_142"
+    }, {
+        set: ["D", "B"],
+        name: "set_142"
+    }, {
+        set: ["B", "C"],
+        name: "set_141"
+    }, {
+        set: ["A", "B", "C"],
+        name: "set_140"
+    }, {
+        set: ["A"],
+        name: "set_139"
+    }, {
+        set: ["B"],
+        name: "set_138"
+    }, {
+        set: ["C"],
+        name: "set_137"
+    }, {
+        set: ["A"],
+        name: "set_136"
+    }, {
+        set: ["D"],
+        name: "set_135"
+    }, {
+        set: ["C"],
+        name: "set_134"
+    }, {
+        set: ["A", "B"],
+        name: "set_133"
+    }, {
+        set: ["A", "C"],
+        name: "set_132"
+    }, {
+        set: ["B", "C"],
+        name: "set_131"
+    }, {
+        set: ["A", "B", "C"],
+        name: "set_130"
+    }, {
+        set: ["A"],
+        name: "set_129"
+    }, {
+        set: ["B"],
+        name: "set_128"
+    }, {
+        set: ["C"],
+        name: "set_127"
+    }, {
+        set: ["A"],
+        name: "set_126"
+    }, {
+        set: ["B"],
+        name: "set_125"
+    }, {
+        set: ["C"],
+        name: "set_124"
+    }, {
+        set: ["A", "B"],
+        name: "set_123"
+    }, {
+        set: ["A", "C"],
+        name: "set_122"
+    }, {
+        set: ["B", "C"],
+        name: "set_121"
+    }, {
+        set: ["A", "B", "C"],
+        name: "set_120"
+    }, {
+        set: ["A"],
+        name: "set_119"
+    }, {
+        set: ["B"],
+        name: "set_118"
+    }, {
+        set: ["C"],
+        name: "set_117"
+    }, {
+        set: ["A"],
+        name: "set_116"
+    }, {
+        set: ["B"],
+        name: "set_115"
+    }, {
+        set: ["C"],
+        name: "set_114"
+    }, {
+        set: ["A", "B"],
+        name: "set_113"
+    }, {
+        set: ["A", "C"],
+        name: "set_112"
+    }, {
+        set: ["B", "C"],
+        name: "set_111"
+    }, {
+        set: ["A", "B", "C"],
+        name: "set_110"
+    }, {
+        set: ["A"],
+        name: "set_109"
+    }, {
+        set: ["B"],
+        name: "set_108"
+    }, {
+        set: ["C"],
+        name: "set_107"
+    }, {
+        set: ["A"],
+        name: "set_106"
+    }, {
+        set: ["B"],
+        name: "set_105"
+    }, {
+        set: ["C"],
+        name: "set_104"
+    }, {
+        set: ["A", "B"],
+        name: "set_103"
+    }, {
+        set: ["A", "C"],
+        name: "set_102"
+    }, {
+        set: ["B", "C"],
+        name: "set_101"
+    }, {
+        set: ["A", "B", "C"],
+        name: "set_100"
+    }, {
+        set: ["A"],
+        name: "set_99"
+    }, {
+        set: ["B"],
+        name: "set_98"
+    }, {
+        set: ["C"],
+        name: "set_97"
+    }, {
+        set: ["A"],
+        name: "set_96"
+    }, {
+        set: ["B"],
+        name: "set_95"
+    }, {
+        set: ["C"],
+        name: "set_94"
+    }, {
+        set: ["A", "B"],
+        name: "set_93"
+    }, {
+        set: ["A", "C"],
+        name: "set_92"
+    }, {
+        set: ["B", "C"],
+        name: "set_91"
+    }, {
+        set: ["A", "B", "C"],
+        name: "set_90"
+    }, {
+        set: ["A"],
+        name: "set_89"
+    }, {
+        set: ["B"],
+        name: "set_88"
+    }, {
+        set: ["C"],
+        name: "set_87"
+    }, {
+        set: ["A"],
+        name: "set_86"
+    }, {
+        set: ["B"],
+        name: "set_85"
+    }, {
+        set: ["C"],
+        name: "set_84"
+    }, {
+        set: ["A", "B"],
+        name: "set_83"
+    }, {
+        set: ["A", "C"],
+        name: "set_82"
+    }, {
+        set: ["B", "C"],
+        name: "set_81"
+    }, {
+        set: ["A", "B", "C"],
+        name: "set_80"
+    }, {
+        set: ["A"],
+        name: "set_79"
+    }, {
+        set: ["B"],
+        name: "set_78"
+    }, {
+        set: ["C"],
+        name: "set_77"
+    }, {
+        set: ["A"],
+        name: "set_76"
+    }, {
+        set: ["B"],
+        name: "set_75"
+    }, {
+        set: ["C"],
+        name: "set_74"
+    }, {
+        set: ["A", "B"],
+        name: "set_73"
+    }, {
+        set: ["A", "C"],
+        name: "set_72"
+    }, {
+        set: ["B", "C"],
+        name: "set_71"
+    }, {
+        set: ["A", "B", "C"],
+        name: "set_70"
+    }, {
+        set: ["A"],
+        name: "set_69"
+    }, {
+        set: ["B"],
+        name: "set_68"
+    }, {
+        set: ["C"],
+        name: "set_67"
+    }, {
+        set: ["A"],
+        name: "set_66"
+    }, {
+        set: ["B"],
+        name: "set_65"
+    }, {
+        set: ["C"],
+        name: "set_64"
+    }, {
+        set: ["A", "B"],
+        name: "set_63"
+    }, {
+        set: ["A", "C"],
+        name: "set_62"
+    }, {
+        set: ["B", "C"],
+        name: "set_61"
+    }, {
+        set: ["A", "B", "C"],
+        name: "set_60"
+    }, {
+        set: ["A"],
+        name: "set_59"
+    }, {
+        set: ["B"],
+        name: "set_58"
+    }, {
+        set: ["C"],
+        name: "set_57"
+    }, {
+        set: ["A"],
+        name: "set_56"
+    }, {
+        set: ["B"],
+        name: "set_55"
+    }, {
+        set: ["C"],
+        name: "set_54"
+    }, {
+        set: ["A", "B"],
+        name: "set_53"
+    }, {
+        set: ["A", "C"],
+        name: "set_52"
+    }, {
+        set: ["B", "C"],
+        name: "set_51"
+    }, {
+        set: ["A", "B", "C"],
+        name: "set_50"
+    }, {
+        set: ["A"],
+        name: "set_49"
+    }, {
+        set: ["B"],
+        name: "set_48"
+    }, {
+        set: ["C"],
+        name: "set_47"
+    }, {
+        set: ["A"],
+        name: "set_46"
+    }, {
+        set: ["B"],
+        name: "set_45"
+    }, {
+        set: ["C"],
+        name: "set_44"
+    }, {
+        set: ["A", "B"],
+        name: "set_43"
+    }, {
+        set: ["A", "C"],
+        name: "set_42"
+    }, {
+        set: ["B", "C"],
+        name: "set_41"
+    }, {
+        set: ["A", "B", "C"],
+        name: "set_40"
+    }, {
+        set: ["A"],
+        name: "set_39"
+    }, {
+        set: ["B"],
+        name: "set_38"
+    }, {
+        set: ["C"],
+        name: "set_37"
+    }, {
+        set: ["A"],
+        name: "set_36"
+    }, {
+        set: ["B"],
+        name: "set_35"
+    }, {
+        set: ["C"],
+        name: "set_34"
+    }, {
+        set: ["A", "B"],
+        name: "set_33"
+    }, {
+        set: ["A", "C"],
+        name: "set_32"
+    }, {
+        set: ["B", "C"],
+        name: "set_31"
+    }, {
+        set: ["A", "B", "C"],
+        name: "set_30"
+    }, {
+        set: ["A"],
+        name: "set_29"
+    }, {
+        set: ["B"],
+        name: "set_28"
+    }, {
+        set: ["C"],
+        name: "set_27"
+    }, {
+        set: ["A"],
+        name: "set_26"
+    }, {
+        set: ["B"],
+        name: "set_25"
+    }, {
+        set: ["C"],
+        name: "set_24"
+    }, {
+        set: ["A", "B"],
+        name: "set_23"
+    }, {
+        set: ["A", "C"],
+        name: "set_22"
+    }, {
+        set: ["B", "C"],
+        name: "set_21"
+    }, {
+        set: ["A", "B", "C"],
+        name: "set_20"
+    }, {
+        set: ["A"],
+        name: "set_19"
+    }, {
+        set: ["B"],
+        name: "set_18"
+    }, {
+        set: ["C"],
+        name: "set_17"
+    }, {
+        set: ["A"],
+        name: "set_16"
+    }, {
+        set: ["B"],
+        name: "set_15"
+    }, {
+        set: ["C"],
+        name: "set_14"
+    }, {
+        set: ["A", "B"],
+        name: "set_13"
+    }, {
+        set: ["A", "C"],
+        name: "set_12"
+    }, {
+        set: ["B", "C"],
+        name: "set_11"
+    }, {
+        set: ["A", "B", "C"],
+        name: "set_10"
+    }, {
+        set: ["A"],
+        name: "set_9"
+    }, {
+        set: ["B"],
+        name: "set_8"
+    }, {
+        set: ["C"],
+        name: "set_7"
+    }, {
+        set: ["A"],
+        name: "set_6"
+    }, {
+        set: ["B"],
+        name: "set_5"
+    }, {
+        set: ["C"],
+        name: "set_4"
+    }, {
+        set: ["A", "B"],
+        name: "set_3"
+    }, {
+        set: ["A", "C"],
+        name: "set_2"
+    }, {
+        set: ["B", "C"],
+        name: "set_1"
+    }, {
+        set: ["A", "B", "C"],
+        name: "set_0"
+    }, ];
+    var l = d3.layout.venn().size([width, height]),
+
+        ld = l.nodes(data);
+
+    var svg = d3.select('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+    var nodes = svg.selectAll("g")
+        .data(l.sets().values(), function(d) {
+            return d.__key__;
+        });
+
+
+    var venn = nodes.enter()
+        .append('g')
+        .attr("class", function(d) {
+            return "venn-area venn-" +
+                (d.sets.length == 1 ? "circle" : "intersection");
+        })
+        .attr('fill', function(d, i) {
+            return colors(i)
+        })
+
+
+    venn.append("path")
+        .attr('d', function(d, i) {
+            return d.d(1)
+        })
+        // .attr('fill', function(d,i) {return colors(i)} )
+        .attr('opacity', 0.25)
+
+    venn.append("text")
+        .attr("class", "label")
+        .text(function(d) {
+            return d.__key__;
+        })
+        .attr("text-anchor", "middle")
+        .attr("dy", ".35em")
+        .attr("x", function(d) {
+            return d.center.x
+        })
+        .attr("y", function(d) {
+            return d.center.y
+        });
+
+    var points = venn.selectAll("circle.node")
+        .data(function(d) {
+            return d.nodes
+        })
+        .enter()
+
+    points.append('circle')
+        .attr('class', 'node')
+        .attr("cx", function(d) {
+            return d.x
+        })
+        .attr("cy", function(d) {
+            return d.y
+        })
+        .attr('r', 3)
+
+
+
+
+    // venn.append('circle')
+    //     .attr('class', 'inner')
+    //     .attr('fill', 'grey')
+    //     .attr('opacity', 0.2)
+    //     .attr("cx", function(d) {
+    //         return d.center.x
+    //     })
+    //     .attr("cy", function(d) {
+    //         return d.center.y
+    //     })
+    //     .attr('r', function(d) {
+    //         console.log(d.innerRadius)
+    //         return d.innerRadius
+    //     })
+</script>
+
+</html>

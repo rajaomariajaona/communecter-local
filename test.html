@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script src="d3.v6.min.js"></script>
+    <script src="rect-collide.js"></script>
+    <script>
+
+        // set the dimensions and margins of the graph
+        var width = 200
+        var height = 200
+
+        // append the svg object to the body of the page
+        var svg = d3.select("body")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .style("border" ,"1px solid red")
+            .append("g")
+        // create dummy data -> just one element per circle
+        var data = [
+            { "name": "A" },
+            // { "name": "B" },
+            // { "name": "C" },
+            // { "name": "C" },
+        ];
+
+        // Initialize the circle: all located at the center of the svg area
+        const svg_g = d3.select("g").selectAll("g")
+            .data(data)
+            // .enter()
+            .join("g")
+        // .call(d3.drag() // call specific function when circle is dragged
+        //     .on("start", dragstarted)
+        //     .on("drag", dragged)
+        //     .on("end", dragended));
+
+        const node = svg_g
+            .append("g")
+
+        var rect = svg_g
+            .append("rect")
+            .attr("x", width / 2)
+            .attr("y", height / 2)
+            .attr("width", d => (d.width = 50))
+            .attr("height", d => (d.height = 50))
+            .style("fill", "#19d3a2")
+            .style("fill-opacity", 0.3)
+            .style("stroke-width", 4)
+            .attr("stroke", "#b3a2c8")
+
+        // Features of the forces applied to the nodes:
+        const now = Date.now();
+        var simulation = d3.forceSimulation()
+            .force("center", d3.forceCenter(width / 2, height / 2)) // Attraction to the center of the svg area
+            // .force("charge", d3.forceManyBody()) // Nodes are attracted one each other of value is > 0
+            .force("collide", rectCollide().size(d => [d.width, d.height])) // Force that avoids circle overlapping
+            .nodes(data)
+            .on("tick", e => console.log("tick"))
+            .stop()
+        for (var i = 0, n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())); i < n; ++i) {
+            simulation.tick();
+        }
+        end(null, null);
+
+        // .on("end", end)
+        function end(e, d) {
+            console.log(Date.now() - now)
+            rect
+                .attr("x", function (d) { return d.x; })
+                .attr("y", function (d) { return d.y; })
+                .attr("transform", d => `translate(-${d.height / 2}, -${d.width / 2})`)
+            const rects = d3.selectAll("rect")
+            let minX = 0;
+            let minY = 0;
+            for (const node of rects.nodes()) {
+                const rectBound = node.getBoundingClientRect();
+                const x = rectBound.x
+                const y = rectBound.y
+                if (x < minX) minX = x;
+                if (y < minY) minY = y;
+            }
+            console.log(minX, minY);
+            if (minX < 0)
+                rects.attr("x", d => (d.x -= minX - 10))
+            if (minY < 0)
+                rects.attr("y", d => (d.y -= minY - 10))
+
+
+            const bound = svg.node().getBoundingClientRect();
+            const k = width / (Math.max(bound.width, bound.height));
+            if (k < 1) {
+                svg.style("transform-origin", "50% 50%")
+                svg.attr("transform", `scale(${k})`)
+            }
+        }
+        // What happens when a circle is dragged?
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(.01).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(.01);
+            d.fx = null;
+            d.fy = null;
+        }
+
+    </script>
+</body>
+
+</html>
