@@ -101,6 +101,12 @@
         leaf.append("circle")
             .attr("r", 50)
             .attr("fill", (d, i) => color(i));
+        leaf.filter(d => d.type == "img")
+            .append("image")
+            .attr("href", d => randArray(img))
+            .attr("width", d => 80)
+            .attr("height", d => 80)
+            .attr("transform", "translate(-40,-40)")
         leaf.filter(d => d.type == "txt")
             .append("text")
             .attr("text-anchor", "middle")
@@ -111,8 +117,8 @@
         // START HOVER EVENT
 
         leaf.on('mouseover', function(e, data, i) {
-            leaf.attr('opacity', '.30');
-            group.attr('opacity', '.30');
+            leaf.attr('opacity', '.10');
+            group.attr('opacity', '.10');
             link
                 .attr("stroke-opacity", 0.1)
             d3.select(this)
@@ -163,8 +169,8 @@
 
         group.on('mouseover', function(e, data) {
             console.log(d3.select(this).node())
-            leaf.attr('opacity', '.30');
-            group.attr('opacity', '.30');
+            leaf.attr('opacity', '.10');
+            group.attr('opacity', '.10');
             link
                 .attr("stroke-opacity", 0.1)
             d3.select(this)
