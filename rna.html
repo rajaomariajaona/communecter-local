@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="height: 100%; width: 100%;">
+        <svg id="graph"></svg>
+    </div>
+    <script src="d3.v6.min.js"></script>
+    <script>
+        const n = [{
+                label: "00",
+                layer: 2
+            }, {
+                label: "11",
+                layer: 1
+            }, {
+                label: "22",
+                layer: 0
+            }, {
+                label: "03",
+                layer: 2
+            }, {
+                label: "14",
+                layer: 1
+
+            }, {
+                label: "11313",
+                layer: 1
+            }, {
+                label: "25",
+                layer: 0
+            }, {
+                label: "06",
+                layer: 2
+            }, {
+                label: "17",
+                layer: 1
+            }, {
+                label: "28",
+                layer: 0
+            },
+
+            {
+                label: "000",
+                layer: 1
+            }, {
+                label: "111",
+                layer: 1
+            }, {
+                label: "222",
+                layer: 1
+            }, {
+                label: "333",
+                layer: 1
+            }, {
+                label: "444",
+                layer: 1
+            }, {
+                label: "555",
+                layer: 1
+            }, {
+                label: "666",
+                layer: 1
+            }, {
+                label: "777",
+                layer: 1
+            }, {
+                label: "888",
+                layer: 1
+            },
+
+        ];
+        const totalLayer = 3;
+        run(n, totalLayer);
+
+        function run(nodes, nbLayer) {
+            const layersNode = {}
+            const links = []
+            var layers = new Set();
+            const counter = {}
+            const group = d3.group(nodes, d => {
+                layers.add(d.layer);
+                return d.layer;
+            })
+            layers = Array.from(layers).sort((a, b) => a - b);
+            let lastI = null;
+            for (const i of layers) {
+                if (counter[i]) {
+                    counter[i]++
+                } else {
+                    counter[i] = 1;
+                }
+                if (lastI == null) {
+                    lastI = i;
+                    continue;
+                }
+                for (const node1 of group.get(i)) {
+                    for (const node2 of group.get(lastI)) {
+                        const source = node2.label
+                        const target = node1.label
+                        links.push({
+                            source,
+                            target
+                        })
+                    }
+                }
+                lastI = i;
+            }
+            d3.select("svg").remove();
+            d3.select("body").append("svg");
+            const r = 30;
+            var h = window.innerHeight
+            var w = window.innerWidth
+            var svg = d3.select("svg").attr("viewBox", [0, 0, w, h]),
+                width = w,
+                height = h,
+                node,
+                link;
+            window.onresize = () => {
+                h = window.innerHeight;
+                w = window.innerWidth;
+                var svg = d3.select("svg").attr("viewBox", [0, 0, w, h]);
+            }
+
+
+            svg.append('defs').append('marker')
+                .attr('id', 'arrowhead', )
+                .attr('viewBox', '-0 -5 10 10', )
+                .attr('refX', 10, )
+                .attr('refY', 0, )
+                .attr('orient', 'auto', )
+                .attr('markerWidth', 13, )
+                .attr('markerHeight', 13, )
+                .attr('xoverflow', 'visible')
+                .append('svg:path')
+                .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+                .attr('fill', "#46aaab")
+                .style('stroke', 'none');
+            svg = svg.append("g");
+            const zoomEvent = d3.zoom().on("zoom", (e) => {
+                svg.attr("transform", e.transform)
+            })
+            d3.select("svg").call(zoomEvent)
+
+            var simulation = d3.forceSimulation()
+                .force("link", d3.forceLink().id(function(d) {
+                    return d.label;
+                }).distance(200).strength(1))
+                .force("charge", d3.forceManyBody().strength(-1000))
+                .force("x", d3.forceX(d => width * d.layer))
+                .force("y", d3.forceY((d, i) => height * counter[d.layer]--))
+                .force("center", d3.forceCenter(width / 2, height / 2));
+            update(links, nodes)
+
+            function update(links, nodes) {
+                link = svg.selectAll(".link")
+                    .data(links)
+                    .enter()
+                    .append("line")
+                    .attr("stroke", "#46aaab")
+                    .attr("fill", "none")
+                    .attr('marker-end', 'url(#arrowhead)')
+                    .attr('id', function(d, i) {
+                        return 'edgepath' + i
+                    })
+                edgelabels = svg.selectAll(".edgelabel")
+                    .data(links)
+                    .enter()
+                    .append('text')
+                    .style("pointer-events", "none")
+                    .attr('class', 'edgelabel', )
+                    .attr('id', function(d, i) {
+                        return 'edgelabel' + i;
+                    }, )
+                    .attr('font-size', 20)
+                    .attr('fill', 'black')
+
+                edgelabels.append('textPath')
+                    .attr('xlink:href', function(d, i) {
+                        return '#edgepath' + i
+                    })
+                    .style("font-size", "16px")
+                    .style("text-anchor", "middle")
+                    .style("pointer-events", "none")
+                    .attr("startOffset", Math.random() * 40 + 30 + "%")
+                    .text(function(d) {
+                        return d.weight
+                    });
+
+                node = svg.selectAll(".node")
+                    .data(nodes)
+                    .enter()
+                    .append("g")
+                    .attr("class", "node")
+
+                node.append("circle")
+                    .attr("r", r)
+                    .style("fill", "#466cab")
+
+                node.append("text")
+                    .attr("text-anchor", "middle")
+                    .attr("fill", "white")
+                    .text(function(d) {
+                        return d.label;
+                    });
+
+                simulation
+                    .nodes(nodes)
+                    .on("tick", ticked);
+
+                simulation.force("link")
+                    .links(links);
+            }
+
+            function ticked() {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+                node
+                    .attr("transform", function(d) {
+                        return "translate(" + d.x + ", " + d.y + ")";
+                    });
+
+                edgelabels.attr('transform', function(d) {
+                    if (d.target.x < d.source.x) {
+                        var bbox = this.getBBox();
+
+                        rx = bbox.x + bbox.width / 2;
+                        ry = bbox.y + bbox.height / 2;
+                        return 'rotate(180 ' + rx + ' ' + ry + ')';
+                    } else {
+                        return 'rotate(0)';
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>

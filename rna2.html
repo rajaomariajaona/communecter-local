@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <svg id="graph"></svg>
+    <script src="d3.v6.min.js"></script>
+    <script>
+        var h, w;
+        h = window.innerHeight;
+        w = window.innerWidth;
+        const color = d3.scaleOrdinal(d3.schemeCategory10)
+        var network = {
+            nodes: [{
+                id: 'i0',
+                nr: 1,
+                layer: 1
+            }, {
+                id: 'h0',
+                nr: 1,
+                layer: 2
+            }, {
+                id: 'h1',
+                nr: 2,
+                layer: 2
+            }, {
+                id: 'h2',
+                nr: 3,
+                layer: 2
+            }, {
+                id: 'h3',
+                nr: 4,
+                layer: 2
+            }, {
+                id: 'h4',
+                nr: 5,
+                layer: 2
+            }, {
+                id: 'h5',
+                nr: 6,
+                layer: 2
+            }, {
+                id: 'h6',
+                nr: 7,
+                layer: 2
+            }, {
+                id: 'h7',
+                nr: 8,
+                layer: 2
+            }, {
+                id: 'h8',
+                nr: 9,
+                layer: 2
+            }, {
+                id: 'h9',
+                nr: 10,
+                layer: 2
+            }, {
+                id: 'i1',
+                nr: 2,
+                layer: 1
+            }, {
+                id: 'h0',
+                nr: 1,
+                layer: 2
+            }, {
+                id: 'h1',
+                nr: 2,
+                layer: 2
+            }, {
+                id: 'h2',
+                nr: 3,
+                layer: 2
+            }, {
+                id: 'h3',
+                nr: 4,
+                layer: 2
+            }, {
+                id: 'h4',
+                nr: 5,
+                layer: 2
+            }, {
+                id: 'h5',
+                nr: 6,
+                layer: 2
+            }, {
+                id: 'h6',
+                nr: 7,
+                layer: 2
+            }, {
+                id: 'h7',
+                nr: 8,
+                layer: 2
+            }, {
+                id: 'h8',
+                nr: 9,
+                layer: 2
+            }, {
+                id: 'h9',
+                nr: 10,
+                layer: 2
+            }, {
+                id: 'o',
+                nr: 1,
+                layer: 3
+            }, ],
+            edges: [{
+                source: 'i0',
+                target: 'h0',
+                weight: 0
+            }, {
+                source: 'h0',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i0',
+                target: 'h1',
+                weight: 0
+            }, {
+                source: 'h1',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i0',
+                target: 'h2',
+                weight: 0
+            }, {
+                source: 'h2',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i0',
+                target: 'h3',
+                weight: 0
+            }, {
+                source: 'h3',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i0',
+                target: 'h4',
+                weight: 0
+            }, {
+                source: 'h4',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i0',
+                target: 'h5',
+                weight: 0
+            }, {
+                source: 'h5',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i0',
+                target: 'h6',
+                weight: 0
+            }, {
+                source: 'h6',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i0',
+                target: 'h7',
+                weight: 0
+            }, {
+                source: 'h7',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i0',
+                target: 'h8',
+                weight: 0
+            }, {
+                source: 'h8',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i0',
+                target: 'h9',
+                weight: 0
+            }, {
+                source: 'h9',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i1',
+                target: 'h0',
+                weight: 0
+            }, {
+                source: 'h0',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i1',
+                target: 'h1',
+                weight: 0
+            }, {
+                source: 'h1',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i1',
+                target: 'h2',
+                weight: 0
+            }, {
+                source: 'h2',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i1',
+                target: 'h3',
+                weight: 0
+            }, {
+                source: 'h3',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i1',
+                target: 'h4',
+                weight: 0
+            }, {
+                source: 'h4',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i1',
+                target: 'h5',
+                weight: 0
+            }, {
+                source: 'h5',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i1',
+                target: 'h6',
+                weight: 0
+            }, {
+                source: 'h6',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i1',
+                target: 'h7',
+                weight: 0
+            }, {
+                source: 'h7',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i1',
+                target: 'h8',
+                weight: 0
+            }, {
+                source: 'h8',
+                target: 'o',
+                weight: 0
+            }, {
+                source: 'i1',
+                target: 'h9',
+                weight: 0
+            }, {
+                source: 'h9',
+                target: 'o',
+                weight: 0
+            }, ]
+        };
+        draw(network)
+
+        function draw(network, width = w, height = h, thickness = 1.5) {
+            d3.select("svg").select("g").remove();
+            const svg = d3.select("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .classed('chart', true)
+                .append("g");
+            let pos = layout(network, width, height)
+
+            var link = svg
+                .selectAll(".line")
+                .data(network.edges)
+                .enter()
+                .append("line")
+                .attr("x1", d => pos(d.s).x)
+                .attr("y1", d => pos(d.s).y)
+                .attr("x2", d => pos(d.t).x)
+                .attr("y2", d => pos(d.t).y)
+                .attr("stroke-width", 1.5)
+                .attr("stroke", d => "#999")
+            var node = svg
+                .selectAll(".node")
+                .data(network.nodes)
+                .enter().append("circle")
+                .attr("id", (d => `n-${d.layer}-${d.id}`))
+                .attr("cx", d => pos(d.id).x)
+                .attr("cy", d => pos(d.id).y)
+                .attr("r", 25)
+                .attr("stroke", "black")
+                .attr("stroke-width", 2)
+                .attr("fill", d => color(d.layer));
+            var zoomEvent = d3.zoom().on("zoom", (e) => {
+                svg.attr("transform", e.transform)
+            })
+            d3.select("svg").call(zoomEvent)
+        }
+
+        window.onresize = () => {
+            h = window.innerHeight;
+            w = window.innerWidth;
+            var svg = d3.select("svg").attr("viewBox", [0, 0, w, h]);
+        }
+
+        function layout(net, width, height, margin = 50) {
+            // Determine the layer sizes
+            let lsz = net.nodes.reduce((a, i) => {
+                    a[i.layer] = a[i.layer] ? a[i.layer] + 1 : 1;
+                    return a
+                }, {})
+                // Set the horizontal scaler
+            let horz = d3.scaleLinear()
+                .domain([0, Math.max(...net.nodes.map(n => n.layer))])
+                .range([margin, width - margin]);
+
+
+            const pos = (id) => {
+                const node = net.nodes.find(e => e.id == id);
+                return {
+                    x: horz(node.layer),
+                    y: d3.scaleLinear().domain([0, lsz[node.layer] + 1]).range([0, height])(node.nr)
+                }
+            }
+
+            return pos
+        }
+    </script>
+</body>
+
+</html>

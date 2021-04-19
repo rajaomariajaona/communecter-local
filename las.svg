@@ -1,9 +1,8 @@
-<svg viewBox="0 0 80 20" xmlns="http://www.w3.org/2000/svg"
-     xmlns:xlink="http://www.w3.org/1999/xlink">
-
-  <symbol id="myDot" width="10" height="10" viewBox="0 0 2 2" preserveAspectRatio="none">
-    <circle cx="1" cy="1" r="1" />
-  </symbol>
-
-  <use xlink:href="#myDot" x="5"  y="10" style="opacity:1.0" />
+<svg viewBox="0 0 80 20">
+  <path id="lol" d="M 0 0 L 40 0" stroke="red"/>
+    <text>
+      <textPath xlink:href="#lol" >
+        LOL
+      </textPath>      
+    </text>
 </svg>
