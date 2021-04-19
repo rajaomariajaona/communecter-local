@@ -1,5 +1,5 @@
-<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="250" cy="250" r="200" fill="red" stroke="yellow"></circle>
-    <rect width="100" height="100" x="250" y="250" transform="translate(-50,-50)" fill="aliceblue" />
+<svg viewBox="0 0 1500 1500" xmlns="http://www.w3.org/2000/svg">
     
+    <path d="M 515.4681716197258 919.334695810381 m -111.66530418961916 0 a 111.66530418961916 111.66530418961916 0 1 0 223.33060837923833 0 a 111.66530418961916 111.66530418961916 0 1 0 -223.33060837923833 0" />    
+    <circle cx=215.4681716197258 cy=919.334695810381 r=111.66530418961916 fill="red"/>
 </svg>
