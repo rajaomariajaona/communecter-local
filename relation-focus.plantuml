@@ -1,0 +1,8 @@
+@startuml
+[*] --> FocusedGroup: OnClick sur un groupe
+FocusedGroup --> NoFocusedGroup : OnClick sur vide 
+NoFocusedGroup --> FocusedGroup : OnClick sur un groupe
+
+FocusedGroup : On stock le groupe courant dans une variable
+FocusedGroup : 
+@enduml

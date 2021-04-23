@@ -1,0 +1,8 @@
+@startuml
+(*) -up-> "click groupe"
+-right-> "focus groupe"
+-right-> "limiter le zoom dans le group"
+--> "cacher tous les autres groupes et nodes"
+--> "ajouter un evenement sur #content pour revenir à l'etat unfocus"
+-left-> (*)
+@enduml

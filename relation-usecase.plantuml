@@ -1,0 +1,6 @@
+@startuml
+    actor Utilisateur
+    Utilisateur -left-> (Survoler les nodes et voir les groupes auquels il est liée)
+    Utilisateur --> (Se concentrer sur un groupe specifique)
+    Utilisateur -up-> (Naviguer dans le view port Pan et Zoom)
+@enduml

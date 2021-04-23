@@ -1,0 +1,8 @@
+@startuml
+(*) -up-> "click #content"
+-right-> "unfocus groupe"
+-right-> "delimiter le zoom et zoom fit to width"
+--> "show tous les autres groupes et nodes"
+--> "effacer un evenement sur #content pour revenir à l'etat unfocus"
+-left-> (*)
+@enduml
