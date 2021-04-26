@@ -1,0 +1,33 @@
+id,value,color
+Comptences,
+Comptences.Front-End,
+Comptences.Front-End.Design,1,#808080
+Comptences.Front-End.Ps,0.5,#2E2575
+Comptences.Front-End.HTML & CSS,3,#E54F24
+Comptences.Front-End.SVG,1.5,#FF9900
+Comptences.Front-End.Bootstrap,3,#563B7E
+Comptences.Front-End.JavaScript World,
+Comptences.Front-End.JavaScript World.JavaScript,3,#D6BA33
+Comptences.Front-End.JavaScript World.JQuery,3,#1169AE
+Comptences.Front-End.JavaScript World.D3 js,2.5,#F6854D
+Comptences.Back-End,
+Comptences.Back-End.PHP,1.5,#617CBE
+Comptences.Back-End.C++,1,#0073AD
+Comptences.Back-End.SQL,1.5,#E58E00
+Comptences.Back-End.Java World,
+Comptences.Back-End.Java World.Java SE,3,#EB2C2F
+Comptences.Back-End.Java World.JSP,2,#EB2C2F
+Comptences.Back-End.Java World.Hibernate,2.5,#59666C
+Comptences.Back-End.Java World.Spring MVC / Boot,3,#6DB33F
+Comptences.Back-End.Java World.Spring Data,2.5,#6DB33F
+Comptences.Back-End.Java World.Spring Security,2.5,#5FA134
+Comptences.Back-End.Java World.Thymeleaf,3,#005F0F
+Comptences.Databases,
+Comptences.Databases.MySQL,2.5,#00618A
+Comptences.SysAdmin,
+Comptences.SysAdmin.VPS & SharedHost,2,#808080
+Comptences.SysAdmin.Linux,2.5,#040404
+Comptences.SysAdmin.Apache & Tomcat,2,#CA212F
+Comptences.CMS,
+Comptences.CMS.Wordpress,1.5,#00A0D2
+Comptences.CMS.Drupal,1.5,#0678BE

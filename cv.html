@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Nunito';
+            color: #455a64;
+        }
+        
+        .overflow {
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .menu-cv {
+            transform-box: fill-box;
+            transform-origin: center;
+            transition: ease-out 0.2s;
+        }
+    </style>
+    <style>
+        .link {
+            fill: none;
+            stroke: #555;
+            stroke-opacity: 0.4;
+            stroke-width: 1px;
+        }
+        
+        text {
+            font-family: "Arial Black", Gadget, sans-serif;
+            fill: black;
+            font-weight: bold;
+            font-size: 14px
+        }
+        
+        .xAxis .tick text {
+            fill: black;
+        }
+        
+        .grid .tick line {
+            stroke: grey;
+            stroke-dasharray: 5, 10;
+            opacity: 0.7;
+        }
+        
+        .grid path {
+            stroke-width: 0;
+        }
+        
+        .node circle {
+            fill: #999;
+        }
+        
+        .node--internal circle {
+            fill: #555;
+        }
+        
+        .node--internal text {
+            font-size: 16px;
+            text-shadow: 0 2px 0 #fff, 0 -2px 0 #fff, 2px 0 0 #fff, -2px 0 0 #fff;
+        }
+        
+        .node--leaf text {
+            fill: white;
+        }
+        
+        .ballG text {
+            fill: white;
+        }
+        
+        .shadow {
+            -webkit-filter: drop-shadow( -1.5px -1.5px 1.5px #000);
+            filter: drop-shadow( -1.5px -1.5px 1.5px #000);
+        }
+    </style>
+    <style>
+        #graph-container {
+            height: 800px;
+            width: 800px;
+            position: relative;
+        }
+        
+        #btn-retour {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="graph-container">
+        <svg id="graph">
+        </svg>
+        <button id="btn-retour" style="display:none;" class="btn">Retour</button>
+    </div>
+    <script src="d3.v6.min.js"></script>
+    <script src="menu-home.js"></script>
+    <script>
+        menu.on("mouseover", function(e) {
+            d3.select(this).style("transform", "scale(1.1)")
+        })
+        menu.on("mouseout", function(e) {
+            d3.select(this).style("transform", "scale(1)")
+        })
+        menu.on("click", (e, d) => selectMenu[d.menu](e, d))
+
+
+
+        const selectMenu = {
+            "Mes Competences": (e, d) => {
+                console.log(d);
+                zoomTo(d);
+            },
+            "Me Contacter": (e, d) => {
+                console.log(d);
+                zoomTo(d);
+            },
+            "Mon Parcours": (e, d) => {
+                console.log(d);
+                zoomTo(d);
+            },
+            "Mes Projets": (e, d) => {
+                console.log(d);
+                zoomTo(d);
+            },
+            "Mes Collaborateurs": (e, d) => {
+                console.log(d);
+                zoomTo(d);
+            },
+        }
+
+        function zoomTo(d) {
+            const toZoom = d3.select("#" + d.id)
+            const bnd = toZoom.node().getBBox();
+            console.log(bnd)
+            const x0 = bnd.x,
+                y0 = bnd.y,
+                x1 = x0 + width,
+                y1 = y0 + height;
+            svg.transition().duration(750).call(
+                zoom.transform,
+                d3.zoomIdentity
+                .translate(width / 2, height / 2)
+                .scale(Math.min(8, 1 / Math.max((x1 - x0) / width, (y1 - y0) / height)))
+                .translate(-(x0 + x1) / 2, -(y0 + y1) / 2),
+            );
+            d3.select("#btn-retour").style("display", "block")
+        }
+
+        function reset(params) {
+            svg.transition().duration(750).call(
+                zoom.transform,
+                d3.zoomIdentity,
+                d3.zoomTransform(svg.node()).invert([width / 2, height / 2])
+            );
+            d3.select("#btn-retour").style("display", "none")
+        }
+
+        const g_menu_content = svg.append("g")
+            .attr("id", "menu-content")
+            .selectAll("g")
+            .data(menuData)
+            .enter()
+            .append("g")
+            .attr("id", d => d.id)
+        const svg_menu_content = g_menu_content
+            .append("svg")
+            .attr("x", d => d.dx)
+            .attr("y", d => d.dy)
+            .attr("width", width)
+            .attr("height", height)
+        d3.select("#btn-retour").on("click", (e) => {
+            reset()
+        });
+    </script>
+    <script>
+        function dendo(h) {
+            const height = h - 30,
+                width = height;
+            const svg = d3.select("g#menu-competence").select("svg")
+            const g = svg
+                .attr("height", height)
+                .attr("width", width)
+                .append("g")
+                .attr("transform", "translate(40,0)");
+
+            var experienceName = ["", "Basic 1.0", "Alright 2.0", "Handy 3.0", "Expert 4.0", "Guru 5.0"];
+            var formatSkillPoints = function(d) {
+                return experienceName[d % 6];
+            }
+            var xScale = d3.scaleLinear()
+                .domain([0, 5])
+                .range([0, 400]);
+
+            var xAxis = d3.axisTop()
+                .scale(xScale)
+                .ticks(5)
+                .tickFormat(formatSkillPoints);
+
+            // Setting up a way to handle the data
+            var tree = d3.cluster() // This D3 API method setup the Dendrogram datum position.
+                .size([height, width - 460]) // Total width - bar chart width = Dendrogram chart width
+                .separation(function separate(a, b) {
+                    return a.parent == b.parent // 2 levels tree grouping for category
+                        ||
+                        a.parent.parent == b.parent ||
+                        a.parent == b.parent.parent ? 0.4 : 0.8;
+                });
+
+            var stratify = d3.stratify() // This D3 API method gives cvs file flat data array dimensions.
+                .parentId(function(d) {
+                    return d.id.substring(0, d.id.lastIndexOf("."));
+                });
+
+            d3.csv("skills-dendo.csv", row).then((data) => {
+                var root = stratify(data);
+                tree(root);
+                // Draw every datum a line connecting to its parent.
+                var link = g.selectAll(".link")
+                    .data(root.descendants().slice(1))
+                    .enter().append("path")
+                    .attr("class", "link")
+                    .attr("d", function(d) {
+                        return "M" + d.y + "," + d.x +
+                            "C" + (d.parent.y + 100) + "," + d.x +
+                            " " + (d.parent.y + 100) + "," + d.parent.x +
+                            " " + d.parent.y + "," + d.parent.x;
+                    });
+
+                // Setup position for every datum; Applying different css classes to parents and leafs.
+                var node = g.selectAll(".node")
+                    .data(root.descendants())
+                    .enter().append("g")
+                    .attr("class", function(d) {
+                        return "node" + (d.children ? " node--internal" : " node--leaf");
+                    })
+                    .attr("transform", function(d) {
+                        return "translate(" + d.y + "," + d.x + ")";
+                    });
+
+                // Draw every datum a small circle.
+                node.append("circle")
+                    .attr("r", 4);
+
+                // Setup G for every leaf datum.
+                var leafNodeG = g.selectAll(".node--leaf")
+                    .append("g")
+                    .attr("class", "node--leaf-g")
+                    .attr("transform", "translate(" + 8 + "," + -13 + ")");
+
+                leafNodeG.append("rect")
+                    .attr("class", "shadow")
+                    .style("fill", function(d) {
+                        return d.data.color;
+                    })
+                    .attr("width", 2)
+                    .attr("height", 30)
+                    .attr("rx", 2)
+                    .attr("ry", 2)
+                    .transition()
+                    .duration(800)
+                    .attr("width", function(d) {
+                        return xScale(d.data.value);
+                    });
+
+                leafNodeG.append("text")
+                    .attr("dy", 19.5)
+                    .attr("x", 8)
+                    .style("text-anchor", "start")
+                    .text(function(d) {
+                        return d.data.id.substring(d.data.id.lastIndexOf(".") + 1);
+                    });
+
+                // Write down text for every parent datum
+                var internalNode = g.selectAll(".node--internal");
+                internalNode.append("text")
+                    .attr("y", -10)
+                    .style("text-anchor", "middle")
+                    .text(function(d) {
+                        return d.data.id.substring(d.data.id.lastIndexOf(".") + 1);
+                    });
+
+                // Attach axis on top of the first leaf datum.
+                var firstEndNode = g.select(".node--leaf");
+                firstEndNode.insert("g")
+                    .attr("class", "xAxis")
+                    .attr("transform", "translate(" + 7 + "," + -14 + ")")
+                    .call(xAxis);
+
+                // tick mark for x-axis
+                firstEndNode.insert("g")
+                    .attr("class", "grid")
+                    .attr("transform", "translate(7," + (height - 15) + ")")
+                    .call(d3.axisBottom()
+                        .scale(xScale)
+                        .ticks(5)
+                        .tickSize(-height, 0, 0)
+                        .tickFormat("")
+                    );
+
+                // Emphasize the y-axis baseline.
+                svg.selectAll(".grid").select("line")
+                    .style("stroke-dasharray", "20,1")
+                    .style("stroke", "black");
+
+                // The moving ball
+                var ballG = svg.insert("g")
+                    .attr("class", "ballG")
+                    .attr("transform", "translate(" + 1100 + "," + height / 2 + ")");
+                ballG.insert("circle")
+                    .attr("class", "shadow")
+                    .style("fill", "steelblue")
+                    .attr("r", 5);
+                ballG.insert("text")
+                    .style("text-anchor", "middle")
+                    .attr("dy", 5)
+                    .text("0.0");
+
+                // Animation functions for mouse on and off events.
+                d3.selectAll(".node--leaf-g")
+                    .on("mouseover", handleMouseOver)
+                    .on("mouseout", handleMouseOut);
+
+                function handleMouseOver(d) {
+                    var leafG = d3.select(this);
+
+                    leafG.select("rect")
+                        .attr("stroke", "#4D4D4D")
+                        .attr("stroke-width", "2");
+
+                    ballG.each(console.log)
+                    var ballGMovement = ballG.transition()
+                        .duration(400)
+                        .attr("transform", "translate(" + (d.y +
+                                xScale(d.data.value) + 90) + "," +
+                            (d.x + 1.5) + ")");
+
+                    ballGMovement.select("circle")
+                        .style("fill", d.data.color)
+                        .attr("r", 18);
+
+                    ballGMovement.select("text")
+                        .delay(300)
+                        .text(Number(d.data.value).toFixed(1));
+                }
+
+                function handleMouseOut() {
+                    var leafG = d3.select(this);
+
+                    leafG.select("rect")
+                        .attr("stroke-width", "0");
+                }
+
+            }).catch((error) => console.log(error))
+
+            function row(d) {
+                return {
+                    id: d.id,
+                    value: +d.value,
+                    color: d.color ? d.color : ""
+                };
+            }
+        }
+        dendo(height);
+    </script>
+</body>
+
+</html>
