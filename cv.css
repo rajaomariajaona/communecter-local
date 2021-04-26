@@ -1,0 +1,32 @@
+@import "dendo.css";
+* {
+    font-family: "Nunito";
+    color: #455a64;
+}
+
+.overflow {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.menu-cv {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: ease-out 0.2s;
+    cursor: pointer;
+}
+
+#graph-container {
+    height: 100vh;
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+}
+
+#btn-retour {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}

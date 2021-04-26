@@ -10,96 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
-    <style>
-        * {
-            font-family: 'Nunito';
-            color: #455a64;
-        }
-        
-        .overflow {
-            display: -webkit-box;
-            -webkit-line-clamp: 4;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        
-        .menu-cv {
-            transform-box: fill-box;
-            transform-origin: center;
-            transition: ease-out 0.2s;
-            cursor: pointer;
-        }
-    </style>
-    <style>
-        .link {
-            fill: none;
-            stroke: #555;
-            stroke-opacity: 0.4;
-            stroke-width: 1px;
-        }
-        
-        text {
-            font-family: "Arial Black", Gadget, sans-serif;
-            fill: black;
-            font-weight: bold;
-            font-size: 14px
-        }
-        
-        .xAxis .tick text {
-            fill: black;
-        }
-        
-        .grid .tick line {
-            stroke: grey;
-            stroke-dasharray: 5, 10;
-            opacity: 0.7;
-        }
-        
-        .grid path {
-            stroke-width: 0;
-        }
-        
-        .node circle {
-            fill: #999;
-        }
-        
-        .node--internal circle {
-            fill: #555;
-        }
-        
-        .node--internal text {
-            font-size: 16px;
-            text-shadow: 0 2px 0 #fff, 0 -2px 0 #fff, 2px 0 0 #fff, -2px 0 0 #fff;
-        }
-        
-        .node--leaf text {
-            fill: white;
-        }
-        
-        .ballG text {
-            fill: white;
-        }
-        
-        .shadow {
-            -webkit-filter: drop-shadow( -1.5px -1.5px 1.5px #000);
-            filter: drop-shadow( -1.5px -1.5px 1.5px #000);
-        }
-    </style>
-    <style>
-        #graph-container {
-            height: 100vh;
-            overflow: hidden;
-            width: 100%;
-            position: relative;
-        }
-        
-        #btn-retour {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="cv.css">
 </head>
 
 <body>
@@ -111,6 +22,7 @@
     </div>
     <script src="d3.v6.min.js"></script>
     <script src="menu-home.js"></script>
+    <script src="data-dendo.js"></script>
     <script src="dendo-cv.js"></script>
     <script>
         dendo(width, height, d3.select("g#menu-competence").select("svg").select("g"));
