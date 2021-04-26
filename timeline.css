@@ -123,6 +123,11 @@
     color: inherit;
 }
 
+.timeline-heading {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
 .timeline-body>p,
 .timeline-body>ul {
     padding: 20px;
