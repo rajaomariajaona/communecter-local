@@ -1,27 +1,20 @@
+function generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
 const width = 800,
     height = width;
-const homeRadius = 200;
-const menuRadius = 70;
+const homeRadius = 130;
+const menuRadius = 100;
 const homeMargin = 20;
 const imageSize = 100;
 const dxFromCircleMenu = 1000,
     dyFromCircleMenu = dxFromCircleMenu;
 
 const menuData = [{
-    id: "menu-competence",
-    menu: "Mes Competences"
+    domaine: "Sciences Sociales",
 }, {
-    id: "menu-contact",
-    menu: "Me Contacter"
-}, {
-    id: "menu-parcours",
-    menu: "Mon Parcours"
-}, {
-    id: "menu-projet",
-    menu: "Mes Projets"
-}, {
-    id: "menu-collaborateur",
-    menu: "Mes Collaborateurs"
+    domaine: "Sciences technologiques",
 }, ];
 
 const root_svg = d3
@@ -39,12 +32,7 @@ const zoom = d3
 root_svg.call(zoom);
 const cx = width / 2;
 const cy = height / 2;
-const home_group = svg
-    .append("svg")
-    .attr("id", "home-svg")
-    .append("g")
-    .attr("id", "home-group");
-
+const home_group = svg.append("svg").attr("id", "home-svg").append("g");
 const home = home_group.append("g");
 const g = home_group.append("g");
 const home_circle = home
@@ -62,34 +50,26 @@ const home_svg = home
     .attr("width", (d) => homeRadius * Math.cos(Math.PI / 4) * 2)
     .attr("height", (d) => homeRadius * Math.sin(Math.PI / 4) * 2);
 const home_g = home_svg.append("g");
-const home_image = home_g
-    .append("image")
-    .attr("xlink:href", "me2.jpg")
-    .attr("width", imageSize)
-    .attr("height", imageSize)
-    .attr("x", (d) => homeRadius * Math.cos(Math.PI / 4))
-    .attr("transform", "translate(-50,-10)");
 const home_foreign = home_g
     .append("foreignObject")
     .attr("x", 0)
-    .attr("y", imageSize + 20)
+    .attr("y", 0)
     .attr("width", homeRadius * Math.cos(Math.PI / 4) * 2)
-    .attr("height", homeRadius * Math.sin(Math.PI / 4) * 2 - imageSize - 40);
-const home_text = home_foreign
+    .attr("height", homeRadius * Math.sin(Math.PI / 4) * 2);
+const home_body = home_foreign
     .append("xhtml:div")
-    .style("text-align", "justify")
+    .style("postion", "relative")
+    .style("height", "100%")
+    .classed("overflow", true);
+const home_title = home_body
+    .append("xhmtl:div")
+    .style("position", "absolute")
+    .style("top", "50%")
+    .style("left", "50%")
     .style("color", "white")
-    .style("height", "80px")
-    .classed("overflow", true)
-    .text(`Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas tenetur adipisci nihil inventore, cumque illo dolor explicabo odio nisi aut rerum, laborum commodi doloremque doloribus, eveniet excepturi minus neque magni.
-    Neque minus quas sed! Exercitationem, ab. Quod ipsum molestiae earum error, iusto inventore optio eius cum tempora nobis officiis commodi voluptate reprehenderit dolore doloribus neque asperiores nesciunt rerum voluptatum ratione!`);
-home_foreign
-    .append("xhtml:div")
-    .style("padding", "10px")
-    .style("text-align", "center")
-    .append("xhtml:button")
-    .classed("btn", true)
-    .text("Voir plus");
+    .style("font-size", "2.5rem")
+    .style("transform", "translate(-50%,-50%)")
+    .text(`Domaines`);
 const position = d3
     .scaleLinear()
     .domain([0, menuData.length])
@@ -100,7 +80,7 @@ const menu = g
     .data(menuData)
     .enter()
     .append("g")
-    .classed("menu-cv", true);
+    .classed("menu-home", true);
 menu.each((d, i) => {
     d.cos = Math.cos(position(i));
     d.sin = Math.sin(position(i));
@@ -111,19 +91,23 @@ menu.each((d, i) => {
     d.dy =
         cy - (homeRadius + menuRadius + homeMargin + height) * d.sin - height / 2;
 });
+
 const menu_circle = menu
-    .append("circle")
+    .append("foreignObject")
     .classed("menu-circle", true)
-    .attr("cx", (d, i) => d.cx)
-    .attr("cy", (d, i) => d.cy)
-    .attr("r", menuRadius)
-    .attr("fill", (d, i) => color(i));
-const menu_texts = menu
-    .append("text")
-    .attr("text-anchor", "middle")
-    .attr("x", (d, i) => d.cx)
-    .attr("y", (d, i) => d.cy)
-    .text((d) => d.menu);
+    .attr("x", (d, i) => d.cx - menuRadius)
+    .attr("y", (d, i) => d.cy - menuRadius)
+    .attr("width", (d, i) => menuRadius * 2)
+    .attr("height", (d, i) => menuRadius * 2)
+    .append("xhtml:div")
+    .classed("circle", true)
+    .append("xhtml:div")
+    .classed("circle-inner", true)
+    .append("xhtml:div")
+    .classed("circle-wrapper", true)
+    .append("xhtml:div")
+    .classed("circle-content", true)
+    .text((d) => d.domaine);
 
 menu.on("mouseover", function(e) {
     d3.select(this).style("transform", "scale(1.1)");
@@ -131,30 +115,7 @@ menu.on("mouseover", function(e) {
 menu.on("mouseout", function(e) {
     d3.select(this).style("transform", "scale(1)");
 });
-menu.on("click", (e, d) => selectMenu[d.menu](e, d));
-
-const selectMenu = {
-    "Mes Competences": (e, d) => {
-        console.log(d);
-        zoomTo(d);
-    },
-    "Me Contacter": (e, d) => {
-        console.log(d);
-        zoomTo(d);
-    },
-    "Mon Parcours": (e, d) => {
-        console.log(d);
-        zoomTo(d);
-    },
-    "Mes Projets": (e, d) => {
-        console.log(d);
-        zoomTo(d);
-    },
-    "Mes Collaborateurs": (e, d) => {
-        console.log(d);
-        zoomTo(d);
-    },
-};
+menu.on("click", (e, d) => zoomTo(d));
 
 function parseTransform(a) {
     var b = {};
@@ -228,13 +189,7 @@ function reset() {
                 d3.zoomIdentity.translate(...t.translate).scale(...t.scale)
             );
     }
-    svg
-        .transition()
-        .duration(750)
-        .call(
-            zoom.transform,
-            d3.zoomIdentity
-        );
+    svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
     d3.select("#btn-retour").style("display", "none");
 }
 
@@ -245,14 +200,14 @@ const g_menu_content = svg
     .data(menuData)
     .enter()
     .append("g")
-    .attr("id", (d) => d.id);
+    .attr("id", (d) => (d.id = generateId()));
 const svg_menu_content = g_menu_content
     .append("svg")
     .attr("x", (d) => d.dx)
     .attr("y", (d) => d.dy)
     .attr("width", width)
     .attr("height", height)
-    .append("g")
+    .append("g");
 d3.select("#btn-retour").on("click", (e) => {
     reset();
 });

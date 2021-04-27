@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CV</title>
+    <title>Formation</title>
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css" integrity="sha512-+L4yy6FRcDGbXJ9mPG8MT/3UCDzwR9gPeyFNMCtInsol++5m3bk2bXWKdZjvybmohrAsn3Ua5x8gfLnbE1YkOg==" crossorigin="anonymous" />
     <link rel="stylesheet" href="timeline.css">
@@ -17,7 +17,6 @@
 </head>
 
 <body>
-
     <div id="graph-container">
         <svg id="graph">
         </svg>
@@ -25,15 +24,6 @@
     </div>
     <script src="d3.v6.min.js"></script>
     <script src="menu-home.js"></script>
-    <script src="data-dendo.js"></script>
-    <script src="dendo-cv.js"></script>
-    <script src="timeline.js"></script>
-    <script src="tidy.js"></script>
-    <script>
-        dendo(width, height, d3.select("g#menu-competence").select("svg").select("g"));
-        tidy(width, height, d3.select("g#menu-projet").select("svg").attr("viewBox", [-width / 2, -height / 2, width, height]).select("g"))
-        timeline();
-    </script>
 </body>
 
 </html>
