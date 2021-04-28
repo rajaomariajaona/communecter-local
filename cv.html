@@ -29,10 +29,12 @@
     <script src="dendo-cv.js"></script>
     <script src="timeline.js"></script>
     <script src="tidy.js"></script>
+    <script src="mindmap-data.js"></script>
+    <script src="mindmap.js"></script>
     <script>
         dendo(width, height, d3.select("g#menu-competence").select("svg").select("g"));
-        tidy(width, height, d3.select("g#menu-projet").select("svg").attr("viewBox", [-width / 2, -height / 2, width, height]).select("g"))
         timeline();
+        mindmap(width, height, d3.select("g#menu-projet").select("svg").select("g"))
     </script>
 </body>
 

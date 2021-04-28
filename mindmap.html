@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<style>
+    .node {
+        cursor: pointer;
+    }
+    
+    .node text {
+        font: 12px sans-serif;
+    }
+</style>
+
+<body>
+
+    <svg id="graph">
+
+    </svg>
+
+    <!-- load the d3.js library -->
+    <script src="d3.v6.min.js"></script>
+    <script src="formation-data.js"></script>
+    <script src="mindmap.js"></script>
+    <script>
+        mindmap(950, 900)
+    </script>
+</body>

@@ -253,6 +253,7 @@ const svg_menu_content = g_menu_content
     .attr("width", width)
     .attr("height", height)
     .append("g")
+    .style("transform-box", "fill-box")
 d3.select("#btn-retour").on("click", (e) => {
     reset();
 });

@@ -30,3 +30,11 @@
     top: 20px;
     right: 20px;
 }
+
+.node {
+    cursor: pointer;
+}
+
+.node text {
+    font: 12px sans-serif;
+}
