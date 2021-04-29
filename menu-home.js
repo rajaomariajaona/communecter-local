@@ -28,6 +28,8 @@ const root_svg = d3
     .select("svg#graph")
     // .attr("width", width)
     // .attr("height", height)
+    .attr("preserveAspectRatio", "xMidYMid slice")
+    .style("max-height", "100vh")
     .attr("viewBox", [0, 0, width, height]);
 const svg = root_svg.append("g");
 const zoom = d3

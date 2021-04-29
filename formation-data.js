@@ -1,7 +1,7 @@
 var treeData = {
     name: "Sciences Sociales",
     children: [{
-        name: "RPM",
+        name: "Relation Publique et Multimedia",
         children: [{
             name: "Licence",
             children: [{
