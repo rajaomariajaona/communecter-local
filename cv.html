@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CV</title>
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css" integrity="sha512-+L4yy6FRcDGbXJ9mPG8MT/3UCDzwR9gPeyFNMCtInsol++5m3bk2bXWKdZjvybmohrAsn3Ua5x8gfLnbE1YkOg==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
     <link rel="stylesheet" href="timeline.css">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600&display=swap" rel="stylesheet">
@@ -31,10 +31,15 @@
     <script src="tidy.js"></script>
     <script src="mindmap-data.js"></script>
     <script src="mindmap.js"></script>
+    <script src="contact.js"></script>
     <script>
         dendo(width, height, d3.select("g#menu-competence").select("svg").select("g"));
         timeline();
-        mindmap(width, height, d3.select("g#menu-projet").select("svg").select("g"))
+        mindmap(width, height, d3.select("g#menu-projet").select("svg").select("g"));
+        contact(width, height, d3.select("g#menu-contact").select("svg").attr("height", height)
+            .attr("width", width)
+            .attr("viewBox", [-width / 2, -height / 2, width, height])
+            .select("g"))
     </script>
 
 </body>

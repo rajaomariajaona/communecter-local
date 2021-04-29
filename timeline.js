@@ -48,7 +48,7 @@ function timeline() {
         .classed("timeline-badge primary", true)
         .append("xhtml:a")
         .append("xhtml:i")
-        .attr("class", "fa fa-dot-circle-o")
+        .attr("class", "fa fa-dot-circle")
         .style("color", (d, i) => (d.color = color(i)));
     const panel_timeline = li_timeline
         .append("xhtml:div")

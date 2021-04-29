@@ -19,10 +19,7 @@ const menuData = [{
 }, {
     id: "menu-projet",
     menu: "Mes Projets"
-}, {
-    id: "menu-collaborateur",
-    menu: "Mes Collaborateurs"
-}, ];
+}];
 
 const root_svg = d3
     .select("svg#graph")
