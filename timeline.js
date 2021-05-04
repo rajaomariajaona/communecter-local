@@ -35,34 +35,34 @@ function timeline() {
     const container = foreign.append("xhtml:div").classed("container", true);
     const ul_timeline = container
         .append("xhtml:ul")
-        .classed("timeline", true)
+        .classed("timeline-graph", true)
         .selectAll("li")
         .data(dataTimeline)
         .enter();
     const li_timeline = ul_timeline
         .append("xhtml:li")
-        .classed("timeline-inverted", (d, i) => i % 2 == 1);
+        .classed("timeline-graph-inverted", (d, i) => i % 2 == 1);
 
     li_timeline
         .append("xhtml:div")
-        .classed("timeline-badge primary", true)
+        .classed("timeline-graph-badge primary", true)
         .append("xhtml:a")
         .append("xhtml:i")
         .attr("class", "fa fa-dot-circle")
         .style("color", (d, i) => (d.color = color(i)));
     const panel_timeline = li_timeline
         .append("xhtml:div")
-        .classed("timeline-panel", true);
+        .classed("timeline-graph-panel", true);
     const head_timeline = panel_timeline
         .append("xhtml:div")
-        .classed("timeline-heading", true);
+        .classed("timeline-graph-heading", true);
     head_timeline
         .append("xhtml:h3")
         .style("color", d => d.color)
         .text((d) => d.title);
     const body_timeline = panel_timeline
         .append("xhtml:div")
-        .classed("timeline-body", true)
+        .classed("timeline-graph-body", true)
         .append("xhtml:p")
         .text((d) => d.description);
 }
