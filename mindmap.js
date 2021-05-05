@@ -1,48 +1,4 @@
 function mindmap(w, h, svgNode = null) {
-    function splitWords(text) {
-        const words = text.split(/\s+/g); // To hyphenate: /\s+|(?<=-)/
-        if (!words[words.length - 1]) words.pop();
-        if (!words[0]) words.shift();
-        return words;
-    }
-
-    function measureWidth(text) {
-        const context = document.createElement("canvas").getContext("2d");
-        context.font = "12px sans-serif";
-        const textMetrics = context.measureText(text);
-        const res =
-            Math.abs(textMetrics.actualBoundingBoxLeft) +
-            Math.abs(textMetrics.actualBoundingBoxRight);
-        return res;
-    }
-
-    function splitLines(t, width) {
-        let res = [];
-        if (measureWidth(t) < width) {
-            return [{
-                text: t
-            }];
-        } else {
-            const words = splitWords(t);
-            let text = "";
-            for (let i = 0; i < words.length; i++) {
-                const element = words[i];
-                const tmp = text + " " + element;
-                if (measureWidth(tmp) > width) {
-                    res.push({
-                        text
-                    });
-                    text = element;
-                } else {
-                    text = tmp;
-                }
-            }
-            res.push({
-                text
-            })
-            return res;
-        }
-    }
     const nodePadding = {
         x: 10,
         y: 5,
@@ -104,70 +60,64 @@ function mindmap(w, h, svgNode = null) {
         var nodes = treeData.descendants(),
             links = treeData.descendants().slice(1);
         var node = svg.selectAll("g.node").data(nodes, (d) => d.id || (d.id = ++i));
-        var node_g = node
-            .enter()
-            .append("g")
-            .attr("class", "node")
-            .attr(
-                "transform",
-                (d) => "translate(" + source.y0 + "," + source.x0 + ")"
-            )
-            .on("click", click);
-
-        const texts = node_g
-            .append("text")
-            .selectAll("tspan")
-            .data(d => d.text = splitLines(d.data.name, 160))
-            .enter()
-            .append("tspan")
-            .each((d, i) => d.max = i)
-            .attr("y", (d, i, n) => {
-                const max = d3.select(n[i].parentNode).datum().text.length - 1;
-                console.log(max)
-                const yScale = d3.scaleLinear().domain([0, max]).range([-(max / 2), (max / 2)])
-                return yScale(i) * 15;
-            })
-            .attr("x", nodePadding.x)
-            .text((d) => d.text)
-            .attr("text-anchor", "start")
-            .style("fill", "#455a64");
-
-        node_g.each((d, i, n) => {
-            const {
-                width,
-                height,
-                x,
-                y
-            } = n[i].getBBox();
-            d3.select(n[i])
-                .insert("rect", "text")
-                .attr("x", x - nodePadding.x)
-                .attr("y", y - nodePadding.y)
-                .attr("width", (d) => (d.w = width + nodePadding.x * 2))
-                .attr("height", (d) => (d.h = height + nodePadding.y * 2))
-                .attr("rx", 10)
-                .attr("fill", (d) => color(d.depth));
+        nodes.forEach(function(d) {
+            d.x0 = d.x;
+            d.y0 = d.y;
         });
 
-        var nodeUpdate = node_g.merge(node);
+        var node_g;
+        node.join(
+                enter => {
+                    node_g = enter.append("g")
+                        .attr("class", "node")
+                        .attr(
+                            "transform",
+                            (d) => "translate(" + source.y0 + "," + source.x0 + ")"
+                        )
+                        .on("click", click);
+                    const texts = node_g
+                        .append("text")
+                        .text(d => d.data.name)
+                        .attr("x", nodePadding.x)
+                        .attr("text-anchor", "start")
+                        .style("fill", "#455a64");
+                    node_g.each((d, i, n) => {
+                        const {
+                            width,
+                            height,
+                            x,
+                            y
+                        } = n[i].getBBox();
+                        d3.select(n[i])
+                            .insert("rect", "text")
+                            .attr("x", x - nodePadding.x)
+                            .attr("y", y - nodePadding.y)
+                            .attr("width", (d) => (d.w = width + nodePadding.x * 2))
+                            .attr("height", (d) => (d.h = height + nodePadding.y * 2))
+                            .attr("rx", 10)
+                            .attr("fill", (d) => color(d.depth));
+                    });
+                },
+                update => {
+                    update.transition()
+                        .duration(duration)
+                        .attr("transform", function(d) {
+                            return "translate(" + d.y + "," + d.x + ")";
+                        });
+                },
+                exit => {
+                    exit.exit()
+                        .transition()
+                        .duration(duration)
+                        .attr("transform", function(d) {
+                            return "translate(" + source.y + "," + source.x + ")";
+                        })
+                        .remove();
 
-        nodeUpdate
-            .transition()
-            .duration(duration)
-            .attr("transform", function(d) {
-                return "translate(" + d.y + "," + d.x + ")";
-            });
-
-        var nodeExit = node
-            .exit()
-            .transition()
-            .duration(duration)
-            .attr("transform", function(d) {
-                return "translate(" + source.y + "," + source.x + ")";
-            })
-            .remove();
-
-        nodeExit.select("text").style("fill-opacity", 1e-6);
+                    exit.select("text").style("fill-opacity", 1e-6);
+                }
+            )
+            // node_g.merge(node);
 
         var link = svg
             .selectAll("path.link")
@@ -216,10 +166,7 @@ function mindmap(w, h, svgNode = null) {
             .style("stroke-width", 1)
             .remove();
 
-        nodes.forEach(function(d) {
-            d.x0 = d.x;
-            d.y0 = d.y;
-        });
+
 
         function diagonal(s, d) {
             if (s != d) {
