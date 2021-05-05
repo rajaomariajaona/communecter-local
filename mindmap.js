@@ -6,15 +6,15 @@ var mindmap = {
     duration: 750,
     nodePadding: {
         top: 5,
-        right: 20,
+        right: 28,
         bottom: 5,
-        left: 10
+        left: 10,
     },
     margin: {
         top: 20,
         right: 180,
         bottom: 30,
-        left: 90
+        left: 90,
     },
     color: d3.scaleOrdinal(d3.schemePastel2),
     height: null,
@@ -27,11 +27,15 @@ var mindmap = {
         this.height = h - this.margin.top - this.margin.bottom;
         this.svg = this.buildMindMap(this.width, this.height, this.margin, svgNode);
 
-        this.treemap = d3.tree().size([this.height, this.width]).nodeSize([50, 180]).separation((a, b) => {
-            if (a.parent == b.parent) return 1.5;
-            else return 2;
-        })
-        this.updateData(treeData)
+        this.treemap = d3
+            .tree()
+            .size([this.height, this.width])
+            .nodeSize([50, 180])
+            .separation((a, b) => {
+                if (a.parent == b.parent) return 1.5;
+                else return 2;
+            });
+        this.updateData(treeData);
     },
 
     updateData: function(treeData) {
@@ -44,14 +48,16 @@ var mindmap = {
         this.duration = 750;
     },
     buildMindMap: function(width, height, margin, svgNode) {
-        svgNode = (svgNode ?
+        svgNode = svgNode ?
             svgNode :
             d3
             .select("svg#graph")
             .attr("width", width + margin.right + margin.left)
-            .attr("height", height + margin.top + margin.bottom)
-        );
-        return svgNode.select("g").node() ? svgNode.select("g") : svgNode.append("g")
+            .attr("height", height + margin.top + margin.bottom);
+        return svgNode.select("g").node() ?
+            svgNode.select("g") :
+            svgNode
+            .append("g")
             .style("transform-box", "fill-box")
             .attr(
                 "transform",
@@ -79,11 +85,14 @@ var mindmap = {
         var treeData = this.treemap(this.root);
         var nodes = treeData.descendants(),
             links = treeData.descendants().slice(1);
-        var node = this.svg.selectAll("g.node").data(nodes, (d) => d.id || (d.id = ++this.i));
+        var node = this.svg
+            .selectAll("g.node")
+            .data(nodes, (d) => d.id || (d.id = ++this.i));
         var node_g;
         node.join(
-            enter => {
-                node_g = enter.append("g")
+            (enter) => {
+                node_g = enter
+                    .append("g")
                     .attr("class", "node")
                     .attr(
                         "transform",
@@ -92,7 +101,7 @@ var mindmap = {
                     .on("click", click);
                 const texts = node_g
                     .append("text")
-                    .text(d => d.data.name)
+                    .text((d) => d.data.name)
                     .attr("x", this.nodePadding.left)
                     .attr("text-anchor", "start")
                     .style("fill", "#455a64");
@@ -103,28 +112,68 @@ var mindmap = {
                         x,
                         y
                     } = n[i].getBBox();
-                    d3.select(n[i])
-
-                    // .insert("rect", "text")
-                    // .attr("x", x - this.nodePadding.left)
-                    // .attr("y", y - this.nodePadding.top)
-                    // .attr("width", (d) => (d.w = width + this.nodePadding.left + this.nodePadding.right))
-                    // .attr("height", (d) => (d.h = height + this.nodePadding.top + this.nodePadding.bottom))
-                    // .attr("rx", 10)
-                    // .attr("fill", (d) => this.color(d.depth));
-                    .insert("foreignObject", "text")
+                    const rect = d3
+                        .select(n[i])
+                        .insert("foreignObject", "text")
                         .attr("x", x - this.nodePadding.left)
                         .attr("y", y - this.nodePadding.top)
-                        .attr("width", (d) => (d.w = width + this.nodePadding.left + this.nodePadding.right))
-                        .attr("height", (d) => (d.h = height + this.nodePadding.top + this.nodePadding.bottom))
+                        .attr("width", (d) =>
+                            d.children ?
+                            d.parent ?
+                            (d.w =
+                                width +
+                                this.nodePadding.left +
+                                this.nodePadding.right * 2) :
+                            (d.w =
+                                width + this.nodePadding.left + this.nodePadding.right) :
+                            (d.w = width + this.nodePadding.left + this.nodePadding.left)
+                        )
+                        .attr(
+                            "height",
+                            (d) =>
+                            (d.h = height + this.nodePadding.top + this.nodePadding.bottom)
+                        )
                         .append("xhtml:div")
                         .style("height", "100%")
                         .style("width", "100%")
                         .style("border-radius", "10px")
-                        .style("background-color", (d) => this.color(d.depth))
+                        .style("background-color", (d) => this.color(d.depth));
+                    const icon_add = rect
+                        .filter((d) => !d.parent)
+                        .append("xhtml:i")
+                        .style("position", "absolute")
+                        .style("right", "5px")
+                        .style("top", "50%")
+                        .style("transform", "translate(0%,-50%)")
+                        .classed("fa fa-plus-circle text-success", true)
+                        .on("click", (e) => {
+                            e.stopPropagation();
+                        });
+                    const icon_del = rect
+                        .filter((d) => d.children && d.parent)
+                        .append("xhtml:i")
+                        .style("position", "absolute")
+                        .style("right", "10px")
+                        .style("top", "50%")
+                        .style("transform", "translate(0%,-50%)")
+                        .classed("fa fa-times text-danger", true)
+                        .on("click", (e) => {
+                            e.stopPropagation();
+                        });
+                    const icon_edit = rect
+                        .filter((d) => d.children && d.parent)
+                        .append("xhtml:i")
+                        .style("position", "absolute")
+                        .style("right", (this.nodePadding.right) + "px")
+                        .style("top", "50%")
+                        .style("transform", "translate(0%,-50%)")
+                        .classed("fa fa-edit text-danger", true)
+                        .on("click", (e) => {
+                            e.stopPropagation();
+                        });
                 });
             },
-            update => {
+            (update) => {
                 node_g
                     .transition()
                     .duration(this.duration)
@@ -138,8 +187,8 @@ var mindmap = {
                         return "translate(" + d.y + "," + d.x + ")";
                     });
             },
-            exit => {
-                console.log(exit.node())
+            (exit) => {
+                console.log(exit.node());
                 exit
                     .transition()
                     .duration(this.duration)
@@ -151,16 +200,17 @@ var mindmap = {
 
                 exit.select("text").style("fill-opacity", 1e-6);
             }
-        )
+        );
 
         var link = this.svg
             .selectAll("path.link")
             .data(links, (d) => d.id)
             .style("stroke-width", 1);
-        var linkEnter
+        var linkEnter;
         link.join(
-            enter => {
-                linkEnter = enter.insert("path", "g")
+            (enter) => {
+                linkEnter = enter
+                    .insert("path", "g")
                     .attr("class", "link")
                     .attr("d", function(d) {
                         var o = {
@@ -171,25 +221,27 @@ var mindmap = {
                     })
                     .style("stroke-width", 1);
             },
-            update => {
-                linkEnter.transition()
+            (update) => {
+                linkEnter
+                    .transition()
                     .duration(this.duration)
                     .attr("stroke", "#929292")
                     .attr("fill", "none")
                     .attr("d", function(d) {
                         return mindmap.diagonal(d, d.parent);
                     });
-                update.transition()
+                update
+                    .transition()
                     .duration(this.duration)
                     .attr("stroke", "#929292")
                     .attr("fill", "none")
                     .attr("d", function(d) {
                         return mindmap.diagonal(d, d.parent);
                     });
-
             },
-            exit => {
-                exit.transition()
+            (exit) => {
+                exit
+                    .transition()
                     .duration(this.duration)
                     .attr("d", function(d) {
                         var o = {
@@ -201,9 +253,7 @@ var mindmap = {
                     .style("stroke-width", 1)
                     .remove();
             }
-        )
-
-
+        );
 
         nodes.forEach(function(d) {
             d.x0 = d.x;
@@ -220,5 +270,5 @@ var mindmap = {
             }
             mindmap.update(d);
         }
-    }
-}
+    },
+};
