@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <button id="add">ADD</button>
+    <button id="edit">EDIT</button>
+    <div id="container">
+
+    </div>
+    <script src="d3.v6.min.js"></script>
+    <script>
+        var data = [{
+            id: 0,
+            name: "4"
+        }, {
+            id: 1,
+            name: "3"
+        }, {
+            id: 2,
+            name: "2"
+        }, {
+            id: 3,
+            name: "1"
+        }, {
+            id: 4,
+            name: "0"
+        }, ]
+
+        d3.select("#add").on("click", (e) => {
+            data.push({
+                id: Math.random(),
+                name: Math.random()
+            });
+            update(data);
+        })
+        d3.select("#edit").on("click", (e) => {
+            console.log(data)
+            data[Math.floor(Math.random() * data.length)].name = Math.random();
+            update(data);
+        })
+
+        const ul = d3.select("div#container")
+            .append("xhtml:ul")
+
+        function update(d2) {
+            ul
+                .selectAll("li")
+                .data(d2, d => d.name)
+                .join(
+                    enter => enter.append("xhtml:li").text(d => d.name).on("click", (e, d) => {
+                        data = data.filter(f => f.id != d.id);
+                        update(data);
+                    }),
+
+                    update => {
+                        return update.classed("niova", true)
+                    },
+                    exit => exit.remove()
+                )
+
+
+        }
+        update(data)
+    </script>
+</body>
+
+</html>
