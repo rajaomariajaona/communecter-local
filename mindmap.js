@@ -121,6 +121,74 @@ function mindmap(w, h, svgNode = null) {
             }
         )
 
+        var link = svg
+            .selectAll("path.link")
+            .data(links, (d) => d.id)
+            .style("stroke-width", 1);
+        var linkEnter
+        link.join(
+            enter => {
+                linkEnter = enter.insert("path", "g")
+                    .attr("class", "link")
+                    .attr("d", function(d) {
+                        var o = {
+                            x: source.x0,
+                            y: source.y0,
+                        };
+                        return diagonal(o, o);
+                    })
+                    .style("stroke-width", 1);
+            },
+            update => {
+                linkEnter.transition()
+                    .duration(duration)
+                    .attr("stroke", "#929292")
+                    .attr("fill", "none")
+                    .attr("d", function(d) {
+                        return diagonal(d, d.parent);
+                    });
+                update.transition()
+                    .duration(duration)
+                    .attr("stroke", "#929292")
+                    .attr("fill", "none")
+                    .attr("d", function(d) {
+                        return diagonal(d, d.parent);
+                    });
+
+            },
+            exit => {
+                exit.transition()
+                    .duration(duration)
+                    .attr("d", function(d) {
+                        var o = {
+                            x: source.x,
+                            y: source.y,
+                        };
+                        return diagonal(o, o);
+                    })
+                    .style("stroke-width", 1)
+                    .remove();
+            }
+        )
+
+        function diagonal(s, d) {
+            if (s != d) {
+                sy = s.y;
+                dy = d.y;
+                dy += d.w;
+                path = `M ${sy} ${s.x}
+                C ${(sy + dy) / 2} ${s.x},
+                ${(sy + dy) / 2} ${d.x},
+                ${dy} ${d.x}`;
+            } else {
+                path = `M ${s.y} ${s.x}
+                C ${(s.y + d.y) / 2} ${s.x},
+                ${(s.y + d.y) / 2} ${d.x},
+                ${d.y} ${d.x}`;
+            }
+            return path;
+        }
+
         nodes.forEach(function(d) {
             d.x0 = d.x;
             d.y0 = d.y;
