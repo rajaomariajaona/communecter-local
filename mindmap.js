@@ -57,136 +57,73 @@ function mindmap(w, h, svgNode = null) {
 
     function update(source) {
         var treeData = treemap(root);
-        var nodes = treeData.descendants(),
-            links = treeData.descendants().slice(1);
+        var nodes = treeData.descendants();
         var node = svg.selectAll("g.node").data(nodes, (d) => d.id || (d.id = ++i));
         nodes.forEach(function(d) {
             d.x0 = d.x;
             d.y0 = d.y;
         });
-
         var node_g;
         node.join(
-                enter => {
-                    node_g = enter.append("g")
-                        .attr("class", "node")
-                        .attr(
-                            "transform",
-                            (d) => "translate(" + source.y0 + "," + source.x0 + ")"
-                        )
-                        .on("click", click);
-                    const texts = node_g
-                        .append("text")
-                        .text(d => d.data.name)
-                        .attr("x", nodePadding.x)
-                        .attr("text-anchor", "start")
-                        .style("fill", "#455a64");
-                    node_g.each((d, i, n) => {
-                        const {
-                            width,
-                            height,
-                            x,
-                            y
-                        } = n[i].getBBox();
-                        d3.select(n[i])
-                            .insert("rect", "text")
-                            .attr("x", x - nodePadding.x)
-                            .attr("y", y - nodePadding.y)
-                            .attr("width", (d) => (d.w = width + nodePadding.x * 2))
-                            .attr("height", (d) => (d.h = height + nodePadding.y * 2))
-                            .attr("rx", 10)
-                            .attr("fill", (d) => color(d.depth));
+            enter => {
+                node_g = enter.append("g")
+                    .attr("class", "node")
+                    .attr(
+                        "transform",
+                        (d) => "translate(" + source.y0 + "," + source.x0 + ")"
+                    )
+                    .on("click", click);
+                const texts = node_g
+                    .append("text")
+                    .text(d => d.data.name)
+                    .attr("x", nodePadding.x)
+                    .attr("text-anchor", "start")
+                    .style("fill", "#455a64");
+                node_g.each((d, i, n) => {
+                    const {
+                        width,
+                        height,
+                        x,
+                        y
+                    } = n[i].getBBox();
+                    d3.select(n[i])
+                        .insert("rect", "text")
+                        .attr("x", x - nodePadding.x)
+                        .attr("y", y - nodePadding.y)
+                        .attr("width", (d) => (d.w = width + nodePadding.x * 2))
+                        .attr("height", (d) => (d.h = height + nodePadding.y * 2))
+                        .attr("rx", 10)
+                        .attr("fill", (d) => color(d.depth));
+                });
+            },
+            update => {
+                node_g
+                    .transition()
+                    .duration(duration)
+                    .attr("transform", function(d) {
+                        return "translate(" + d.y + "," + d.x + ")";
                     });
-                },
-                update => {
-                    update.transition()
-                        .duration(duration)
-                        .attr("transform", function(d) {
-                            return "translate(" + d.y + "," + d.x + ")";
-                        });
-                },
-                exit => {
-                    exit.exit()
-                        .transition()
-                        .duration(duration)
-                        .attr("transform", function(d) {
-                            return "translate(" + source.y + "," + source.x + ")";
-                        })
-                        .remove();
+                update
+                    .transition()
+                    .duration(duration)
+                    .attr("transform", function(d) {
+                        return "translate(" + d.y + "," + d.x + ")";
+                    });
+            },
+            exit => {
+                console.log(exit.node())
+                exit
+                    .transition()
+                    .duration(duration)
+                    .attr("transform", function(d) {
+                        return "translate(" + source.y + "," + source.x + ")";
+                    })
+                    .remove();
 
-                    exit.select("text").style("fill-opacity", 1e-6);
-                }
-            )
-            // node_g.merge(node);
-
-        var link = svg
-            .selectAll("path.link")
-            .data(links, (d) => {
-                console.log(d.id);
-                return d.id;
-            })
-            .style("stroke-width", 1);
-
-        var linkEnter = link
-            .enter()
-            .insert("path", "g")
-            .attr("class", "link")
-            .attr("d", function(d) {
-                var o = {
-                    x: source.x0,
-                    y: source.y0,
-                };
-                return diagonal(o, o);
-            })
-            .style("stroke-width", 1);
-
-        var linkUpdate = linkEnter.merge(link);
-
-        linkUpdate
-            .transition()
-            .duration(duration)
-            .attr("stroke", "#929292")
-            .attr("fill", "none")
-            .attr("d", function(d) {
-                return diagonal(d, d.parent);
-            });
-
-        // Remove any exiting links
-        var linkExit = link
-            .exit()
-            .transition()
-            .duration(duration)
-            .attr("d", function(d) {
-                var o = {
-                    x: source.x,
-                    y: source.y,
-                };
-                return diagonal(o, o);
-            })
-            .style("stroke-width", 1)
-            .remove();
-
-
-
-        function diagonal(s, d) {
-            if (s != d) {
-                sy = s.y;
-                dy = d.y;
-                dy += d.w;
-                path = `M ${sy} ${s.x}
-                C ${(sy + dy) / 2} ${s.x},
-                ${(sy + dy) / 2} ${d.x},
-                ${dy} ${d.x}`;
-            } else {
-                path = `M ${s.y} ${s.x}
-                C ${(s.y + d.y) / 2} ${s.x},
-                ${(s.y + d.y) / 2} ${d.x},
-                ${d.y} ${d.x}`;
+                exit.select("text").style("fill-opacity", 1e-6);
             }
-            return path;
-        }
+        )
 
-        // Toggle children on click.
         function click(e, d) {
             if (d.children) {
                 d._children = d.children;
