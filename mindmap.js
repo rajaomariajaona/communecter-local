@@ -1,65 +1,85 @@
-function mindmap(w, h, svgNode = null) {
-    const nodePadding = {
-        x: 10,
-        y: 5,
-    };
-    var margin = {
-            top: 20,
-            right: 180,
-            bottom: 30,
-            left: 90,
-        },
-        width = w - margin.left - margin.right,
-        height = h - margin.top - margin.bottom;
-    var svg = (svgNode ?
+var mindmap = {
+    treemap: null,
+    root: null,
+    svg: null,
+    i: 0,
+    duration: 750,
+    nodePadding: {
+        top: 5,
+        right: 20,
+        bottom: 5,
+        left: 10
+    },
+    margin: {
+        top: 20,
+        right: 180,
+        bottom: 30,
+        left: 90
+    },
+    color: d3.scaleOrdinal(d3.schemePastel2),
+    height: null,
+    width: null,
+    mindmap: function(w, h, treeData, isAdmin = false, svgNode = null) {
+        if (isAdmin) {
+            this.nodePadding.right = this.nodePadding.left;
+        }
+        this.width = w - this.margin.left - this.margin.right;
+        this.height = h - this.margin.top - this.margin.bottom;
+        this.svg = this.buildMindMap(this.width, this.height, this.margin, svgNode);
+
+        this.treemap = d3.tree().size([this.height, this.width]).nodeSize([50, 180]).separation((a, b) => {
+            if (a.parent == b.parent) return 1.5;
+            else return 2;
+        })
+        this.updateData(treeData)
+    },
+
+    updateData: function(treeData) {
+        this.root = d3.hierarchy(treeData);
+        console.log(treeData);
+        this.root.x0 = this.height / 2;
+        this.root.y0 = 0;
+        this.duration = 0;
+        this.update(this.root);
+        this.duration = 750;
+    },
+    buildMindMap: function(width, height, margin, svgNode) {
+        svgNode = (svgNode ?
             svgNode :
             d3
             .select("svg#graph")
             .attr("width", width + margin.right + margin.left)
             .attr("height", height + margin.top + margin.bottom)
-        )
-        .append("g")
-        .style("transform-box", "fill-box")
-        .attr(
-            "transform",
-            "translate(" + margin.left + "," + (margin.top + height / 2) + ")"
         );
-
-    var i = 0,
-        duration = 750,
-        root;
-
-    // declares a tree layout and assigns the size
-    var treemap = d3.tree().size([height, width]).nodeSize([50, 180]).separation((a, b) => {
-        if (a.parent == b.parent) return 1.5;
-        else return 2;
-    })
-
-    // Assigns parent, children, height, depth
-    root = d3.hierarchy(treeData);
-    root.x0 = height / 2;
-    root.y0 = 0;
-
-    const color = d3.scaleOrdinal(d3.schemePastel2);
-    // Collapse after the second level
-    root.children.forEach((d) => d.children.forEach(collapse));
-
-    update(root);
-
-    // Collapse the node and all it's children
-    function collapse(d) {
-        if (d.children) {
-            d._children = d.children;
-            d._children.forEach(collapse);
-            d.children = null;
+        return svgNode.select("g").node() ? svgNode.select("g") : svgNode.append("g")
+            .style("transform-box", "fill-box")
+            .attr(
+                "transform",
+                "translate(" + margin.left + "," + (margin.top + height / 2) + ")"
+            );
+    },
+    diagonal: function(s, d) {
+        if (s != d) {
+            sy = s.y;
+            dy = d.y;
+            dy += d.w;
+            path = `M ${sy} ${s.x}
+            C ${(sy + dy) / 2} ${s.x},
+            ${(sy + dy) / 2} ${d.x},
+            ${dy} ${d.x}`;
+        } else {
+            path = `M ${s.y} ${s.x}
+            C ${(s.y + d.y) / 2} ${s.x},
+            ${(s.y + d.y) / 2} ${d.x},
+            ${d.y} ${d.x}`;
         }
-    }
-
-    function update(source) {
-        var treeData = treemap(root);
+        return path;
+    },
+    update: function(source) {
+        var treeData = this.treemap(this.root);
         var nodes = treeData.descendants(),
             links = treeData.descendants().slice(1);
-        var node = svg.selectAll("g.node").data(nodes, (d) => d.id || (d.id = ++i));
+        var node = this.svg.selectAll("g.node").data(nodes, (d) => d.id || (d.id = ++this.i));
         var node_g;
         node.join(
             enter => {
@@ -73,7 +93,7 @@ function mindmap(w, h, svgNode = null) {
                 const texts = node_g
                     .append("text")
                     .text(d => d.data.name)
-                    .attr("x", nodePadding.x)
+                    .attr("x", this.nodePadding.left)
                     .attr("text-anchor", "start")
                     .style("fill", "#455a64");
                 node_g.each((d, i, n) => {
@@ -84,25 +104,36 @@ function mindmap(w, h, svgNode = null) {
                         y
                     } = n[i].getBBox();
                     d3.select(n[i])
-                        .insert("rect", "text")
-                        .attr("x", x - nodePadding.x)
-                        .attr("y", y - nodePadding.y)
-                        .attr("width", (d) => (d.w = width + nodePadding.x * 2))
-                        .attr("height", (d) => (d.h = height + nodePadding.y * 2))
-                        .attr("rx", 10)
-                        .attr("fill", (d) => color(d.depth));
+
+                    // .insert("rect", "text")
+                    // .attr("x", x - this.nodePadding.left)
+                    // .attr("y", y - this.nodePadding.top)
+                    // .attr("width", (d) => (d.w = width + this.nodePadding.left + this.nodePadding.right))
+                    // .attr("height", (d) => (d.h = height + this.nodePadding.top + this.nodePadding.bottom))
+                    // .attr("rx", 10)
+                    // .attr("fill", (d) => this.color(d.depth));
+                    .insert("foreignObject", "text")
+                        .attr("x", x - this.nodePadding.left)
+                        .attr("y", y - this.nodePadding.top)
+                        .attr("width", (d) => (d.w = width + this.nodePadding.left + this.nodePadding.right))
+                        .attr("height", (d) => (d.h = height + this.nodePadding.top + this.nodePadding.bottom))
+                        .append("xhtml:div")
+                        .style("height", "100%")
+                        .style("width", "100%")
+                        .style("border-radius", "10px")
+                        .style("background-color", (d) => this.color(d.depth))
                 });
             },
             update => {
                 node_g
                     .transition()
-                    .duration(duration)
+                    .duration(this.duration)
                     .attr("transform", function(d) {
                         return "translate(" + d.y + "," + d.x + ")";
                     });
                 update
                     .transition()
-                    .duration(duration)
+                    .duration(this.duration)
                     .attr("transform", function(d) {
                         return "translate(" + d.y + "," + d.x + ")";
                     });
@@ -111,17 +142,18 @@ function mindmap(w, h, svgNode = null) {
                 console.log(exit.node())
                 exit
                     .transition()
-                    .duration(duration)
+                    .duration(this.duration)
                     .attr("transform", function(d) {
                         return "translate(" + source.y + "," + source.x + ")";
                     })
+                    .style("opacity", 0)
                     .remove();
 
                 exit.select("text").style("fill-opacity", 1e-6);
             }
         )
 
-        var link = svg
+        var link = this.svg
             .selectAll("path.link")
             .data(links, (d) => d.id)
             .style("stroke-width", 1);
@@ -135,59 +167,43 @@ function mindmap(w, h, svgNode = null) {
                             x: source.x0,
                             y: source.y0,
                         };
-                        return diagonal(o, o);
+                        return mindmap.diagonal(o, o);
                     })
                     .style("stroke-width", 1);
             },
             update => {
                 linkEnter.transition()
-                    .duration(duration)
+                    .duration(this.duration)
                     .attr("stroke", "#929292")
                     .attr("fill", "none")
                     .attr("d", function(d) {
-                        return diagonal(d, d.parent);
+                        return mindmap.diagonal(d, d.parent);
                     });
                 update.transition()
-                    .duration(duration)
+                    .duration(this.duration)
                     .attr("stroke", "#929292")
                     .attr("fill", "none")
                     .attr("d", function(d) {
-                        return diagonal(d, d.parent);
+                        return mindmap.diagonal(d, d.parent);
                     });
 
             },
             exit => {
                 exit.transition()
-                    .duration(duration)
+                    .duration(this.duration)
                     .attr("d", function(d) {
                         var o = {
                             x: source.x,
                             y: source.y,
                         };
-                        return diagonal(o, o);
+                        return mindmap.diagonal(o, o);
                     })
                     .style("stroke-width", 1)
                     .remove();
             }
         )
 
-        function diagonal(s, d) {
-            if (s != d) {
-                sy = s.y;
-                dy = d.y;
-                dy += d.w;
-                path = `M ${sy} ${s.x}
-                C ${(sy + dy) / 2} ${s.x},
-                ${(sy + dy) / 2} ${d.x},
-                ${dy} ${d.x}`;
-            } else {
-                path = `M ${s.y} ${s.x}
-                C ${(s.y + d.y) / 2} ${s.x},
-                ${(s.y + d.y) / 2} ${d.x},
-                ${d.y} ${d.x}`;
-            }
-            return path;
-        }
+
 
         nodes.forEach(function(d) {
             d.x0 = d.x;
@@ -202,7 +218,7 @@ function mindmap(w, h, svgNode = null) {
                 d.children = d._children;
                 d._children = null;
             }
-            update(d);
+            mindmap.update(d);
         }
     }
 }
