@@ -57,12 +57,9 @@ function mindmap(w, h, svgNode = null) {
 
     function update(source) {
         var treeData = treemap(root);
-        var nodes = treeData.descendants();
+        var nodes = treeData.descendants(),
+            links = treeData.descendants().slice(1);
         var node = svg.selectAll("g.node").data(nodes, (d) => d.id || (d.id = ++i));
-        nodes.forEach(function(d) {
-            d.x0 = d.x;
-            d.y0 = d.y;
-        });
         var node_g;
         node.join(
             enter => {
@@ -123,6 +120,11 @@ function mindmap(w, h, svgNode = null) {
                 exit.select("text").style("fill-opacity", 1e-6);
             }
         )
+
+        nodes.forEach(function(d) {
+            d.x0 = d.x;
+            d.y0 = d.y;
+        });
 
         function click(e, d) {
             if (d.children) {
