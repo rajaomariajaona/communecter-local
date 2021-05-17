@@ -3,6 +3,7 @@ class Graph {
     _canZoom = null;
     _rootSvg = null;
     _rootG = null;
+    _rootData = null;
     _beforeDraw = () => {};
     _afterDraw = () => {};
     _onClickNode = () => {};
@@ -310,6 +311,16 @@ class GraphUtils {
         return text => res;
     }
 
+    static squareOuterCircle(x, y, width, height) {
+        const cx = x + width / 2;
+        const cy = y + height / 2;
+        const r = Math.sqrt((width / 2) ** 2 + (height / 2) ** 2)
+        return {
+            cx,
+            cy,
+            r
+        };
+    }
 
 }
 
@@ -323,7 +334,9 @@ class CircleGraph extends Graph {
     _data = null;
     _nodes = [];
     _size = null;
-
+    _funcGroup = null;
+    w = 0;
+    h = 0;
     /**
      * 
      * @param {*} data array of obj {img?: url, text?: string, id: string | number}
@@ -331,15 +344,55 @@ class CircleGraph extends Graph {
      */
     constructor(data, funcGroup) {
         super()
-        this._data = this.preprocessData(data, {
-            funcGroup
-        })
+        this._funcGroup = funcGroup
+        this._data = this.preprocessData(data)
     }
-
-    preprocessData(data, options = null) {
-        const d = this.group(data, options.funcGroup);
+    preprocessData(data) {
+        console.log("DATA", this._data)
+        this._nodes = [];
+        const d = this.group(data, this._funcGroup);
         this._dfs(d);
-        return d;
+        const packed = d3.packSiblings(this._nodes);
+        let minY = Infinity;
+        let minX = Infinity;
+        for (let i = 0; i < packed.length; i++) {
+            const x = packed[i].x - packed[i].r;
+            const y = packed[i].y - packed[i].r;
+            if (x < minX) minX = x;
+            if (y < minY) minY = y;
+            const curr_x = packed[i]["r"] + packed[i]["dr"] + packed[i]["x"];
+            const curr_y = packed[i]["r"] + packed[i]["dr"] + packed[i]["y"];
+            if (this._globalMaxX < curr_x) this._globalMaxX = curr_x;
+            if (this._globalMaxY < curr_y) this._globalMaxY = curr_y;
+        }
+        if (minX != 0) {
+            if (minX < 0) {
+                for (let i = 0; i < packed.length; i++) {
+                    const x = (packed[i]["x"] += Math.abs(minX))
+                }
+            } else {
+                for (let i = 0; i < packed.length; i++) {
+                    packed[i]["x"] -= Math.abs(minX)
+                }
+            }
+        }
+        if (minY != 0) {
+            if (minY < 0) {
+                for (let i = 0; i < packed.length; i++) {
+                    const y = (packed[i]["y"] += Math.abs(minY))
+                }
+            } else {
+                for (let i = 0; i < packed.length; i++) {
+                    packed[i]["y"] -= Math.abs(minY)
+                }
+            }
+        }
+        const enclose = d3.packEnclose(packed)
+            // CALCUL the X and Y SIZE fitting the entire graph
+        this.w = enclose.r * 2;
+        this.h = this.w;
+        console.log(d.descendants())
+        return packed;
     }
 
     /**
@@ -404,6 +457,10 @@ class CircleGraph extends Graph {
                     }))
                     .nodes(parent.children)
                     .stop()
+                const n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay()));
+                for (var i = 0; i < n; ++i) {
+                    simulation.tick();
+                }
                 parent.children["simulation"] = simulation;
 
                 let minX = Infinity;
@@ -478,48 +535,6 @@ class CircleGraph extends Graph {
 
     draw(containerId, update = false) {
         this._beforeDraw()
-        console.log("nodes", this._nodes)
-        const packed = d3.packSiblings(this._nodes);
-        console.log(packed)
-        let minY = Infinity;
-        let minX = Infinity;
-        for (let i = 0; i < packed.length; i++) {
-            const x = packed[i].x - packed[i].r;
-            const y = packed[i].y - packed[i].r;
-            if (x < minX) minX = x;
-            if (y < minY) minY = y;
-            const curr_x = packed[i]["r"] + packed[i]["dr"] + packed[i]["x"];
-            const curr_y = packed[i]["r"] + packed[i]["dr"] + packed[i]["y"];
-            if (this._globalMaxX < curr_x) this._globalMaxX = curr_x;
-            if (this._globalMaxY < curr_y) this._globalMaxY = curr_y;
-        }
-        if (minX != 0) {
-            if (minX < 0) {
-                for (let i = 0; i < packed.length; i++) {
-                    const x = (packed[i]["x"] += Math.abs(minX))
-                }
-            } else {
-                for (let i = 0; i < packed.length; i++) {
-                    packed[i]["x"] -= Math.abs(minX)
-                }
-            }
-        }
-        if (minY != 0) {
-            if (minY < 0) {
-                for (let i = 0; i < packed.length; i++) {
-                    const y = (packed[i]["y"] += Math.abs(minY))
-                }
-            } else {
-                for (let i = 0; i < packed.length; i++) {
-                    packed[i]["y"] -= Math.abs(minY)
-                }
-            }
-        }
-
-        const enclose = d3.packEnclose(packed)
-            // CALCUL the X and Y SIZE fitting the entire graph
-        const w = enclose.r * 2;
-        const h = w;
 
         d3.select("#" + containerId).selectAll("svg#graph").remove();
         this._rootSvg = d3.select("#" + containerId)
@@ -527,7 +542,7 @@ class CircleGraph extends Graph {
             .attr("id", "graph")
             // .attr("height", h)
             // .attr("width", w)
-            .attr("viewBox", [0, 0, w, h])
+            .attr("viewBox", [0, 0, this.w, this.h])
         this._rootSvg.selectAll("*").remove();
         this._rootG = this._rootSvg
             .append("g")
@@ -547,306 +562,119 @@ class CircleGraph extends Graph {
             .attr("flood-opacity", 0.3)
             .attr("dx", 0)
             .attr("dy", 1);
-        const parent_g = this._rootG.selectAll("g")
-            .data(packed)
-            .join("g")
-            .classed("divide", true)
-        const path = parent_g
-            .append("path")
-            .attr("stroke", "none")
-            .attr("fill", "none")
-            .attr("id", d => `path-${GraphUtils.slugify(d["data"][0])}`)
-            .attr('d', d => `M ${d.x} ${d.y + d.r - this._padding} A 1 1 0 1 1 ${d.x} ${d.y - d.r + this._padding} M ${d.x} ${d.y - d.r + this._padding} A 1 1 0 1 1 ${d.x} ${d.y + d.r - this._padding} `)
-        const text = parent_g
-            .append("text")
-            .append("textPath")
-            .style("font-size", "30px")
-            .classed("svg-text", true)
-            .classed("parent-text", true)
-            .attr("xlink:href", d => `#path-${GraphUtils.slugify(d["data"][0])}`)
-            .text(d => d.children[0].data.group)
-            .style("fill", (d, i) => GraphUtils.colorLuminance(this._color(d, i), -0.2))
-            .attr("text-anchor", "middle")
-            .attr("startOffset", "50%");
-        const circle_parent = parent_g
-            .append("circle")
-            .attr("cx", d => d.x)
-            .attr("cy", d => d.y)
-            .attr("r", d => d.r - this._circlePadding)
-            .attr("stroke", "none")
-            .attr("fill", (d, i) => this._color(d, i))
-            .attr("filter", "url(#ombre)")
-
-
-        const leaf_svg = parent_g
-            .append("svg")
-            .style("overflow", "visible")
-            .attr("x", d.x - d.r + d.dr)
-            .attr("y", d.y - d.r + d.dr)
-
-        const leaf_svg_g = leaf_svg
-            .selectAll("g")
-            .data(d => d.children)
-            .join("g")
-            .classed("leaf-group", true)
-            .attr("id", (d, j) => `id${i}-${j}`)
-            .on("click", this._onClickNode)
-        const imgs = leaf_svg_g
-            .filter(d => d.data.img)
-            .append("image")
-            .attr("xlink:href", d => d.data.img)
-            .attr("width", d => d.width)
-            .attr("height", d => d.height)
-            .attr("x", d => d.x)
-            .attr("y", d => d.y)
-        const rects = leaf_svg_g
-            .filter(d => !d.data.img)
-            .append("rect")
-            .attr("fill", "transparent")
-            .attr("stroke", "#455a64")
-            .style("opacity", "0.5")
-            .attr("rx", 5)
-            .on("click", this._onClickNode)
-        const texts = leaf_svg_g
-            .filter(d => !d.data.img)
-            .append("text")
-            .attr("text-anchor", "middle")
-            .attr("y", d => (d.y))
-            .classed("text-leaf", true)
-        const textSpans = texts.selectAll("tspan")
-            .data(d => d.data.label.split(this._splitRegex))
-            .join("tspan")
-            .attr("x", (_, i, j) => {
-                const d = j[i].parentNode.__data__;
-                const x = (d.x + d.width / 2)
-                return x;
-            })
-            .attr("dy", (d, i, j) => i != 0 ? 20 : 0)
-            .text(d => d + " ")
-        for (const node_g of leaf_svg.selectAll("g").nodes()) {
-            const text = d3.select(node_g).select("text")
-            if (!text.node()) {
-                continue;
-            }
-            const bound = text.node().getBBox();
-            d3.select(node_g)
-                .select("rect")
-
-            .attr("x", bound.x - 10)
-                .attr("y", bound.y - 10)
-                .attr("height", bound.height + 20)
-                .attr("width", bound.width + 20)
-        }
-        // DRAW
-
-        console.log(packed)
+        this.updateData(this._data)
         this.correctTextParentSize();
         this._afterDraw();
     }
-
     updateData(data) {
 
-        // const parent_g = this._rootG.selectAll("g")
-        //     .data(packed)
-        //     .join("g")
-        //     .classed("divide", true)
-        // const path = parent_g
-        //     .append("path")
-        //     .attr("stroke", "none")
-        //     .attr("fill", "none")
-        //     .attr("id", d => `path-${GraphUtils.slugify(d["data"][0])}`)
-        //     .attr('d', d => `M ${d.x} ${d.y + d.r - this._padding} A 1 1 0 1 1 ${d.x} ${d.y - d.r + this._padding} M ${d.x} ${d.y - d.r + this._padding} A 1 1 0 1 1 ${d.x} ${d.y + d.r - this._padding} `)
-        // const text = parent_g
-        //     .append("text")
-        //     .append("textPath")
-        //     .style("font-size", "30px")
-        //     .classed("svg-text", true)
-        //     .classed("parent-text", true)
-        //     .attr("xlink:href", d => `#path-${GraphUtils.slugify(d["data"][0])}`)
-        //     .text(d => d.children[0].data.group)
-        //     .style("fill", (d, i) => GraphUtils.colorLuminance(this._color(d, i), -0.2))
-        //     .attr("text-anchor", "middle")
-        //     .attr("startOffset", "50%");
-        // const circle_parent = parent_g
-        //     .append("circle")
-        //     .attr("cx", d => d.x)
-        //     .attr("cy", d => d.y)
-        //     .attr("r", d => d.r - this._circlePadding)
-        //     .attr("stroke", "none")
-        //     .attr("fill", (d, i) => this._color(d, i))
-        //     .attr("filter", "url(#ombre)")
+        this._rootG.selectAll("g")
+            .data(data, d => JSON.stringify(d.data))
+            .join(enter => {
+                console.log("ENTERED")
+                const parent_g = enter.append("g");
+                parent_g
+                    .classed("divide", true)
+                const path = parent_g
+                    .append("path")
+                    .attr("stroke", "none")
+                    .attr("fill", "none")
+                    .attr("id", d => `path-${GraphUtils.slugify(d["data"][0])}`)
+                    .attr('d', d => `M ${d.x} ${d.y + d.r - this._padding} A 1 1 0 1 1 ${d.x} ${d.y - d.r + this._padding} M ${d.x} ${d.y - d.r + this._padding} A 1 1 0 1 1 ${d.x} ${d.y + d.r - this._padding} `)
+                const text = parent_g
+                    .append("text")
+                    .append("textPath")
+                    .style("font-size", "30px")
+                    .classed("svg-text", true)
+                    .classed("parent-text", true)
+                    .attr("xlink:href", d => `#path-${GraphUtils.slugify(d["data"][0])}`)
+                    .text(d => d.children[0].data.group)
+                    .style("fill", (d, i) => GraphUtils.colorLuminance(this._color(d, i), -0.2))
+                    .attr("text-anchor", "middle")
+                    .attr("startOffset", "50%");
+                const circle_parent = parent_g
+                    .append("circle")
+                    .attr("cx", d => d.x)
+                    .attr("cy", d => d.y)
+                    .attr("r", d => d.r - this._circlePadding)
+                    .attr("stroke", "none")
+                    .attr("fill", (d, i) => this._color(d, i))
+                    .attr("filter", "url(#ombre)")
 
+                const leaf_svg = parent_g
+                    .append("svg")
+                    .style("overflow", "visible")
+                    .classed("leaf-svg", true)
+                    .attr("x", d => d.x - d.r + d.dr)
+                    .attr("y", d => d.y - d.r + d.dr)
+            })
 
-        // const leaf_svg = parent_g
-        //     .append("svg")
-        //     .style("overflow", "visible")
-        //     .attr("x", d.x - d.r + d.dr)
-        //     .attr("y", d.y - d.r + d.dr)
+        d3.selectAll("svg.leaf-svg")
+            .selectAll("g")
+            .data(d => d.children, d => {
+                return (JSON.stringify(d.data))
+            })
+            .join(enter => {
+                const leaf_svg_g = enter.append("g")
+                    .classed("leaf-group", true)
+                    // .attr("id", (d, j, n) => {
+                    // console.log(d3.select(n[0]).node().parentNode.__data__)
+                    // return `id${i}-${j}`
+                    // })
+                    .on("click", this._onClickNode)
+                const imgs = leaf_svg_g
+                    .filter(d => d.data.img)
+                    .append("image")
+                    .attr("xlink:href", d => d.data.img)
+                    .attr("width", d => d.width)
+                    .attr("height", d => d.height)
+                    .attr("x", d => d.x)
+                    .attr("y", d => d.y)
+                const rects = leaf_svg_g
+                    .filter(d => !d.data.img)
+                    .append("rect")
+                    .attr("fill", "transparent")
+                    .attr("stroke", "#455a64")
+                    .style("opacity", "0.5")
+                    .attr("rx", 5)
+                    .on("click", this._onClickNode)
+                const texts = leaf_svg_g
+                    .filter(d => !d.data.img)
+                    .append("text")
+                    .attr("text-anchor", "middle")
+                    .attr("y", d => (d.y))
+                    .classed("text-leaf", true)
+                const textSpans = texts.selectAll("tspan")
+                    .data(d => d.data.label.split(this._splitRegex))
+                    .join("tspan")
+                    .attr("x", (_, i, j) => {
+                        const d = j[i].parentNode.__data__;
+                        const x = (d.x + d.width / 2)
+                        return x;
+                    })
+                    .attr("dy", (d, i, j) => i != 0 ? 20 : 0)
+                    .text(d => d + " ")
 
-        // const leaf_svg_g = leaf_svg
-        //     .selectAll("g")
-        //     .data(d => d.children)
-        //     .join("g")
-        //     .classed("leaf-group", true)
-        //     .attr("id", (d, j) => `id${i}-${j}`)
-        //     .on("click", this._onClickNode)
-        // const imgs = leaf_svg_g
-        //     .filter(d => d.data.img)
-        //     .append("image")
-        //     .attr("xlink:href", d => d.data.img)
-        //     .attr("width", d => d.width)
-        //     .attr("height", d => d.height)
-        //     .attr("x", d => d.x)
-        //     .attr("y", d => d.y)
-        // const rects = leaf_svg_g
-        //     .filter(d => !d.data.img)
-        //     .append("rect")
-        //     .attr("fill", "transparent")
-        //     .attr("stroke", "#455a64")
-        //     .style("opacity", "0.5")
-        //     .attr("rx", 5)
-        //     .on("click", this._onClickNode)
-        // const texts = leaf_svg_g
-        //     .filter(d => !d.data.img)
-        //     .append("text")
-        //     .attr("text-anchor", "middle")
-        //     .attr("y", d => (d.y))
-        //     .classed("text-leaf", true)
-        // const textSpans = texts.selectAll("tspan")
-        //     .data(d => d.data.label.split(this._splitRegex))
-        //     .join("tspan")
-        //     .attr("x", (_, i, j) => {
-        //         const d = j[i].parentNode.__data__;
-        //         const x = (d.x + d.width / 2)
-        //         return x;
-        //     })
-        //     .attr("dy", (d, i, j) => i != 0 ? 20 : 0)
-        //     .text(d => d + " ")
-        // for (const node_g of leaf_svg.selectAll("g").nodes()) {
-        //     const text = d3.select(node_g).select("text")
-        //     if (!text.node()) {
-        //         continue;
-        //     }
-        //     const bound = text.node().getBBox();
-        //     d3.select(node_g)
-        //         .select("rect")
+                for (const node_g of enter.selectAll("g").nodes()) {
+                    const text = d3.select(node_g).select("text")
+                    if (!text.node()) {
+                        continue;
+                    }
+                    const bound = text.node().getBBox();
+                    d3.select(node_g)
+                        .select("rect")
 
-        //     .attr("x", bound.x - 10)
-        //         .attr("y", bound.y - 10)
-        //         .attr("height", bound.height + 20)
-        //         .attr("width", bound.width + 20)
+                    .attr("x", bound.x - 10)
+                        .attr("y", bound.y - 10)
+                        .attr("height", bound.height + 20)
+                        .attr("width", bound.width + 20)
+                }
+            }, update => {
+                console.log(update)
+            }, exit => {
+                console.log(exit)
+            })
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // for (let i = 0; i < packed.length; i++) {
-        //     const parent_g = this._rootG
-        //         .append("g")
-        //         .classed("divide", true)
-        //     console.log(packed[i])
-        //     const x = packed[i].x
-        //     const y = packed[i].y
-        //     const r = packed[i].r
-        //     this._size = d3.select("svg").node().getBBox();
-        //     const path = parent_g
-        //         .append("path")
-        //         .attr("stroke", "none")
-        //         .attr("fill", "none")
-        //         .attr("id", `path-${GraphUtils.slugify(packed[i]["data"][0])}`)
-        //         .attr('d', `M ${x} ${y + r - this._padding} A 1 1 0 1 1 ${x} ${y - r + this._padding} M ${x} ${y - r + this._padding} A 1 1 0 1 1 ${x} ${y + r - this._padding} `)
-        //     const text = parent_g
-        //         .append("text")
-        //         .append("textPath")
-        //         .style("font-size", "30px")
-        //         .classed("svg-text", true)
-        //         .classed("parent-text", true)
-        //         .attr("xlink:href", d => `#path-${GraphUtils.slugify(packed[i]["data"][0])}`)
-        //         .text(packed[i].children[0].data.group)
-        //         .style("fill", GraphUtils.colorLuminance(this._color(packed[i], i), -0.2))
-        //         .attr("text-anchor", "middle")
-        //         .attr("startOffset", "50%");
-        //     const circle_parent = parent_g
-        //         .append("circle")
-        //         .attr("cx", packed[i].x)
-        //         .attr("cy", packed[i].y)
-        //         .attr("r", packed[i].r - this._circlePadding)
-        //         .attr("stroke", "none")
-        //         .attr("fill", this._color(packed[i], i))
-        //         .attr("filter", "url(#ombre)")
-        //     const leaf_svg = parent_g
-        //         .append("svg")
-        //         .style("overflow", "visible")
-        //         .attr("x", packed[i].x - packed[i].r + packed[i].dr)
-        //         .attr("y", packed[i].y - packed[i].r + packed[i].dr)
-        //     const leaf_svg_g = leaf_svg
-        //         .selectAll("g")
-        //         .data(packed[i].children)
-        //         .join("g")
-        //         .classed("leaf-group", true)
-        //         .attr("id", (d, j) => `id${i}-${j}`)
-        //         .on("click", this._onClickNode)
-        //     const imgs = leaf_svg_g
-        //         .filter(d => d.data.img)
-        //         .append("image")
-        //         .attr("xlink:href", d => d.data.img)
-        //         .attr("width", d => d.width)
-        //         .attr("height", d => d.height)
-        //         .attr("x", d => d.x)
-        //         .attr("y", d => d.y)
-        //     const rects = leaf_svg_g
-        //         .filter(d => !d.data.img)
-        //         .append("rect")
-        //         .attr("fill", "transparent")
-        //         .attr("stroke", "#455a64")
-        //         .style("opacity", "0.5")
-        //         .attr("rx", 5)
-        //         .on("click", this._onClickNode)
-        //     const texts = leaf_svg_g
-        //         .filter(d => !d.data.img)
-        //         .append("text")
-        //         .attr("text-anchor", "middle")
-        //         .attr("y", d => (d.y))
-        //         .classed("text-leaf", true)
-
-        //     const textSpans = texts.selectAll("tspan")
-        //         .data(d => d.data.label.split(this._splitRegex))
-        //         .join("tspan")
-        //         .attr("x", (_, i, j) => {
-        //             const d = j[i].parentNode.__data__;
-        //             const x = (d.x + d.width / 2)
-        //             return x;
-        //         })
-        //         .attr("dy", (d, i, j) => i != 0 ? 20 : 0)
-        //         .text(d => d + " ")
-        //     for (const node_g of leaf_svg.selectAll("g").nodes()) {
-        //         const text = d3.select(node_g).select("text")
-        //         if (!text.node()) {
-        //             continue;
-        //         }
-        //         const bound = text.node().getBBox();
-        //         d3.select(node_g)
-        //             .select("rect")
-
-        //         .attr("x", bound.x - 10)
-        //             .attr("y", bound.y - 10)
-        //             .attr("height", bound.height + 20)
-        //             .attr("width", bound.width + 20)
-        //     }
-        // }
     }
 }
 
