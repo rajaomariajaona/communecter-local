@@ -5,198 +5,28 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Graphs</title>
 </head>
 
 <body>
-    <div style="height: 100%; width: 100%;">
-        <svg id="graph"></svg>
+    <div id="graph-container">
+
     </div>
+    <script src="circle-data.js"></script>
     <script src="d3.v6.min.js"></script>
+    <script src="graph.js"></script>
     <script>
-        window.onresize = () => {
-            h = window.innerHeight;
-            w = window.innerWidth;
-            var svg = d3.select("svg").attr("viewBox", [0, 0, w, h]);
+        function randomizeData(data) {
+            const rawLen = data.length;
+            let len = Math.floor(rawLen / 2);
+            let resSet = new Set();
+            for (let i = 0; i < len; i++) {
+                resSet.add(data[Math.floor(Math.random() * rawLen)])
+            }
+            return Array.from(resSet)
         }
-        const r = 30;
-        var h = window.innerHeight
-        var w = window.innerWidth
-        var svg = d3.select("svg").attr("viewBox", [0, 0, w, h]),
-            width = w,
-            height = h,
-            node,
-            link,
-            nodes,
-            links;
-
-        nodes = [{
-            "label": "0",
-        }, {
-            label: "1",
-        }, {
-            label: "2"
-        }, ]
-
-        links = [{
-            source: "0",
-            target: "1",
-            weight: 01
-        }, {
-            source: "1",
-            target: "0",
-            weight: 11
-        }, {
-            source: "1",
-            target: "2",
-            weight: 22
-        }, {
-            source: "2",
-            target: "0",
-            weight: 33
-        }, ]
-
-        svg.append('defs').append('marker')
-            .attr('id', 'arrowhead', )
-            .attr('viewBox', '-0 -5 10 10', )
-            .attr('refX', 10, )
-            .attr('refY', 0, )
-            .attr('orient', 'auto', )
-            .attr('markerWidth', 13, )
-            .attr('markerHeight', 13, )
-            .attr('xoverflow', 'visible')
-            .append('svg:path')
-            .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-            .attr('fill', "#46aaab")
-            .style('stroke', 'none');
-        svg = svg.append("g");
-        const zoomEvent = d3.zoom().on("zoom", (e) => {
-            svg.attr("transform", e.transform)
-        })
-        d3.select("svg").call(zoomEvent)
-        var simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().id(function(d) {
-                return d.label;
-            }).distance(200).strength(1))
-            .force("charge", d3.forceManyBody().strength(-1000))
-            .force("center", d3.forceCenter(width / 2, height / 2));
-        update(links, nodes)
-
-        function update(links, nodes) {
-            link = svg.selectAll(".link")
-                .data(links)
-                .enter()
-                .append("path")
-                .attr("stroke", "#46aaab")
-                .attr("fill", "none")
-                .attr('marker-end', 'url(#arrowhead)')
-
-            edgepaths = svg.selectAll(".edgepath")
-                .data(links)
-                .enter()
-                .append('path')
-                .attr('class', 'edgepath')
-                .attr('fill-opacity', 1)
-                .attr('stroke-opacity', 1)
-                .attr('id', function(d, i) {
-                    return 'edgepath' + i
-                })
-                .style("pointer-events", "none");
-
-            edgelabels = svg.selectAll(".edgelabel")
-                .data(links)
-                .enter()
-                .append('text')
-                .style("pointer-events", "none")
-                .attr('class', 'edgelabel', )
-                .attr('id', function(d, i) {
-                    return 'edgelabel' + i;
-                }, )
-                .attr('font-size', 20)
-                .attr('fill', 'black')
-
-            edgelabels.append('textPath')
-                .attr('xlink:href', function(d, i) {
-                    return '#edgepath' + i
-                })
-                .style("font-size", "16px")
-                .style("text-anchor", "middle")
-                .style("pointer-events", "none")
-                .attr("startOffset", Math.random() * 40 + 30 + "%")
-                .text(function(d) {
-                    return d.weight
-                });
-
-            node = svg.selectAll(".node")
-                .data(nodes)
-                .enter()
-                .append("g")
-                .attr("class", "node")
-
-            node.append("circle")
-                .attr("r", r)
-                .style("fill", "#466cab")
-
-            node.append("text")
-                .attr("text-anchor", "middle")
-                .attr("fill", "white")
-                .text(function(d) {
-                    return d.label;
-                });
-
-            simulation
-                .nodes(nodes)
-                .on("tick", ticked);
-
-            simulation.force("link")
-                .links(links);
-        }
-
-        function ticked() {
-            link
-                .attr("d", function(d) {
-                    var dx = d.target.x - d.source.x,
-                        dy = d.target.y - d.source.y,
-                        h = Math.sqrt(dx * dx + dy * dy),
-                        sx = d.source.x,
-                        sy = d.source.y,
-                        tx = d.target.x,
-                        ty = d.target.y;
-                    var ddx = ((dx / h)) * r,
-                        ddy = ((dy / h)) * r;
-                    sx += ddx;
-                    sy += ddy;
-                    tx -= ddx;
-                    ty -= ddy;
-                    return "M" +
-                        sx + "," +
-                        sy + "A" +
-                        h + "," + h + " 0 0,1 " +
-                        tx + "," +
-                        ty;
-                })
-
-            node
-                .attr("transform", function(d) {
-                    return "translate(" + d.x + ", " + d.y + ")";
-                });
-
-            edgepaths.attr('d', function(d) {
-                return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
-            });
-
-            edgelabels.attr('transform', function(d) {
-                if (d.target.x < d.source.x) {
-                    var bbox = this.getBBox();
-
-                    rx = bbox.x + bbox.width / 2;
-                    ry = bbox.y + bbox.height / 2;
-                    return 'rotate(180 ' + rx + ' ' + ry + ')';
-                } else {
-                    return 'rotate(0)';
-                }
-            });
-        }
+        var circleGraph = new CircleGraph(randomizeData(circleData), d => GraphUtils.slugify(d.group))
+        circleGraph.draw("graph-container")
     </script>
 </body>
 
