@@ -1,4 +1,5 @@
 class RelationGraph extends Graph {
+    _iconClass = "fa fa-users";
     _links = [];
     _linksNode = []
     _data = [];
@@ -13,6 +14,15 @@ class RelationGraph extends Graph {
     _onClickGroup = () => {}
     _colorGroup = (d, i, n) => {
         return this._defaultColorGroup(i)
+    }
+
+    get iconClass() {
+        return this._iconClass;
+    }
+    set iconClass(icon) {
+        this._iconClass = icon;
+        this._groupsNode.selectAll("i")
+            .attr("class", this._iconClass)
     }
 
     setRadius(radius) {
@@ -142,7 +152,7 @@ class RelationGraph extends Graph {
         this._rootSvg.call(this._zoom)
         this._groupsNode.append("circle")
             .attr("r", this._groupRadius)
-            .attr("fill", (d, i) => d.data.color = this._colorGroup(i));
+            .attr("fill", (d, i) => d.color = this._colorGroup(d, i));
         this._groupsNode
             .append("text")
             .append("textPath")
@@ -153,21 +163,28 @@ class RelationGraph extends Graph {
             .attr("xlink:href", (d, i) => `#group-${i}`)
             .text(d => d.data.id)
         const fontSize = this._groupRadius * (2 / 3);
-        this._groupsNode.append("text")
-            .attr("font-family", "FontAwesome")
-            .style("fill", "white")
+        this._groupsNode
+            .append("foreignObject")
+            .attr("x", -50)
+            .attr("y", -50)
+            .attr("width", 100)
+            .attr("height", 100)
+            .append("xhtml:div")
+            .style("width", "100%")
+            .style("height", "100%")
+            .style("display", "flex")
+            .style("justify-content", "center")
+            .style("align-items", "center")
+            .append("xhtml:i")
             .style("font-size", fontSize + "px")
-            .text((d) => String.fromCharCode(Number(`0xf0c0`)))
-            .style("cursor", "default")
-            .attr("x", 0)
-            .attr("y", 0)
-            .style("transform", `translate(-${fontSize/2}px, ${fontSize/2}px)`)
+            .style("color", "white")
+            .attr("class", d => this._iconClass)
 
         this._groupsNode.on("click", this.focusOnGroup)
 
         this._leaves.append("circle")
             .attr("r", this._radius)
-            .attr("fill", (d, i) => d.data.color = this._color(i));
+            .attr("fill", (d, i) => d.color = this._color(d, i));
         this._leaves
             .filter(d => d.data.img)
             .append("image")
@@ -202,6 +219,7 @@ class RelationGraph extends Graph {
         const k = this._width / bound.width;
         this._rootSvg.call(this._zoom.scaleBy, k)
         this.addMouseEvent(this._leaves, this._groupsNode);
+        this._afterDraw()
     }
 
     removeAllMouseEvent() {

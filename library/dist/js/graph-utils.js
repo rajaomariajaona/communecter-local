@@ -260,4 +260,18 @@ class GraphUtils {
         };
     }
 
+    static squareInnerCircle(cx, cy, r) {
+        const l = Math.sin(Math.PI / 4) * r;
+        const x = cx - l;
+        const y = cy - l
+        const width = l * 2;
+        const height = width;
+        return {
+            x,
+            y,
+            width,
+            height
+        }
+    }
+
 }

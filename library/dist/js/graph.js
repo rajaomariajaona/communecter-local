@@ -13,7 +13,9 @@ class Graph {
         this._isDrawed = true;
     };
 
-    _onClickNode = (event, data) => {};
+    _onClickNode = (event, data) => {
+        console.log("CLICKED", data)
+    };
     _onZoom = () => {};
     _defaultColor = d3.scaleOrdinal(['#F9C1C8', '#DCEEC2', '#FBE5C1', '#B6C5F0', '#CCEFFC']);
 
@@ -39,8 +41,12 @@ class Graph {
     setOnClickNode(callback) {
         this._onClickNode = callback;
         if (this._isDrawed) {
-            for (const leaf of this._leaves) {
-                leaf.on('click', this._onClickNode)
+            if (Array.isArray(this._leaves)) {
+                for (const leaf of this._leaves) {
+                    leaf.on('click', this._onClickNode)
+                }
+            } else {
+                this._leaves.on('click', this._onClickNode)
             }
         }
     }
@@ -58,9 +64,7 @@ class Graph {
     preprocessData(data) {
         return data;
     }
-    draw(idSvg) {
-
-    }
+    draw(idSvg) {}
     setAfterDraw(callback) {
         this._afterDraw = () => {
             callback()
