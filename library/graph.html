@@ -16,6 +16,7 @@
     <script src="data/circle-data.js"></script>
     <script src="../d3.v6.min.js"></script>
     <script src="dist/js/graph.js"></script>
+    <script src="dist/js/relation.js"></script>
     <script>
         function randomizeData(data) {
             const rawLen = data.length;
@@ -26,17 +27,17 @@
             }
             return Array.from(resSet)
         }
-        var circleGraph = new CircleGraph(randomizeData(circleData), d => GraphUtils.slugify(d.group))
-        circleGraph.draw("graph-container")
+        var relationGraph = new RelationGraph(randomizeData(circleData), d => GraphUtils.slugify(d.group))
+        relationGraph.draw("graph-container")
         var cont = false
         var last = null
 
         function change(l = null) {
             if (!l) {
                 last = randomizeData(circleData)
-                circleGraph.updateData(last);
+                relationGraph.updateData(last);
             } else {
-                circleGraph.updateData(l);
+                relationGraph.updateData(l);
             }
             console.log("CHANGED")
             if (cont)
