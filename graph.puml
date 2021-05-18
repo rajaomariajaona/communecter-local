@@ -1,0 +1,43 @@
+@startuml
+
+    abstract class Graph{
+        # _initZoom :d3Transform
+        # _canZoom :boolean
+
+        # _rootSvg :d3Selection
+        # _rootG :d3Selection
+        # _leaves :d3Selection
+
+        + preprocessData(data)
+        + resetZoom()
+        + updateData(data)
+        + setOnZoom(callback)
+        + setOnClickNode(callback)
+        + setColor(callback) 
+        + setBeforeDraw(callback)
+        + draw(idSvg)
+        + setAfterDraw(callback)
+    }
+
+    class GraphUtils{
+        {static} eucludianDistance(x1,y1,x2,y2);
+        {static} slugify(text);
+        {static} parseTransform(text);
+        {static} colorLuminance(hex,lum)
+    }
+
+    class GraphTooltip{
+        _node
+        constructor()
+        draw(containerId)
+        follow(node)
+
+    }
+
+    class CircleGraph extends Graph{
+        + CircleGraph(data, funcGroup);
+        - draw(data, container);
+        - group();
+        - dfs();
+    }
+@enduml
