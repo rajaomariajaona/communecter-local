@@ -1,11 +1,13 @@
 class Graph {
     _isDrawed = false;
-    _initZoom = null;
+    _zoom = null;
     _canZoom = null;
     _rootSvg = null;
     _rootG = null;
     _leaves = [];
     _colored = [];
+    _width = 800;
+    _height = 800;
     _beforeDraw = () => {};
     _afterDraw = () => {
         this._isDrawed = true;
@@ -70,5 +72,8 @@ class Graph {
     }
     get rootSvg() {
         return this._rootSvg;
+    }
+    get leaves() {
+        return this._leaves;
     }
 }
