@@ -1,12 +1,17 @@
 class Graph {
+    _isDrawed = false;
     _initZoom = null;
     _canZoom = null;
     _rootSvg = null;
     _rootG = null;
-    _rootData = null;
+    _leaves = [];
+    _colored = [];
     _beforeDraw = () => {};
-    _afterDraw = () => {};
-    _onClickNode = () => {};
+    _afterDraw = () => {
+        this._isDrawed = true;
+    };
+
+    _onClickNode = (event, data) => {};
     _onZoom = () => {};
     _defaultColor = d3.scaleOrdinal(['#F9C1C8', '#DCEEC2', '#FBE5C1', '#B6C5F0', '#CCEFFC']);
 
@@ -31,9 +36,19 @@ class Graph {
     }
     setOnClickNode(callback) {
         this._onClickNode = callback;
+        if (this._isDrawed) {
+            for (const leaf of this._leaves) {
+                leaf.on('click', this._onClickNode)
+            }
+        }
     }
     setColor(callback) {
         this._color = callback;
+        if (this._isDrawed) {
+            for (const color of this._colored) {
+                color.attr("fill", (d, i) => this._color(d, i))
+            }
+        }
     }
     setBeforeDraw(callback) {
         this._beforeDraw = callback;
@@ -45,7 +60,10 @@ class Graph {
 
     }
     setAfterDraw(callback) {
-        this._afterDraw = callback;
+        this._afterDraw = () => {
+            callback()
+            this._isDrawed = true;
+        };
     }
     get rootG() {
         return this._rootG;
@@ -59,8 +77,6 @@ class Graph {
 
 
 class GraphUtils {
-
-
     static rectCollide() {
         var nodes, sizes, masses
         var size = constant([0, 0])
@@ -325,7 +341,7 @@ class GraphUtils {
 }
 
 class CircleGraph extends Graph {
-
+    _textColored = []
     _circlePadding = 30;
     _splitRegex = /(?=[A-Z][a-z])|\s+/g;
     _padding = this._circlePadding - 10;
@@ -562,12 +578,20 @@ class CircleGraph extends Graph {
             .attr("flood-opacity", 0.3)
             .attr("dx", 0)
             .attr("dy", 1);
-        this.updateData(this._data)
+        this.update(this._data)
         this.correctTextParentSize();
         this._afterDraw();
     }
-    updateData(data) {
 
+    updateData(data) {
+        this._data = this.preprocessData(data)
+        this.update(this._data)
+    }
+
+    update(data) {
+        this._leaves = [];
+        this._colored = [];
+        this._textColored = [];
         this._rootG.selectAll("g")
             .data(data, d => JSON.stringify(d.data))
             .join(enter => {
@@ -589,9 +613,10 @@ class CircleGraph extends Graph {
                     .classed("parent-text", true)
                     .attr("xlink:href", d => `#path-${GraphUtils.slugify(d["data"][0])}`)
                     .text(d => d.children[0].data.group)
-                    .style("fill", (d, i) => GraphUtils.colorLuminance(this._color(d, i), -0.2))
+                    .attr("fill", (d, i) => GraphUtils.colorLuminance(this._color(d, i), -0.2))
                     .attr("text-anchor", "middle")
                     .attr("startOffset", "50%");
+                this._textColored.push(text)
                 const circle_parent = parent_g
                     .append("circle")
                     .attr("cx", d => d.x)
@@ -600,7 +625,7 @@ class CircleGraph extends Graph {
                     .attr("stroke", "none")
                     .attr("fill", (d, i) => this._color(d, i))
                     .attr("filter", "url(#ombre)")
-
+                this._colored.push(circle_parent)
                 const leaf_svg = parent_g
                     .append("svg")
                     .style("overflow", "visible")
@@ -622,6 +647,9 @@ class CircleGraph extends Graph {
                     // return `id${i}-${j}`
                     // })
                     .on("click", this._onClickNode)
+
+                this._leaves.push(leaf_svg_g);
+
                 const imgs = leaf_svg_g
                     .filter(d => d.data.img)
                     .append("image")
@@ -638,6 +666,9 @@ class CircleGraph extends Graph {
                     .style("opacity", "0.5")
                     .attr("rx", 5)
                     .on("click", this._onClickNode)
+
+                this._leaves.push(rects);
+
                 const texts = leaf_svg_g
                     .filter(d => !d.data.img)
                     .append("text")
@@ -676,11 +707,13 @@ class CircleGraph extends Graph {
             })
 
     }
+    setColor(callback) {
+        super.setColor(callback);
+        for (const text of this._textColored) {
+            text.attr("fill", (d, i) => GraphUtils.colorLuminance(this._color(d, i), -0.2))
+        }
+    }
 }
-
-
-
-
 
 class GraphTooltip {
     _defaultImage = null;

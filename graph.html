@@ -33,15 +33,15 @@
         function change(l = null) {
             if (!l) {
                 last = randomizeData(circleData)
-                circleGraph.updateData(circleGraph.preprocessData(last));
+                circleGraph.updateData(last);
             } else {
-                circleGraph.updateData(circleGraph.preprocessData(l));
+                circleGraph.updateData(l);
             }
             console.log("CHANGED")
             if (cont)
                 setTimeout(change, 2000)
         }
-        //setTimeout(change, 2000)
+        setTimeout(change, 2000)
     </script>
 </body>
 
