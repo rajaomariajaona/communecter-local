@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="dist/css/graph.css">
     <title>Graphs</title>
 </head>
 
@@ -12,9 +13,9 @@
     <div id="graph-container">
 
     </div>
-    <script src="circle-data.js"></script>
-    <script src="d3.v6.min.js"></script>
-    <script src="graph.js"></script>
+    <script src="data/circle-data.js"></script>
+    <script src="../d3.v6.min.js"></script>
+    <script src="dist/js/graph.js"></script>
     <script>
         function randomizeData(data) {
             const rawLen = data.length;
@@ -41,7 +42,6 @@
             if (cont)
                 setTimeout(change, 2000)
         }
-        setTimeout(change, 2000)
     </script>
 </body>
 
