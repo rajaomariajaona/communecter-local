@@ -10,6 +10,7 @@ class RelationGraph extends Graph {
     _radius = 50;
     _groupRadius = 100;
     _marginCollide = 35;
+    _coloredGroup = [];
     _onClickGroup = () => {};
     _colorGroup = (d, i, n) => {
         return this._defaultColorGroup(i);
@@ -29,8 +30,12 @@ class RelationGraph extends Graph {
     setGroupRadius(radius) {
         this._groupRadius = radius;
     }
-    setOnColorGroup(callback) {
+    setColorGroup(callback) {
         this._colorGroup = callback;
+        for (const coloredGroup of this._coloredGroup) {
+            coloredGroup.attr("fill", (d, i, n) => this._colorGroup(d, i, n));
+        }
+
     }
     constructor(rawData) {
         super();
@@ -213,10 +218,11 @@ class RelationGraph extends Graph {
                         this._onZoom();
                     });
                     this._rootSvg.call(this._zoom);
-                    this._groupsNode
+                    const circleGroup = this._groupsNode
                         .append("circle")
                         .attr("r", this._groupRadius)
                         .attr("fill", (d, i) => (d.color = this._colorGroup(d, i)));
+                    this._coloredGroup.push(circleGroup)
                     this._groupsNode
                         .append("text")
                         .append("textPath")
@@ -246,10 +252,11 @@ class RelationGraph extends Graph {
 
                     this._groupsNode.on("click", this.focusOnGroup);
 
-                    this._leaves
+                    const circle = this._leaves
                         .append("circle")
                         .attr("r", this._radius)
                         .attr("fill", (d, i) => (d.color = this._color(d, i)));
+                    this._colored.push(circle)
                     this._leaves
                         .filter((d) => d.data.img)
                         .append("image")
@@ -282,7 +289,6 @@ class RelationGraph extends Graph {
 
                     node.attr("x", (d) => d.x).attr("y", (d) => d.y);
                     const bound = this._rootG.node().getBBox();
-                    console.log("WIDHT", this._width, "BND", bound.width);
                     const k = this._width / bound.width;
                     this._rootSvg.call(this._zoom.scaleTo, k);
                     this.addMouseEvent(this._leaves, this._groupsNode);
