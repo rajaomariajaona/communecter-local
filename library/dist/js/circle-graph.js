@@ -5,7 +5,6 @@ class CircleGraph extends Graph {
     _padding = this._circlePadding - 10;
     _globalMaxX = -Infinity
     _globalMaxY = -Infinity
-    _data = null;
     _nodes = [];
     _size = null;
     _funcGroup = null;
@@ -239,11 +238,6 @@ class CircleGraph extends Graph {
         this.update(this._data)
         this.correctTextParentSize();
         this._afterDraw();
-    }
-
-    updateData(data) {
-        this._data = this.preprocessData(data)
-        this.update(this._data)
     }
 
     update(data) {

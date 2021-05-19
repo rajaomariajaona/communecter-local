@@ -1,5 +1,6 @@
 class Graph {
     _isDrawed = false;
+    _data = [];
     _zoom = null;
     _canZoom = null;
     _rootSvg = null;
@@ -33,6 +34,10 @@ class Graph {
 
     }
     updateData(data) {
+        this._data = this.preprocessData(data);
+        this.update(this._data)
+    }
+    update(data) {
 
     }
     setOnZoom(callback) {

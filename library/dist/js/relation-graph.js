@@ -2,7 +2,6 @@ class RelationGraph extends Graph {
     _iconClass = "fa fa-users";
     _links = [];
     _linksNode = []
-    _data = [];
     _groups = [];
     _groupsNode = [];
     _defaultColorGroup = d3.scaleOrdinal(d3.schemeCategory10)
@@ -113,112 +112,131 @@ class RelationGraph extends Graph {
             .attr("id", "graph")
             .attr("viewBox", [-this._width / 2, -this._height / 2, this._width, this._height])
         this._rootG = this._rootSvg.append("g")
-
+        this.update()
+    }
+    update(data) {
         this._linksNode = this._rootG.append("g")
             .selectAll("line")
-            .data(this._links)
-            .join("line")
-            .attr("stroke-width", 1.1)
-            .attr("stroke-opacity", 0.3)
-            .attr("stroke", "#999")
-        const node = this._rootG
+            .data(this._links, d => JSON.stringify(d.data))
+            .join(enter => {
+                    this._linksNode = enter.append("line")
+                        .attr("stroke-width", 1.1)
+                        .attr("stroke-opacity", 0.3)
+                        .attr("stroke", "#999")
+                        .attr("x1", d => d.source.x)
+                        .attr("y1", d => d.source.y)
+                        .attr("x2", d => d.target.x)
+                        .attr("y2", d => d.target.y);
+                },
+                update => {
+                    console.log(update)
+                },
+                exit => {
+                    console.log(exit)
+                }
+            )
+
+        this._rootG
             .selectAll("svg")
-            .data(this._data)
-            .join("svg")
-            .style("overflow", "visible")
-        node.each(d => {
-            d.data.x = Math.random() * 200 * this._data.length;
-            d.data.y = Math.random() * 200 * this._data.length;
-        })
-        this._groupsNode = node.filter(d => d.data.type && d.data.type == "group")
-        const path = this._groupsNode
-            .append("path")
-            .attr("stroke", "none")
-            .attr("fill", "none")
-            .attr("id", (d, i) => `group-${i}`)
-            .attr('d', d => `M 0 ${this._groupRadius -this._pathPadding} A 1 1 0 1 1 0 ${-this._groupRadius + this._pathPadding} M 0 ${-this._groupRadius + this._pathPadding} A 1 1 0 1 1 0 ${this._groupRadius - this._pathPadding} `)
+            .data(this._data, d => JSON.stringify(d.data))
+            .join(enter => {
+                    const node = enter
+                        .append("svg")
+                        .style("overflow", "visible")
+                    node.each(d => {
+                        d.data.x = Math.random() * 200 * this._data.length;
+                        d.data.y = Math.random() * 200 * this._data.length;
+                    })
+                    this._groupsNode = node.filter(d => d.data.type && d.data.type == "group")
+                    const path = this._groupsNode
+                        .append("path")
+                        .attr("stroke", "none")
+                        .attr("fill", "none")
+                        .attr("id", (d, i) => `group-${i}`)
+                        .attr('d', d => `M 0 ${this._groupRadius -this._pathPadding} A 1 1 0 1 1 0 ${-this._groupRadius + this._pathPadding} M 0 ${-this._groupRadius + this._pathPadding} A 1 1 0 1 1 0 ${this._groupRadius - this._pathPadding} `)
 
-        this._leaves = node.filter(d => !d.data.type || d.data.type != "group")
+                    this._leaves = node.filter(d => !d.data.type || d.data.type != "group")
 
-        this._leaves.on("click", this._onClickNode)
-        this._zoom = d3.zoom().on("zoom", (e) => {
-            this._rootG.attr("transform", e.transform)
-            if (this._clicked) {
-                this.addMouseEvent(this._leaves, this._groupsNode);
-                this._clicked = false;
-            }
-            this._onZoom()
-        });
-        this._rootSvg.call(this._zoom)
-        this._groupsNode.append("circle")
-            .attr("r", this._groupRadius)
-            .attr("fill", (d, i) => d.color = this._colorGroup(d, i));
-        this._groupsNode
-            .append("text")
-            .append("textPath")
-            .attr("text-anchor", "middle")
-            .style("fill", "white")
-            .style("font-size", "30px")
-            .attr("startOffset", "50%")
-            .attr("xlink:href", (d, i) => `#group-${i}`)
-            .text(d => d.data.id)
-        const fontSize = this._groupRadius * (2 / 3);
-        this._groupsNode
-            .append("foreignObject")
-            .attr("x", -50)
-            .attr("y", -50)
-            .attr("width", 100)
-            .attr("height", 100)
-            .append("xhtml:div")
-            .style("width", "100%")
-            .style("height", "100%")
-            .style("display", "flex")
-            .style("justify-content", "center")
-            .style("align-items", "center")
-            .append("xhtml:i")
-            .style("font-size", fontSize + "px")
-            .style("color", "white")
-            .attr("class", d => this._iconClass)
+                    this._leaves.on("click", this._onClickNode)
+                    this._zoom = d3.zoom().on("zoom", (e) => {
+                        this._rootG.attr("transform", e.transform)
+                        if (this._clicked) {
+                            this.addMouseEvent(this._leaves, this._groupsNode);
+                            this._clicked = false;
+                        }
+                        this._onZoom()
+                    });
+                    this._rootSvg.call(this._zoom)
+                    this._groupsNode.append("circle")
+                        .attr("r", this._groupRadius)
+                        .attr("fill", (d, i) => d.color = this._colorGroup(d, i));
+                    this._groupsNode
+                        .append("text")
+                        .append("textPath")
+                        .attr("text-anchor", "middle")
+                        .style("fill", "white")
+                        .style("font-size", "30px")
+                        .attr("startOffset", "50%")
+                        .attr("xlink:href", (d, i) => `#group-${i}`)
+                        .text(d => d.data.id)
+                    const fontSize = this._groupRadius * (2 / 3);
+                    this._groupsNode
+                        .append("foreignObject")
+                        .attr("x", -50)
+                        .attr("y", -50)
+                        .attr("width", 100)
+                        .attr("height", 100)
+                        .append("xhtml:div")
+                        .style("width", "100%")
+                        .style("height", "100%")
+                        .style("display", "flex")
+                        .style("justify-content", "center")
+                        .style("align-items", "center")
+                        .append("xhtml:i")
+                        .style("font-size", fontSize + "px")
+                        .style("color", "white")
+                        .attr("class", d => this._iconClass)
 
-        this._groupsNode.on("click", this.focusOnGroup)
+                    this._groupsNode.on("click", this.focusOnGroup)
 
-        this._leaves.append("circle")
-            .attr("r", this._radius)
-            .attr("fill", (d, i) => d.color = this._color(d, i));
-        this._leaves
-            .filter(d => d.data.img)
-            .append("image")
-            .attr("xlink:href", d => d.data.img)
-            .attr("width", d => 80)
-            .attr("height", d => 80)
-            .attr("transform", d => `translate(-40,-40)`);
+                    this._leaves.append("circle")
+                        .attr("r", this._radius)
+                        .attr("fill", (d, i) => d.color = this._color(d, i));
+                    this._leaves
+                        .filter(d => d.data.img)
+                        .append("image")
+                        .attr("xlink:href", d => d.data.img)
+                        .attr("width", d => 80)
+                        .attr("height", d => 80)
+                        .attr("transform", d => `translate(-40,-40)`);
 
-        const texts = this._leaves.filter(d => !d.data.img)
-            .each(d => d.lines = GraphUtils.splitLines(d.data.label))
-            .append("text")
-            .attr("transform", d => `scale(${(this._radius - 20)/ GraphUtils.textRadius(d.lines)})`)
-            .selectAll("tspan")
-            .data(d => d.lines)
-            .enter()
-            .append("tspan")
-            .attr("text-anchor", "middle")
-            .attr("x", 0)
-            .attr("y", (d, i, n) => (i - n[i].parentNode.__data__.lines.length / 2 + 0.8) * 20)
-            .text(d => d.text)
+                    const texts = this._leaves.filter(d => !d.data.img)
+                        .each(d => d.lines = GraphUtils.splitLines(d.data.label))
+                        .append("text")
+                        .attr("transform", d => `scale(${(this._radius - 20)/ GraphUtils.textRadius(d.lines)})`)
+                        .selectAll("tspan")
+                        .data(d => d.lines)
+                        .enter()
+                        .append("tspan")
+                        .attr("text-anchor", "middle")
+                        .attr("x", 0)
+                        .attr("y", (d, i, n) => (i - n[i].parentNode.__data__.lines.length / 2 + 0.8) * 20)
+                        .text(d => d.text)
 
-        this._linksNode
-            .attr("x1", d => d.source.x)
-            .attr("y1", d => d.source.y)
-            .attr("x2", d => d.target.x)
-            .attr("y2", d => d.target.y);
-
-        node
-            .attr("x", d => d.x)
-            .attr("y", d => d.y);
-        const bound = this._rootG.node().getBBox();
-        const k = this._width / bound.width;
-        this._rootSvg.call(this._zoom.scaleBy, k)
-        this.addMouseEvent(this._leaves, this._groupsNode);
+                    node
+                        .attr("x", d => d.x)
+                        .attr("y", d => d.y);
+                    const bound = this._rootG.node().getBBox();
+                    const k = this._width / bound.width;
+                    this._rootSvg.call(this._zoom.scaleBy, k)
+                    this.addMouseEvent(this._leaves, this._groupsNode);
+                },
+                update => {
+                    console.log(update)
+                },
+                exit => {
+                    console.log(exit)
+                })
         this._afterDraw()
     }
 
