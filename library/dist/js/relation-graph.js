@@ -1,31 +1,30 @@
 class RelationGraph extends Graph {
     _iconClass = "fa fa-users";
     _links = [];
-    _linksNode = []
+    _linksNode = [];
     _groups = [];
     _groupsNode = [];
-    _defaultColorGroup = d3.scaleOrdinal(d3.schemeCategory10)
+    _defaultColorGroup = d3.scaleOrdinal(d3.schemeCategory10);
     _pathPadding = 30;
     _clicked = false;
     _radius = 50;
     _groupRadius = 100;
     _marginCollide = 35;
-    _onClickGroup = () => {}
+    _onClickGroup = () => {};
     _colorGroup = (d, i, n) => {
-        return this._defaultColorGroup(i)
-    }
+        return this._defaultColorGroup(i);
+    };
 
     get iconClass() {
         return this._iconClass;
     }
     set iconClass(icon) {
         this._iconClass = icon;
-        this._groupsNode.selectAll("i")
-            .attr("class", this._iconClass)
+        this._groupsNode.selectAll("i").attr("class", this._iconClass);
     }
 
     setRadius(radius) {
-        this._radius = radius
+        this._radius = radius;
     }
     setGroupRadius(radius) {
         this._groupRadius = radius;
@@ -34,12 +33,12 @@ class RelationGraph extends Graph {
         this._colorGroup = callback;
     }
     constructor(rawData) {
-        super()
+        super();
         const {
             data,
             links,
             groups
-        } = this.preprocessData(rawData)
+        } = this.preprocessData(rawData);
         this._links = links;
         this._data = data;
         this._groups = groups;
@@ -51,8 +50,8 @@ class RelationGraph extends Graph {
             groups = [];
         for (const dataRaw of dataRaws) {
             data.push({
-                data: dataRaw
-            })
+                data: dataRaw,
+            });
         }
         const tmpSets = new Set();
         for (let i = 0; i < data.length; i++) {
@@ -60,17 +59,15 @@ class RelationGraph extends Graph {
             if (el.data.groups) {
                 if (Array.isArray(el.data.groups)) {
                     for (const group of el.data.groups) {
-                        tmpSets.add(group)
+                        tmpSets.add(group);
                         const source = el.data.id;
-                        const target = group
+                        const target = group;
                         links.push({
                             source,
-                            target
-                        })
+                            target,
+                        });
                     }
-                } else {
-
-                }
+                } else {}
             }
         }
         groups = Array.from(tmpSets);
@@ -78,98 +75,148 @@ class RelationGraph extends Graph {
             data.push({
                 data: {
                     id: group,
-                    type: "group"
-                }
-            })
+                    type: "group",
+                },
+            });
         }
         for (const d of data) {
-            d.data.x = Math.random() * 200 * data.length;
-            d.data.y = Math.random() * 200 * data.length;
+            d.x = Math.random() * 100;
+            d.y = Math.random() * 100;
         }
-        var simulation = d3.forceSimulation(data)
-            .force("link", d3.forceLink(links).id(d => d.data.id).distance(200).strength(1))
+        var simulation = d3
+            .forceSimulation(data)
+            .force(
+                "link",
+                d3
+                .forceLink(links)
+                .id((d) => d.data.id)
+                .distance(200)
+                .strength(1)
+            )
             // .force("center", d3.forceCenter().x(width * .5).y(height * .5))
             .force("charge", d3.forceManyBody().strength(-1000))
             .force("x", d3.forceX())
-            .force("collide", d3.forceCollide().radius(d => (d.data.type == "group" ? this._groupRadius : this._radius) + this._marginCollide).iterations(2))
+            .force(
+                "collide",
+                d3
+                .forceCollide()
+                .radius(
+                    (d) =>
+                    (d.data.type == "group" ? this._groupRadius : this._radius) +
+                    this._marginCollide
+                )
+                .iterations(2)
+            )
             .force("y", d3.forceY())
             .stop();
-        const n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay()));
+        const n = Math.ceil(
+            Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())
+        );
         for (var i = 0; i < n; ++i) {
             simulation.tick();
         }
         return {
             data,
             links,
-            groups
-        }
+            groups,
+        };
     }
 
     draw(containerId) {
-        d3.select("#" + containerId).selectAll("svg#graph").remove()
-        this._rootSvg = d3.select("#" + containerId)
+        d3.select("#" + containerId)
+            .selectAll("svg#graph")
+            .remove();
+        this._rootSvg = d3
+            .select("#" + containerId)
             .append("svg")
             .attr("id", "graph")
-            .attr("viewBox", [-this._width / 2, -this._height / 2, this._width, this._height])
-        this._rootG = this._rootSvg.append("g")
-        this.update()
+            .attr("viewBox", [-this._width / 2, -this._height / 2,
+                this._width,
+                this._height,
+            ]);
+        this._rootG = this._rootSvg.append("g");
+        this._rootG.append("g").attr("id", "links-group")
+        this.update();
+        this._afterDraw();
+    }
+    updateData(rawData) {
+        const {
+            data,
+            links,
+            groups
+        } = this.preprocessData(rawData);
+        this._links = links;
+        this._data = data;
+        this._groups = groups;
+        this.update();
     }
     update(data) {
-        this._linksNode = this._rootG.append("g")
+        this._rootG
+            .select("g#links-group")
             .selectAll("line")
-            .data(this._links, d => JSON.stringify(d.data))
-            .join(enter => {
-                    this._linksNode = enter.append("line")
+            .data(this._links, (d) => {
+                return JSON.stringify(d)
+            })
+            .join(
+                (enter) => {
+                    this._linksNode = enter
+                        .append("line")
                         .attr("stroke-width", 1.1)
                         .attr("stroke-opacity", 0.3)
                         .attr("stroke", "#999")
-                        .attr("x1", d => d.source.x)
-                        .attr("y1", d => d.source.y)
-                        .attr("x2", d => d.target.x)
-                        .attr("y2", d => d.target.y);
-                },
-                update => {
-                    console.log(update)
-                },
-                exit => {
-                    console.log(exit)
+                        .attr("x1", (d) => d.source.x)
+                        .attr("y1", (d) => d.source.y)
+                        .attr("x2", (d) => d.target.x)
+                        .attr("y2", (d) => d.target.y);
                 }
-            )
+            );
 
         this._rootG
             .selectAll("svg")
-            .data(this._data, d => JSON.stringify(d.data))
-            .join(enter => {
-                    const node = enter
-                        .append("svg")
-                        .style("overflow", "visible")
-                    node.each(d => {
-                        d.data.x = Math.random() * 200 * this._data.length;
-                        d.data.y = Math.random() * 200 * this._data.length;
-                    })
-                    this._groupsNode = node.filter(d => d.data.type && d.data.type == "group")
+            .data(this._data, (d) => {
+
+                // return JSON.stringify(d.data)
+                return JSON.stringify(d);
+            })
+            .join(
+                (enter) => {
+                    const node = enter.append("svg").style("overflow", "visible");
+                    this._groupsNode = node.filter(
+                        (d) => d.data.type && d.data.type == "group"
+                    );
                     const path = this._groupsNode
                         .append("path")
                         .attr("stroke", "none")
                         .attr("fill", "none")
                         .attr("id", (d, i) => `group-${i}`)
-                        .attr('d', d => `M 0 ${this._groupRadius -this._pathPadding} A 1 1 0 1 1 0 ${-this._groupRadius + this._pathPadding} M 0 ${-this._groupRadius + this._pathPadding} A 1 1 0 1 1 0 ${this._groupRadius - this._pathPadding} `)
+                        .attr(
+                            "d",
+                            (d) =>
+                            `M 0 ${this._groupRadius - this._pathPadding} A 1 1 0 1 1 0 ${
+                  -this._groupRadius + this._pathPadding
+                } M 0 ${-this._groupRadius + this._pathPadding} A 1 1 0 1 1 0 ${
+                  this._groupRadius - this._pathPadding
+                } `
+                        );
 
-                    this._leaves = node.filter(d => !d.data.type || d.data.type != "group")
+                    this._leaves = node.filter(
+                        (d) => !d.data.type || d.data.type != "group"
+                    );
 
-                    this._leaves.on("click", this._onClickNode)
+                    this._leaves.on("click", this._onClickNode);
                     this._zoom = d3.zoom().on("zoom", (e) => {
-                        this._rootG.attr("transform", e.transform)
+                        this._rootG.attr("transform", e.transform);
                         if (this._clicked) {
                             this.addMouseEvent(this._leaves, this._groupsNode);
                             this._clicked = false;
                         }
-                        this._onZoom()
+                        this._onZoom();
                     });
-                    this._rootSvg.call(this._zoom)
-                    this._groupsNode.append("circle")
+                    this._rootSvg.call(this._zoom);
+                    this._groupsNode
+                        .append("circle")
                         .attr("r", this._groupRadius)
-                        .attr("fill", (d, i) => d.color = this._colorGroup(d, i));
+                        .attr("fill", (d, i) => (d.color = this._colorGroup(d, i)));
                     this._groupsNode
                         .append("text")
                         .append("textPath")
@@ -178,7 +225,7 @@ class RelationGraph extends Graph {
                         .style("font-size", "30px")
                         .attr("startOffset", "50%")
                         .attr("xlink:href", (d, i) => `#group-${i}`)
-                        .text(d => d.data.id)
+                        .text((d) => d.data.id);
                     const fontSize = this._groupRadius * (2 / 3);
                     this._groupsNode
                         .append("foreignObject")
@@ -195,147 +242,142 @@ class RelationGraph extends Graph {
                         .append("xhtml:i")
                         .style("font-size", fontSize + "px")
                         .style("color", "white")
-                        .attr("class", d => this._iconClass)
+                        .attr("class", (d) => this._iconClass);
 
-                    this._groupsNode.on("click", this.focusOnGroup)
+                    this._groupsNode.on("click", this.focusOnGroup);
 
-                    this._leaves.append("circle")
-                        .attr("r", this._radius)
-                        .attr("fill", (d, i) => d.color = this._color(d, i));
                     this._leaves
-                        .filter(d => d.data.img)
+                        .append("circle")
+                        .attr("r", this._radius)
+                        .attr("fill", (d, i) => (d.color = this._color(d, i)));
+                    this._leaves
+                        .filter((d) => d.data.img)
                         .append("image")
-                        .attr("xlink:href", d => d.data.img)
-                        .attr("width", d => 80)
-                        .attr("height", d => 80)
-                        .attr("transform", d => `translate(-40,-40)`);
+                        .attr("xlink:href", (d) => d.data.img)
+                        .attr("width", (d) => 80)
+                        .attr("height", (d) => 80)
+                        .attr("transform", (d) => `translate(-40,-40)`);
 
-                    const texts = this._leaves.filter(d => !d.data.img)
-                        .each(d => d.lines = GraphUtils.splitLines(d.data.label))
+                    const texts = this._leaves
+                        .filter((d) => !d.data.img)
+                        .each((d) => (d.lines = GraphUtils.splitLines(d.data.label)))
                         .append("text")
-                        .attr("transform", d => `scale(${(this._radius - 20)/ GraphUtils.textRadius(d.lines)})`)
+                        .attr(
+                            "transform",
+                            (d) =>
+                            `scale(${(this._radius - 20) / GraphUtils.textRadius(d.lines)})`
+                        )
                         .selectAll("tspan")
-                        .data(d => d.lines)
+                        .data((d) => d.lines)
                         .enter()
                         .append("tspan")
                         .attr("text-anchor", "middle")
                         .attr("x", 0)
-                        .attr("y", (d, i, n) => (i - n[i].parentNode.__data__.lines.length / 2 + 0.8) * 20)
-                        .text(d => d.text)
+                        .attr(
+                            "y",
+                            (d, i, n) =>
+                            (i - n[i].parentNode.__data__.lines.length / 2 + 0.8) * 20
+                        )
+                        .text((d) => d.text);
 
-                    node
-                        .attr("x", d => d.x)
-                        .attr("y", d => d.y);
+                    node.attr("x", (d) => d.x).attr("y", (d) => d.y);
                     const bound = this._rootG.node().getBBox();
+                    console.log("WIDHT", this._width, "BND", bound.width);
                     const k = this._width / bound.width;
-                    this._rootSvg.call(this._zoom.scaleBy, k)
+                    this._rootSvg.call(this._zoom.scaleTo, k);
                     this.addMouseEvent(this._leaves, this._groupsNode);
-                },
-                update => {
-                    console.log(update)
-                },
-                exit => {
-                    console.log(exit)
-                })
-        this._afterDraw()
+                });
     }
 
     removeAllMouseEvent() {
-        this._leaves.on('mouseover', null);
-        this._leaves.on('mouseout', null);
-        this._groupsNode.on('mouseover', null);
-        this._groupsNode.on('mouseout', null);
+        this._leaves.on("mouseover", null);
+        this._leaves.on("mouseout", null);
+        this._groupsNode.on("mouseover", null);
+        this._groupsNode.on("mouseout", null);
         this._groupsNode.on("click", (e) => {
-            e.stopPropagation()
-        })
+            e.stopPropagation();
+        });
     }
     leafMouseOut(d, i) {
         // groups.attr("fill", d => d.data.color)
         // circles.attr("fill", d => d.data.color)
-        this._leaves
-            .classed("svg-blur", false)
-            .attr("id", null);
-        this._groupsNode
-            .classed("svg-blur", false)
-            .attr("id", null)
+        this._leaves.classed("svg-blur", false).attr("id", null);
+        this._groupsNode.classed("svg-blur", false).attr("id", null);
         this._linksNode
             .attr("stroke-width", 1.1)
             .classed("active", false)
             .classed("svg-blur", false)
-            .attr("id", null)
-        const top = d3.select("g#top-container")
+            .attr("id", null);
+        const top = d3.select("g#top-container");
         if (top) {
-            top.remove()
+            top.remove();
         }
     }
     groupMouseOver(e, data) {
-        d3.select("g#top-container").remove()
-        this._groupsNode
-            .classed("svg-blur", true);
-        this._linksNode
-            .classed("svg-blur", true);
+        d3.select("g#top-container").remove();
+        this._groupsNode.classed("svg-blur", true);
+        this._linksNode.classed("svg-blur", true);
 
         d3.select(e.currentTarget)
             .classed("svg-blur", false)
-            .attr('opacity', '1')
+            .attr("opacity", "1")
             .attr("id", "node-active");
 
         const top_g = this._rootG
             .insert("g", "#node-active")
-            .attr("id", "top-container")
+            .attr("id", "top-container");
         const activeLink = this._linksNode
-            .filter(e => e.target.data.id == data.data.id)
+            .filter((e) => e.target.data.id == data.data.id)
             .attr("stroke-opacity", 1)
             .attr("stroke-width", 3)
             .classed("svg-blur", false)
             .attr("id", (_, i, node) => {
-                return "link-active-" + i
-            })
+                return "link-active-" + i;
+            });
         activeLink.each((l, i, node) => {
-            top_g.append("use")
-                .attr("xlink:href", "#link-active-" + i)
-        })
+            top_g.append("use").attr("xlink:href", "#link-active-" + i);
+        });
         const activeLeaf = this._leaves
-            .filter(d => d.data.groups.includes(data.data.id))
-            .attr('opacity', '1')
+            .filter((d) => d.data.groups.includes(data.data.id))
+            .attr("opacity", "1")
             .attr("id", (_, i) => "leaf-active-" + i);
         activeLeaf.each((l, i, node) => {
-            top_g.append("use")
-                .attr("xlink:href", "#leaf-active-" + i)
-        })
-        this.toggleBlurNotActiveLeaf(activeLeaf)
-        activeLink.classed("svg-blur", false)
+            top_g.append("use").attr("xlink:href", "#leaf-active-" + i);
+        });
+        this.toggleBlurNotActiveLeaf(activeLeaf);
+        activeLink.classed("svg-blur", false);
     }
     groupMouseOut(d, i) {
         this.toggleBlurNotActiveLeaf(false);
-        this._leaves
-            .attr('opacity', '1')
-            .attr("id", null);
+        this._leaves.attr("opacity", "1").attr("id", null);
         this._groupsNode
-            .attr('opacity', '1')
+            .attr("opacity", "1")
             .classed("svg-blur", false)
-            .attr("id", null)
+            .attr("id", null);
 
         this._linksNode
             .attr("stroke-opacity", 0.3)
             .attr("stroke-width", 1.1)
             .classed("active", false)
-            .attr("id", null)
-        const top = d3.select("g#top-container")
+            .attr("id", null);
+        const top = d3.select("g#top-container");
         if (top) {
-            top.remove()
+            top.remove();
         }
     }
     focusOnGroup(event, data) {
-        this._onClickGroup()
+        this._onClickGroup();
         event.stopPropagation();
-        this.removeAllMouseEvent()
+        this.removeAllMouseEvent();
         const {
             x,
             y,
             width,
             height
-        } = d3.select("g#top-container").node().getBBox();
+        } = d3
+            .select("g#top-container")
+            .node()
+            .getBBox();
         // svg.append("rect")
         //     .attr("x", bound.data.x)
         //     .attr("y", bound.data.y)
@@ -348,90 +390,89 @@ class RelationGraph extends Graph {
             d3.select("#content").on("click", (e) => {
                 this._clicked = false;
                 e.stopPropagation();
-                console.log("HERE")
-                this.removeAllMouseEvent()
+                console.log("HERE");
+                this.removeAllMouseEvent();
                 this.addMouseEvent(this._leaves, group);
                 this.leafMouseOut();
                 this.groupMouseOut();
-                d3.select("#content").on("click", null)
-            })
+                d3.select("#content").on("click", null);
+            });
         });
-
     }
     async boundZoomToGroup(x0, y0, x1, y1) {
-        return this._rootSvg.transition().duration(750).call(
-            this._zoom.transform,
-            d3.zoomIdentity
-            // .translate(width / 2, height / 2)
-            .translate(0, 0)
-            .scale(Math.min(8, 0.9 / Math.max((x1 - x0) / this._width, (y1 - y0) / this._height)))
-            .translate(-(x0 + x1) / 2, -(y0 + y1) / 2),
-            d3.pointer(event, this._rootSvg.node()),
-        ).end();
+        return this._rootSvg
+            .transition()
+            .duration(750)
+            .call(
+                this._zoom.transform,
+                d3.zoomIdentity
+                // .translate(width / 2, height / 2)
+                .translate(0, 0)
+                .scale(
+                    Math.min(
+                        8,
+                        0.9 / Math.max((x1 - x0) / this._width, (y1 - y0) / this._height)
+                    )
+                )
+                .translate(-(x0 + x1) / 2, -(y0 + y1) / 2),
+                d3.pointer(event, this._rootSvg.node())
+            )
+            .end();
     }
     toggleBlurNotActiveLeaf(activeLeaf) {
         if (activeLeaf) {
             this._leaves
                 .on("click", (e) => e.stopPropagation())
                 .classed("svg-blur", true);
-            activeLeaf
-                .on("click", this._onClickNode)
-                .classed("svg-blur", false);
+            activeLeaf.on("click", this._onClickNode).classed("svg-blur", false);
         } else {
-            this._leaves
-                .on("click", this._onClickNode)
-                .classed("svg-blur", false);
+            this._leaves.on("click", this._onClickNode).classed("svg-blur", false);
         }
     }
 
     leafMouseOver(e, data) {
-        d3.select("g#top-container").remove()
-        this._leaves
-            .classed("svg-blur", true);
-        this._groupsNode
-            .classed("svg-blur", true);
+        d3.select("g#top-container").remove();
+        this._leaves.classed("svg-blur", true);
+        this._groupsNode.classed("svg-blur", true);
 
-        this._linksNode
-            .classed("svg-blur", true);
+        this._linksNode.classed("svg-blur", true);
 
         d3.select(e.currentTarget)
-            .attr('opacity', '1')
+            .attr("opacity", "1")
             .classed("svg-blur", false)
             .attr("id", "node-active");
 
         const top_g = this._rootG
             .insert("g", "#node-active")
-            .attr("id", "top-container")
+            .attr("id", "top-container");
 
         const activeLink = this._linksNode
-            .filter(d => d.source.data.id == data.data.id)
+            .filter((d) => d.source.data.id == data.data.id)
             .attr("stroke-opacity", 1)
             .attr("stroke-width", 3)
             .classed("svg-blur", false)
             .attr("id", (_, i, node) => {
-                return "link-active-" + i
-            })
+                return "link-active-" + i;
+            });
 
         activeLink.each((l, i, node) => {
-            top_g.append("use")
-                .attr("xlink:href", "#link-active-" + i)
-        })
+            top_g.append("use").attr("xlink:href", "#link-active-" + i);
+        });
         const activeGroup = this._groupsNode
-            .filter(d => data.data.groups.includes(d.data.id))
+            .filter((d) => data.data.groups.includes(d.data.id))
             .classed("svg-blur", false)
             .attr("id", (_, i) => "group-active-" + i);
 
         activeGroup.each((l, i, node) => {
-            top_g.append("use")
-                .attr("xlink:href", "#group-active-" + i)
-        })
+            top_g.append("use").attr("xlink:href", "#group-active-" + i);
+        });
     }
 
     addMouseEvent() {
-        this.leaves.on('mouseover', (e, d) => this.leafMouseOver(e, d));
-        this.leaves.on('mouseout', (e, d) => this.leafMouseOut(e, d));
-        this._groupsNode.on('mouseover', (e, d) => this.groupMouseOver(e, d));
-        this._groupsNode.on('mouseout', (e, d) => this.groupMouseOut(e));
-        this._groupsNode.on("click", (e, d) => this.focusOnGroup(e, d))
+        this.leaves.on("mouseover", (e, d) => this.leafMouseOver(e, d));
+        this.leaves.on("mouseout", (e, d) => this.leafMouseOut(e, d));
+        this._groupsNode.on("mouseover", (e, d) => this.groupMouseOver(e, d));
+        this._groupsNode.on("mouseout", (e, d) => this.groupMouseOut(e));
+        this._groupsNode.on("click", (e, d) => this.focusOnGroup(e, d));
     }
 }
