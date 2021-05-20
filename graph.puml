@@ -1,43 +1,131 @@
 @startuml
 
-    abstract class Graph{
-        # _initZoom :d3Transform
-        # _canZoom :boolean
+    class ColorFunction{
+        data: object
+        index: number
+        node: Element[]
+    }
 
+    class ClickFunction{
+        event: Event
+        data: object
+    }
+
+    class TextLine{
+        width: number
+        text: string
+    }
+
+    interface Element
+    note left: Cas generale de SVGElement\net HTMLElement de JS
+
+    abstract class Graph{
         # _rootSvg :d3Selection
         # _rootG :d3Selection
-        # _leaves :d3Selection
+        # _leaves :d3Selection[]
+        # _colored :d3Selection[]
+        # _isDrawed: boolean
+        # _data: object[]
+        # _zoom: d3Zoom
+        # _width: number
+        # _height: number
+        # _beforeDraw: Function
+        # _afterDraw: Function
+        # _color: ColorFunction
+        # _update: Function
+        # _onZoom: Function
+        # _onClickNode: ClickFunction
 
-        + preprocessData(data)
-        + resetZoom()
-        + updateData(data)
-        + setOnZoom(callback)
-        + setOnClickNode(callback)
-        + setColor(callback) 
-        + setBeforeDraw(callback)
-        + draw(idSvg)
-        + setAfterDraw(callback)
+        # _preprocessData(data): object[]
+        + updateData(data): void
+        + setOnZoom(callback): void
+        + setOnClickNode(callback):void
+        + setColor(callback): void
+        + setBeforeDraw(callback): void
+        + draw(containerId): void
+        + setAfterDraw(callback): void
     }
 
     class GraphUtils{
-        {static} eucludianDistance(x1,y1,x2,y2);
-        {static} slugify(text);
-        {static} parseTransform(text);
-        {static} colorLuminance(hex,lum)
-    }
-
-    class GraphTooltip{
-        _node
-        constructor()
-        draw(containerId)
-        follow(node)
-
+        {static} eucludianDistance(x1,y1,x2,y2): number
+        {static} slugify(text): string
+        {static} parseTransform(text): object
+        {static} colorLuminance(hex,lum): string
+        {static} truncate(text, max, ellispsisText): string
+        {static} splitWords(text): string[]
+        {static} splitLines(text): TextLine[]
+        {static} textRadius(lines): number
+        {static} measureWidth(text): number
     }
 
     class CircleGraph extends Graph{
-        + CircleGraph(data, funcGroup);
-        - draw(data, container);
-        - group();
-        - dfs();
+        - _textColored: Element[]
+        - _circlePadding: number
+        - _splitRegex: RegExp
+        - _padding: number
+        - _globalMaxX: number
+        - _globalMaxY: number
+        - _nodes: d3Selection[]
+        - _size: number
+        - _funcGroup: Function
+        - w: number
+        - h: number
+        + CircleGraph(data, functionGroup)
+        - _group(): d3Hierarchy
+        - dfs(): void
+        - _correctTextParentSize(): void
     }
+
+    class RelationGraph extends Graph{
+        - _iconClass: string
+        - _links: d3Selection[]
+        - _linksNode: d3Selection[]
+        - _groups: string[]
+        - _groupsNode: d3Selection[]
+        - _pathPadding: number
+        - _clicked: boolean
+        - _radius: number
+        - _groupRadius: number
+        - _marginCollide: number
+        - _coloredGroup: d3Selection[]
+        - _colorGroup: ColorFunction
+
+        + RelationGraph(data)
+        + setRadius(r): void
+        + setGroupRadius(r): void
+        + setColorGroup(callback): void
+        - _removeAllMouseEvent(): void
+        - _leafMouseOut(event,data): void
+        - _groupMouseOver(event,data): void
+        - _groupMouseOut(event,data): void
+        - _focusOnGroup(event,data): void
+        - _boundZoomToGroup(x0,y0,x1,y1): void
+        - _toggleBlurNotActiveLeaf(activeLeaf): void
+        - _leafMouseOver(event,data): void
+        - _addMouseEvent(): void
+    }
+
+
+    class MindmapGraph extends Graph{
+        - _duration: number
+        - _nodePadding: object
+        - _margin: object
+        - _collapsed: string[]
+        - _source = object;
+        - _i:number;
+        - _nodes: d3Selection[];
+        - _links: d3Selection[];
+        - _treemap: d3Treemap;
+
+        + MindmapGraph(data)
+        - _diagonal(source, destination): string
+        - _click(event, data):void
+
+    }
+
+    GraphUtils "1" o-- "n" TextLine
+
+    Graph o-- ColorFunction
+    Graph o-- ClickFunction
+    Graph "1" *-- "n" Element
 @enduml
