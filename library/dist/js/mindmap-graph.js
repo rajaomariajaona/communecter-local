@@ -13,6 +13,7 @@ class MindmapGraph extends Graph {
         bottom: 30,
         left: 90,
     };
+    _collapsed = [];
 
     _source = null;
     _i = 0;
@@ -42,6 +43,17 @@ class MindmapGraph extends Graph {
                 if (a.parent == b.parent) return 1.5;
                 else return 2;
             });
+        for (const d of rawData.descendants()) {
+            if (this._collapsed.includes(d.data.id)) {
+                if (d.children) {
+                    d._children = d.children;
+                    d.children = null;
+                } else {
+                    d.children = d._children;
+                    d._children = null;
+                }
+            }
+        }
         return rawData;
     }
     draw(containerId) {
@@ -60,6 +72,7 @@ class MindmapGraph extends Graph {
         this._afterDraw()
     }
     updateData(data) {
+        this._nodes
         this._data = this.preprocessData(data);
         const tmp = this._duration;
         this._duration = 0
@@ -229,9 +242,11 @@ class MindmapGraph extends Graph {
         if (d.children) {
             d._children = d.children;
             d.children = null;
+            this._collapsed.push(d.data.id)
         } else {
             d.children = d._children;
             d._children = null;
+            this._collapsed = this._collapsed.filter(e => e != d.data.id)
         }
         this._source = d
         this.update(this._data);
