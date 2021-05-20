@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="dist/css/graph.css">
+    <link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css">
+    <title>Graphs</title>
+
+</head>
+
+<body>
+    <div id="graph-container">
+
+    </div>
+    <script src="data/mindmap-data.js"></script>
+    <script src="../d3.v6.min.js"></script>
+    <script src="dist/js/graph.js"></script>
+    <script src="dist/js/graph-utils.js"></script>
+    <script src="dist/js/mindmap-graph.js"></script>
+    <script>
+        var mindmapGraph = new MindmapGraph(mindData);
+        mindmapGraph.draw("graph-container")
+        var cont = true
+
+        function change(l = null) {
+            console.log("CHANGED")
+            mindmapGraph.updateData(mindData);
+            if (cont)
+                setTimeout(change, 2000)
+        }
+    </script>
+</body>
+
+</html>

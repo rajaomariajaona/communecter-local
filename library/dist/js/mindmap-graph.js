@@ -260,9 +260,13 @@ class MindmapGraph extends Graph {
             d.children = null;
             this._collapsed.push(d.data.id)
         } else {
-            d.children = d._children;
-            d._children = null;
-            this._collapsed = this._collapsed.filter(e => e != d.data.id)
+            if (d._children) {
+                d.children = d._children;
+                d._children = null;
+                this._collapsed = this._collapsed.filter(e => e != d.data.id)
+            } else {
+                this._onClickNode(e, d)
+            }
         }
         this._source = d
         this.update(this._data);
