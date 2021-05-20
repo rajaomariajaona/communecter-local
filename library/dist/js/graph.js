@@ -69,7 +69,12 @@ class Graph {
     preprocessData(data) {
         return data;
     }
-    draw(idSvg) {}
+    draw(containerId) {
+        d3.select("#" + containerId).selectAll("svg#graph").remove();
+        this._rootSvg = d3.select("#" + containerId)
+            .insert("svg", ":first-child")
+            .attr("id", "graph")
+    }
     setAfterDraw(callback) {
         this._afterDraw = () => {
             callback()

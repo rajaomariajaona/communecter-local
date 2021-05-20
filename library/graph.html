@@ -15,39 +15,14 @@
     <div id="graph-container">
 
     </div>
-    <script src="data/relation-data.js"></script>
+    <script src="data/mindmap-data.js"></script>
     <script src="../d3.v6.min.js"></script>
     <script src="dist/js/graph.js"></script>
     <script src="dist/js/graph-utils.js"></script>
-    <script src="dist/js/relation-graph.js"></script>
+    <script src="dist/js/mindmap-graph.js"></script>
     <script>
-        function randomizeData(data) {
-            const rawLen = data.length;
-            let len = Math.floor(rawLen / 2);
-            let resSet = new Set();
-            for (let i = 0; i < len; i++) {
-                resSet.add(data[Math.floor(Math.random() * rawLen)])
-            }
-            return Array.from(resSet)
-        }
-
-        var last = randomizeData(relationData);
-        var relationGraph = new RelationGraph(last)
-        relationGraph.draw("graph-container")
-        var cont = false
-
-        function change(l = null) {
-            if (!l) {
-                last = randomizeData(relationData)
-                relationGraph.updateData(last);
-            } else {
-                relationGraph.updateData(l);
-            }
-            console.log("CHANGED")
-            if (cont)
-                setTimeout(change, 2000)
-        }
-        //setTimeout(change, 2000)
+        var mindmapGraph = new MindmapGraph(mindData);
+        mindmapGraph.draw("graph-container")
     </script>
 </body>
 

@@ -1,4 +1,4 @@
-var treeData = {
+var mindData = {
     id: "root",
     name: "Mes Projets",
     children: [{
