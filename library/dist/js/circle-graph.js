@@ -235,12 +235,12 @@ class CircleGraph extends Graph {
             .attr("flood-opacity", 0.3)
             .attr("dx", 0)
             .attr("dy", 1);
-        this.update(this._data)
+        this._update(this._data)
         this.correctTextParentSize();
         this._afterDraw();
     }
 
-    update(data) {
+    _update(data) {
         this._leaves = [];
         this._colored = [];
         this._textColored = [];

@@ -68,7 +68,7 @@ class MindmapGraph extends Graph {
                 "transform",
                 "translate(" + this._margin.left + "," + (this._margin.top + this._height / 2) + ")"
             );
-        this.update(this._data);
+        this._update(this._data);
         this._afterDraw()
     }
     setColor(callback) {
@@ -90,10 +90,10 @@ class MindmapGraph extends Graph {
         this._data = this.preprocessData(data);
         const tmp = this._duration;
         this._duration = 0
-        this.update(this._data)
+        this._update(this._data)
         this._duration = tmp;
     }
-    update(data) {
+    _update(data) {
         var treeData = this._treemap(data);
         this._nodes = treeData.descendants();
         this._links = treeData.descendants().slice(1);
@@ -269,6 +269,6 @@ class MindmapGraph extends Graph {
             }
         }
         this._source = d
-        this.update(this._data);
+        this._update(this._data);
     }
 }

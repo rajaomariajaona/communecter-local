@@ -141,7 +141,7 @@ class RelationGraph extends Graph {
             ]);
         this._rootG = this._rootSvg.append("g");
         this._rootG.append("g").attr("id", "links-group")
-        this.update();
+        this._update();
         this._afterDraw();
     }
     updateData(rawData) {
@@ -153,9 +153,9 @@ class RelationGraph extends Graph {
         this._links = links;
         this._data = data;
         this._groups = groups;
-        this.update();
+        this._update();
     }
-    update(data) {
+    _update(data) {
         this._rootG
             .select("g#links-group")
             .selectAll("line")
