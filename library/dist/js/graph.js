@@ -2,7 +2,6 @@ class Graph {
     _isDrawed = false;
     _data = [];
     _zoom = null;
-    _canZoom = null;
     _rootSvg = null;
     _rootG = null;
     _leaves = [];
@@ -30,14 +29,11 @@ class Graph {
     _color = (d, i, n) => {
         return this._defaultColor(i);
     };
-    resetZoom() {
-
-    }
     updateData(data) {
-        this._data = this.preprocessData(data);
-        this.update(this._data)
+        this._data = this._preprocessData(data);
+        this._update(this._data)
     }
-    update(data) {
+    _update(data) {
 
     }
     setOnZoom(callback) {
@@ -72,7 +68,7 @@ class Graph {
     setBeforeDraw(callback) {
         this._beforeDraw = callback;
     }
-    preprocessData(data) {
+    _preprocessData(data) {
         return data;
     }
     draw(containerId) {

@@ -24,9 +24,9 @@ class MindmapGraph extends Graph {
 
     constructor(data) {
         super()
-        this._data = this.preprocessData(data);
+        this._data = this._preprocessData(data);
     }
-    preprocessData(rawData) {
+    _preprocessData(rawData) {
         rawData = d3.hierarchy(rawData);
         this._width = this._width - this._margin.left - this._margin.right;
         this._height = this._height - this._margin.top - this._margin.bottom;
@@ -87,7 +87,7 @@ class MindmapGraph extends Graph {
     }
     updateData(data) {
         this._nodes
-        this._data = this.preprocessData(data);
+        this._data = this._preprocessData(data);
         const tmp = this._duration;
         this._duration = 0
         this._update(this._data)

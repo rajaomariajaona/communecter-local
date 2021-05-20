@@ -18,12 +18,12 @@ class CircleGraph extends Graph {
     constructor(data, funcGroup) {
         super()
         this._funcGroup = funcGroup
-        this._data = this.preprocessData(data)
+        this._data = this._preprocessData(data)
     }
-    preprocessData(data) {
+    _preprocessData(data) {
         console.log("DATA", this._data)
         this._nodes = [];
-        const d = this.group(data, this._funcGroup);
+        const d = this._group(data, this._funcGroup);
         this._dfs(d);
         const packed = d3.packSiblings(this._nodes);
         let minY = Infinity;
@@ -73,7 +73,7 @@ class CircleGraph extends Graph {
      * @param {*} data 
      * @param {*} funcGroup 
      */
-    group(data, funcGroup) {
+    _group(data, funcGroup) {
         const group = d3.group(data, funcGroup);
         return d3.hierarchy(group).sum(d => d.size).sort((a, b) => b.value - a.value)
     }
@@ -194,7 +194,7 @@ class CircleGraph extends Graph {
         }
     }
 
-    correctTextParentSize() {
+    _correctTextParentSize() {
         const svg = this._rootG
         const [x, y, w, h] = this._rootSvg.attr("viewBox").split(",")
         const dimension = svg.node().getBoundingClientRect();
@@ -206,7 +206,7 @@ class CircleGraph extends Graph {
         parentTexts.style("font-size", `${30 * k}px`);
     }
 
-    draw(containerId, update = false) {
+    draw(containerId) {
         this._beforeDraw()
 
         d3.select("#" + containerId).selectAll("svg#graph").remove();
@@ -223,7 +223,7 @@ class CircleGraph extends Graph {
             .attr("transform", "translate(0,50)")
         const zoomEvent = d3.zoom().on('zoom', (e) => {
             this._rootG.attr("transform", e.transform)
-            this.correctTextParentSize();
+            this._correctTextParentSize();
             this._onZoom(e);
         })
         this._rootSvg.call(zoomEvent)
@@ -236,7 +236,7 @@ class CircleGraph extends Graph {
             .attr("dx", 0)
             .attr("dy", 1);
         this._update(this._data)
-        this.correctTextParentSize();
+        this._correctTextParentSize();
         this._afterDraw();
     }
 

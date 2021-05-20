@@ -43,13 +43,13 @@ class RelationGraph extends Graph {
             data,
             links,
             groups
-        } = this.preprocessData(rawData);
+        } = this._preprocessData(rawData);
         this._links = links;
         this._data = data;
         this._groups = groups;
     }
 
-    preprocessData(dataRaws) {
+    _preprocessData(dataRaws) {
         let data = [],
             links = [],
             groups = [];
@@ -149,7 +149,7 @@ class RelationGraph extends Graph {
             data,
             links,
             groups
-        } = this.preprocessData(rawData);
+        } = this._preprocessData(rawData);
         this._links = links;
         this._data = data;
         this._groups = groups;
@@ -212,7 +212,7 @@ class RelationGraph extends Graph {
                     this._zoom = d3.zoom().on("zoom", (e) => {
                         this._rootG.attr("transform", e.transform);
                         if (this._clicked) {
-                            this.addMouseEvent(this._leaves, this._groupsNode);
+                            this._addMouseEvent(this._leaves, this._groupsNode);
                             this._clicked = false;
                         }
                         this._onZoom();
@@ -250,7 +250,7 @@ class RelationGraph extends Graph {
                         .style("color", "white")
                         .attr("class", (d) => this._iconClass);
 
-                    this._groupsNode.on("click", this.focusOnGroup);
+                    this._groupsNode.on("click", this._focusOnGroup);
 
                     const circle = this._leaves
                         .append("circle")
@@ -291,11 +291,11 @@ class RelationGraph extends Graph {
                     const bound = this._rootG.node().getBBox();
                     const k = this._width / bound.width;
                     this._rootSvg.call(this._zoom.scaleTo, k);
-                    this.addMouseEvent(this._leaves, this._groupsNode);
+                    this._addMouseEvent(this._leaves, this._groupsNode);
                 });
     }
 
-    removeAllMouseEvent() {
+    _removeAllMouseEvent() {
         this._leaves.on("mouseover", null);
         this._leaves.on("mouseout", null);
         this._groupsNode.on("mouseover", null);
@@ -304,7 +304,7 @@ class RelationGraph extends Graph {
             e.stopPropagation();
         });
     }
-    leafMouseOut(d, i) {
+    _leafMouseOut(d, i) {
         // groups.attr("fill", d => d.data.color)
         // circles.attr("fill", d => d.data.color)
         this._leaves.classed("svg-blur", false).attr("id", null);
@@ -319,7 +319,7 @@ class RelationGraph extends Graph {
             top.remove();
         }
     }
-    groupMouseOver(e, data) {
+    _groupMouseOver(e, data) {
         d3.select("g#top-container").remove();
         this._groupsNode.classed("svg-blur", true);
         this._linksNode.classed("svg-blur", true);
@@ -350,11 +350,11 @@ class RelationGraph extends Graph {
         activeLeaf.each((l, i, node) => {
             top_g.append("use").attr("xlink:href", "#leaf-active-" + i);
         });
-        this.toggleBlurNotActiveLeaf(activeLeaf);
+        this._toggleBlurNotActiveLeaf(activeLeaf);
         activeLink.classed("svg-blur", false);
     }
-    groupMouseOut(d, i) {
-        this.toggleBlurNotActiveLeaf(false);
+    _groupMouseOut(d, i) {
+        this._toggleBlurNotActiveLeaf(false);
         this._leaves.attr("opacity", "1").attr("id", null);
         this._groupsNode
             .attr("opacity", "1")
@@ -371,10 +371,10 @@ class RelationGraph extends Graph {
             top.remove();
         }
     }
-    focusOnGroup(event, data) {
+    _focusOnGroup(event, data) {
         this._onClickGroup();
         event.stopPropagation();
-        this.removeAllMouseEvent();
+        this._removeAllMouseEvent();
         const {
             x,
             y,
@@ -391,21 +391,21 @@ class RelationGraph extends Graph {
         //     .attr("height", bound.data.height)
         //     .attr("fill", "none")
         //     .attr("stroke", "red")
-        this.boundZoomToGroup(x, y, x + width, y + height).finally(() => {
+        this._boundZoomToGroup(x, y, x + width, y + height).finally(() => {
             this._clicked = true;
             d3.select("#content").on("click", (e) => {
                 this._clicked = false;
                 e.stopPropagation();
                 console.log("HERE");
-                this.removeAllMouseEvent();
-                this.addMouseEvent(this._leaves, group);
-                this.leafMouseOut();
-                this.groupMouseOut();
+                this._removeAllMouseEvent();
+                this._addMouseEvent(this._leaves, group);
+                this._leafMouseOut();
+                this._groupMouseOut();
                 d3.select("#content").on("click", null);
             });
         });
     }
-    async boundZoomToGroup(x0, y0, x1, y1) {
+    async _boundZoomToGroup(x0, y0, x1, y1) {
         return this._rootSvg
             .transition()
             .duration(750)
@@ -425,7 +425,7 @@ class RelationGraph extends Graph {
             )
             .end();
     }
-    toggleBlurNotActiveLeaf(activeLeaf) {
+    _toggleBlurNotActiveLeaf(activeLeaf) {
         if (activeLeaf) {
             this._leaves
                 .on("click", (e) => e.stopPropagation())
@@ -436,7 +436,7 @@ class RelationGraph extends Graph {
         }
     }
 
-    leafMouseOver(e, data) {
+    _leafMouseOver(e, data) {
         d3.select("g#top-container").remove();
         this._leaves.classed("svg-blur", true);
         this._groupsNode.classed("svg-blur", true);
@@ -474,11 +474,11 @@ class RelationGraph extends Graph {
         });
     }
 
-    addMouseEvent() {
-        this.leaves.on("mouseover", (e, d) => this.leafMouseOver(e, d));
-        this.leaves.on("mouseout", (e, d) => this.leafMouseOut(e, d));
-        this._groupsNode.on("mouseover", (e, d) => this.groupMouseOver(e, d));
-        this._groupsNode.on("mouseout", (e, d) => this.groupMouseOut(e));
-        this._groupsNode.on("click", (e, d) => this.focusOnGroup(e, d));
+    _addMouseEvent() {
+        this.leaves.on("mouseover", (e, d) => this._leafMouseOver(e, d));
+        this.leaves.on("mouseout", (e, d) => this._leafMouseOut(e, d));
+        this._groupsNode.on("mouseover", (e, d) => this._groupMouseOver(e, d));
+        this._groupsNode.on("mouseout", (e, d) => this._groupMouseOut(e));
+        this._groupsNode.on("click", (e, d) => this._focusOnGroup(e, d));
     }
 }
