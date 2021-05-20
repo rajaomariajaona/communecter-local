@@ -59,7 +59,13 @@ class Graph {
         this._color = callback;
         if (this._isDrawed) {
             for (const color of this._colored) {
-                color.attr("fill", (d, i) => this._color(d, i))
+                if (color.node()) {
+                    if (color.node() instanceof SVGElement) {
+                        color.attr("fill", (d, i, n) => this._color(d, i, n))
+                    } else if (color.node() instanceof HTMLElement) {
+                        color.style("background-color", (d, i, n) => this._color(d, i, n));
+                    }
+                }
             }
         }
     }
