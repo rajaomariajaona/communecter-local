@@ -14,6 +14,9 @@ class MindmapGraph extends Graph {
         left: 90,
     };
 
+    _source = null;
+    _i = 0;
+
     _nodes = [];
     _links = [];
     _treemap = null;
@@ -26,8 +29,11 @@ class MindmapGraph extends Graph {
         rawData = d3.hierarchy(rawData);
         this._width = this._width - this._margin.left - this._margin.right;
         this._height = this._height - this._margin.top - this._margin.bottom;
-        rawData.x0 = this._height / 2;
-        rawData.y0 = 0;
+        rawData.x0 = this._height / 2
+        rawData.y0 = 0
+
+        this._source = rawData;
+
         this._treemap = d3
             .tree()
             .size([this._height, this._width])
@@ -53,28 +59,26 @@ class MindmapGraph extends Graph {
         this.update(this._data);
         this._afterDraw()
     }
-    update(source) {
-        var data = this._treemap(this._data);
-        console.log(data)
-        this._nodes = data.descendants();
-        this._links = data.descendants().slice(1);
-
+    update(data) {
+        var treeData = this._treemap(data);
+        this._nodes = treeData.descendants();
+        this._links = treeData.descendants().slice(1);
         var node_g;
         var node = this._rootG
             .selectAll("g.node")
-            .data(this._nodes, (d) => d.id || (d.id = ++this.i));
+            .data(this._nodes, (d) => d.id || (d.id = ++this._i));
         node.join(
             (enter) => {
                 node_g = enter
                     .append("g")
                     .attr("class", "node")
-                    .attr(
-                        "transform",
-                        (d) => "translate(" + source.y0 + "," + source.x0 + ")"
-                    )
                     .on("click", (e, d) => {
                         this._click(e, d);
-                    });
+                    })
+                    .attr(
+                        "transform",
+                        (d) => "translate(" + this._source.y0 + "," + this._source.x0 + ")"
+                    )
                 const texts = node_g
                     .append("text")
                     .text((d) => d.data.name)
@@ -124,12 +128,11 @@ class MindmapGraph extends Graph {
                     });
             },
             (exit) => {
-                console.log(exit.node());
                 exit
                     .transition()
                     .duration(this._duration)
                     .attr("transform", (d) => {
-                        return "translate(" + source.y + "," + source.x + ")";
+                        return "translate(" + this._source.y + "," + this._source.x + ")";
                     })
                     .style("opacity", 0)
                     .remove();
@@ -149,8 +152,8 @@ class MindmapGraph extends Graph {
                     .attr("class", "link")
                     .attr("d", (d) => {
                         var o = {
-                            x: source.x0,
-                            y: source.y0,
+                            x: this._source.x0,
+                            y: this._source.y0,
                         };
                         return this._diagonal(o, o);
                     })
@@ -180,8 +183,8 @@ class MindmapGraph extends Graph {
                     .duration(this._duration)
                     .attr("d", (d) => {
                         var o = {
-                            x: source.x,
-                            y: source.y,
+                            x: this._source.x,
+                            y: this._source.y,
                         };
                         return this._diagonal(o, o);
                     })
@@ -223,6 +226,7 @@ class MindmapGraph extends Graph {
             d.children = d._children;
             d._children = null;
         }
-        this.update(d);
+        this._source = d
+        this.update(this._data);
     }
 }
