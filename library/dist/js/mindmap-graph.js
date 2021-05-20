@@ -71,6 +71,20 @@ class MindmapGraph extends Graph {
         this.update(this._data);
         this._afterDraw()
     }
+    setColor(callback) {
+        this._color = callback;
+        if (this._isDrawed) {
+            for (const color of this._colored) {
+                if (color.node()) {
+                    if (color.node() instanceof SVGElement) {
+                        color.attr("fill", (d, i, n) => this._color(d, i, n))
+                    } else if (color.node() instanceof HTMLElement) {
+                        color.style("background-color", (d, i, n) => this._color(d, d.depth, n));
+                    }
+                }
+            }
+        }
+    }
     updateData(data) {
         this._nodes
         this._data = this.preprocessData(data);
@@ -112,7 +126,7 @@ class MindmapGraph extends Graph {
                         x,
                         y
                     } = n[i].getBBox();
-                    const rect = d3
+                    const rectNode = d3
                         .select(n[i])
                         .insert("foreignObject", "text")
                         .attr("x", x - this._nodePadding.left)
@@ -126,11 +140,13 @@ class MindmapGraph extends Graph {
                             (d) =>
                             (d.h = height + this._nodePadding.top + this._nodePadding.bottom)
                         )
-                        .append("xhtml:div")
+
+                    const rect = rectNode.append("xhtml:div")
                         .style("height", "100%")
                         .style("width", "100%")
                         .style("border-radius", "10px")
                         .style("background-color", (d, i, n) => this._color(d, d.depth, n));
+                    this._colored.push(rect)
                 });
             },
             (update) => {
