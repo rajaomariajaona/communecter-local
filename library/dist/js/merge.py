@@ -5,3 +5,10 @@ with open(out, 'w') as outfile:
         with open(fname) as infile:
             for line in infile:
                 outfile.write(line)
+        outfile.write("\n")
+        parts = fname[:-3].split('-')
+        res = ""
+        for i in range(len(parts)):
+            res = res + parts[i][0].upper() + parts[i][1:]
+        outfile.write("window." + res + " = " + res)
+        outfile.write("\n")

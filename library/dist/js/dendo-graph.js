@@ -1,0 +1,3 @@
+class DendoGraph extends Graph {
+
+}
