@@ -6,6 +6,12 @@ class NetworkGraph extends Graph {
     _groups = {};
     _linksNode = null;
     _nodes = null;
+    _circlesNode = null;
+
+    setCircleSize(callback) {
+        this._circleSize = callback;
+        this._circlesNode.attr("r", (d, e) => this._circleSize(d, e))
+    }
 
     _color = (d, i, n) => {
         if (d.type == "group") {
@@ -117,7 +123,7 @@ class NetworkGraph extends Graph {
                 this._linksNode = enter
                     .append("line")
                     .attr("stroke-width", 5)
-                    .style("stroke", "#333333");
+                    .style("stroke", "rgba(51,51,51,0.6)");
             });
         const nodes = this._rootG
             .append("g")
@@ -137,7 +143,7 @@ class NetworkGraph extends Graph {
                         .on("drag", (e, d) => this._dragDrag(e, d))
                         .on("end", (e, d) => this._dragEnd(e, d))
                     );
-                this._nodes
+                this._circlesNode = this._nodes
                     .append("circle")
                     .attr("r", (d, i, n) => {
                         const r = this._circleSize(d, i, n)
