@@ -54,6 +54,9 @@ class CircleGraph extends Graph {
 
         const d = this._group(data, this._funcGroup);
         this._dfs(d);
+
+
+        console.log(this._nodes);
         const packed = d3.packSiblings(this._nodes);
 
         let minY = Infinity;
@@ -138,10 +141,8 @@ class CircleGraph extends Graph {
                 // leaf nodes
 
                 for (let i = 0; i < parent.children.length; i++) {
-                    parent.children[i]["x"] =
-                        parent.children[i]["x"] || Math.random() * 200 - 100;
-                    parent.children[i]["y"] =
-                        parent.children[i]["y"] || Math.random() * 200 - 100;
+                    parent.children[i]["x"] = Math.random() * 100 - 50;
+                    parent.children[i]["y"] = Math.random() * 100 - 50;
                     if (parent.children[i]["data"].img) {
                         parent.children[i]["width"] = 60;
                         parent.children[i]["bw"] = parent.children[i]["width"];
@@ -158,18 +159,26 @@ class CircleGraph extends Graph {
                                     maxWLen = parts.length;
                                 }
                             }
-                            maxWLen *= 10;
+                            maxWLen *= 14;
                             const len = textParts.length;
                             parent.children[i]["textParts"] = textParts;
                             parent.children[i]["maxWidthText"] = maxWLen;
                         }
+                        const container = document.createElement("div");
+                        const div = document.createElement("div");
+                        container.appendChild(div)
+                        div.innerHTML = parent.children[i]["data"].label;
+                        div.setAttribute("style", `width: ${parent.children[i]["maxWidthText"]}px; padding: 20px;`)
+                        const {width, height} = GraphUtils.computeBoundVirtualNode(container);
 
-                        parent.children[i]["width"] =
-                            parent.children[i]["maxWidthText"] + 40;
-                        parent.children[i]["bw"] = parent.children[i]["width"];
-                        parent.children[i]["height"] =
-                            parent.children[i]["textParts"].length * 24 + 40;
-                        parent.children[i]["bh"] = parent.children[i]["height"];
+                        parent.children[i]["width"] = width;
+                        parent.children[i]["bw"] = width;
+                        parent.children[i]["height"] = height;
+                        parent.children[i]["bh"] = height;
+                    }
+                    if(parent.children.length <= 2){
+                        parent.children[i]["x"] = - parent.children[i]["width"] / 2;
+                        parent.children[i]["y"] = - parent.children[i]["height"] / 2;
                     }
                 }
                 //POSITION CALCUL HERE
@@ -192,7 +201,8 @@ class CircleGraph extends Graph {
                 for (var i = 0; i < n; ++i) {
                     simulation.tick();
                 }
-                parent.children["simulation"] = simulation;
+
+                // parent.children["simulation"] = simulation;
 
                 let minX = Infinity;
                 let maxX = -Infinity;
@@ -206,40 +216,14 @@ class CircleGraph extends Graph {
                     if (maxX < x) maxX = x;
                     if (maxY < y) maxY = y;
                 }
-                console.log(minX, minY);
-                if (minX != 0) {
-                    if (minX < 0) {
-                        for (let i = 0; i < parent.children.length; i++) {
-                            const x = (parent.children[i]["x"] += Math.abs(minX));
-                            if (maxX < x) maxX = x;
-                        }
-                    } else {
-                        for (let i = 0; i < parent.children.length; i++) {
-                            parent.children[i]["x"] -= Math.abs(minX);
-                        }
-                    }
-                }
-                if (minY != 0) {
-                    if (minY < 0) {
-                        for (let i = 0; i < parent.children.length; i++) {
-                            const y = (parent.children[i]["y"] += Math.abs(minY));
-                            if (maxY < y) maxY = y;
-                        }
-                    } else {
-                        for (let i = 0; i < parent.children.length; i++) {
-                            parent.children[i]["y"] -= Math.abs(minY);
-                        }
-                    }
-                }
-
-                const minR = Math.max(maxX, maxY) / 2; // compute r for placing items (nodes)
+                const minR = 0; // compute r for placing items (nodes)
                 let r = minR;
                 for (let i = 0; i < parent.children.length; i++) {
                     const x = parent.children[i]["x"];
                     const y = parent.children[i]["y"];
                     const width = parent.children[i]["bw"];
                     const height = parent.children[i]["bh"];
-                    const hyp = Math.sqrt(width * width + height * height);
+                    const hyp = Math.sqrt(width ** 2 + height ** 2);
                     const currR = GraphUtils.eucludianDistance(minR, minR, x, y) + hyp;
                     if (r < currR) r = currR;
                 }
@@ -265,8 +249,6 @@ class CircleGraph extends Graph {
     }
 
     draw(containerId) {
-
-
         d3.select(containerId)
             .selectAll("svg.graph")
             .remove();
@@ -357,6 +339,8 @@ class CircleGraph extends Graph {
                     .classed("leaf-svg", true)
                     .attr("x", (d) => d.x - d.r + d.dr)
                     .attr("y", (d) => d.y - d.r + d.dr);
+                    // .attr("x", (d) => d.x)
+                    // .attr("y", (d) => d.y);
             });
 
         d3.selectAll("svg.leaf-svg")
@@ -380,57 +364,50 @@ class CircleGraph extends Graph {
 
                     this._leaves.push(leaf_svg_g);
 
-                    const imgs = leaf_svg_g
+                    
+                        
+                    const foreign = leaf_svg_g
+                    .append("foreignObject")
+                    .style("overflow", "visible")
+                    .attr("width", (d) => d.width)
+                    .attr("height", (d) => d.height)
+                    .attr("x", (d) => d.x)
+                    .attr("y", (d) => d.y)
+                    .style("transform-box", "fill-box")
+                    .style("transform", "translate(-50%, -50%)")
+                    
+                    foreign.filter((d) => !d.data.img)
+                        .append("xhtml:div")
+                        .style("overflow", "hidden")
+                        .style("text-align", "center")
+                        .style("padding", "10px")
+                        .style("display", "flex")
+                        .style("justify-content", "center")
+                        .style("align-items", "center")
+                        .style("background-color", "transparent")
+                        .style("color", "#455a64")
+                        .style("border", "2px solid rgba(69, 90, 100, 0.5)")
+                        .style("border-radius", "5px")
+                        .text(d => d.data.label)
+                        .on("click", this._onClickNode)
+
+                    foreign.append("xhtml:img")
                         .filter((d) => d.data.img)
-                        .append("image")
-                        .attr("xlink:href", (d) => d.data.img)
+                        .attr("src", (d) => d.data.img)
                         .attr("width", (d) => d.width)
                         .attr("height", (d) => d.height)
                         .attr("x", (d) => d.x)
                         .attr("y", (d) => d.y);
-                    const rects = leaf_svg_g
-                        .filter((d) => !d.data.img)
-                        .append("rect")
-                        .attr("fill", "transparent")
-                        .attr("stroke", "#455a64")
-                        .style("opacity", "0.5")
-                        .attr("rx", 5)
-                        .on("click", this._onClickNode);
 
-                    this._leaves.push(rects);
+                    // const imgs = leaf_svg_g
+                    //     .filter((d) => d.data.img)
+                    //     .append("image")
+                    //     .attr("xlink:href", (d) => d.data.img)
+                    
+                        
 
-                    const texts = leaf_svg_g
-                        .filter((d) => !d.data.img)
-                        .append("text")
-                        .attr("text-anchor", "middle")
-                        .attr("y", (d) => d.y)
-                        .classed("text-leaf", true);
-                    const textSpans = texts
-                        .selectAll("tspan")
-                        .data((d) => d.data.label.split(this._splitRegex))
-                        .join("tspan")
-                        .attr("x", (_, i, j) => {
-                            const d = j[i].parentNode.__data__;
-                            const x = d.x + d.width / 2;
-                            return x;
-                        })
-                        .attr("dy", (d, i, j) => (i != 0 ? 20 : 0))
-                        .text((d) => d + " ");
+                    this._leaves.push(foreign);
 
-                    for (const node_g of enter.selectAll("g").nodes()) {
-                        const text = d3.select(node_g).select("text");
-                        if (!text.node()) {
-                            continue;
-                        }
-                        const bound = text.node().getBBox();
-                        d3.select(node_g)
-                            .select("rect")
-
-                        .attr("x", bound.x - 10)
-                            .attr("y", bound.y - 10)
-                            .attr("height", bound.height + 20)
-                            .attr("width", bound.width + 20);
-                    }
                 },
                 (update) => {
                     console.log(update);

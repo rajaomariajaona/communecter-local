@@ -15,7 +15,9 @@
     </div>
     <script src="data/circle-data.js"></script>
     <script src="../d3.v6.min.js"></script>
-    <script src="dist/js/all.js"></script>
+    <script src="dist/js/graph-utils.js"></script>
+    <script src="dist/js/graph.js"></script>
+    <script src="dist/js/circle-graph.js"></script>
     <script>
         function randomizeData(data) {
             const rawLen = data.length;
@@ -26,8 +28,9 @@
             }
             return Array.from(resSet)
         }
-        var circleGraph = new CircleGraph(randomizeData(circleData), d => GraphUtils.slugify(d.group))
+        var circleGraph = new CircleGraph([],d => GraphUtils.slugify(d.group))
         circleGraph.draw("#graph-container")
+        circleGraph.updateData(circleGraph.preprocessResults((circleData2)))
         var cont = false
         var last = null
 

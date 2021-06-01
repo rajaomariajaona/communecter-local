@@ -274,4 +274,14 @@ class GraphUtils {
         }
     }
 
+    static computeBoundVirtualNode(node){
+        let bnd;
+        let clone = node.cloneNode(true)
+        clone.style.cssText = "position:fixed; top:-99999px; opacity:0;z-index: -1;"
+        document.body.appendChild(clone);
+        bnd = clone.getBoundingClientRect();
+        // clone.parentNode.removeChild(clone)
+        return bnd;
+    }
+
 }
