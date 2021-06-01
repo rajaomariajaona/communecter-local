@@ -48,6 +48,15 @@ class RelationGraph extends Graph {
         this._groups = groups;
     }
 
+    preprocessResults(results){
+        const res = []
+        for (const [id, value] of Object.entries(results)) {
+            res.push({...value, id, groups: value.tags ? value.tags : ["Autres"], label: value.name ? value.name : ""})
+        }
+        console.log(res);
+        return res
+    }
+
     _preprocessData(dataRaws) {
         let data = [],
             links = [],
@@ -127,11 +136,12 @@ class RelationGraph extends Graph {
     }
 
     draw(containerId) {
-        d3.select("#" + containerId)
+
+        d3.select(containerId)
             .selectAll("svg.graph")
             .remove();
         this._rootSvg = d3
-            .select("#" + containerId)
+            .select(containerId)
             .append("svg")
             .attr("id", "graph")
             .attr("viewBox", [-this._width / 2, -this._height / 2,
@@ -141,7 +151,7 @@ class RelationGraph extends Graph {
         this._rootG = this._rootSvg.append("g");
         this._rootG.append("g").attr("id", "links-group");
         this._update();
-        this._afterDraw();
+        
     }
     updateData(rawData) {
         const {
@@ -155,6 +165,7 @@ class RelationGraph extends Graph {
         this._update();
     }
     _update(data) {
+        this._beforeDraw();
         this._rootG
             .select("g#links-group")
             .selectAll("line")
@@ -267,7 +278,7 @@ class RelationGraph extends Graph {
                     .attr(
                         "transform",
                         (d) =>
-                        `scale(${(this._radius - 20) / GraphUtils.textRadius(d.lines)})`
+                        `scale(${isFinite((this._radius - 20) / GraphUtils.textRadius(d.lines)) ? (this._radius - 20) / GraphUtils.textRadius(d.lines) : 1})`
                     )
                     .selectAll("tspan")
                     .data((d) => d.lines)
@@ -285,9 +296,12 @@ class RelationGraph extends Graph {
                 node.attr("x", (d) => d.x).attr("y", (d) => d.y);
                 const bound = this._rootG.node().getBBox();
                 const k = this._width / bound.width;
-                this._rootSvg.call(this._zoom.scaleTo, k);
+                if(isFinite(k)){
+                    this._rootSvg.call(this._zoom.scaleTo, k);
+                }
                 this._addMouseEvent(this._leaves, this._groupsNode);
             });
+            this._afterDraw();
     }
 
     _removeAllMouseEvent() {
@@ -410,10 +424,13 @@ class RelationGraph extends Graph {
                 // .translate(width / 2, height / 2)
                 .translate(0, 0)
                 .scale(
-                    Math.min(
+                    isFinite(Math.min(
                         8,
                         0.9 / Math.max((x1 - x0) / this._width, (y1 - y0) / this._height)
-                    )
+                    )) ? Math.min(
+                        8,
+                        0.9 / Math.max((x1 - x0) / this._width, (y1 - y0) / this._height)
+                    ) : 1
                 )
                 .translate(-(x0 + x1) / 2, -(y0 + y1) / 2),
                 d3.pointer(event, this._rootSvg.node())

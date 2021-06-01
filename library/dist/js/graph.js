@@ -1,4 +1,6 @@
 class Graph {
+    _isDrawing = false;
+    _isUpdating = false;
     _isDrawed = false;
     _data = [];
     _zoom = null;
@@ -8,10 +10,26 @@ class Graph {
     _colored = [];
     _width = 800;
     _height = 800;
-    _beforeDraw = () => {};
+    _beforeDraw = () => {
+        console.log("BEFORE DRAW")
+    };
     _afterDraw = () => {
+        console.log("AFTER DRAW")
         this._isDrawed = true;
     };
+    _beforeUpdate = () => {
+        console.log("BEFORE UPDATE")
+    };
+    _afterUpdate = () => {
+        console.log("AFTER UPDATE")
+    };
+
+    setBeforeUpdate(callback){
+        this._beforeUpdate = callback;
+    }
+    setAfterUpdate(callback){
+        this._afterUpdate = callback;
+    }
 
     _onClickNode = (event, data) => {
         console.log("CLICKED", data);
@@ -75,7 +93,7 @@ class Graph {
     _preprocessData(data) {
         return data;
     }
-    static preprocessResults(results){
+    preprocessResults(results){
         const res = []
         for (const [id, value] of Object.entries(results)) {
             res.push({...value, id})
@@ -89,11 +107,11 @@ class Graph {
         return false;
     }
     draw(containerId) {
-        d3.select("#" + containerId)
+        d3.select(containerId)
             .selectAll("svg.graph")
             .remove();
         this._rootSvg = d3
-            .select("#" + containerId)
+            .select(containerId)
             .insert("svg", ":first-child")
             .attr("id", "graph");
     }

@@ -20,7 +20,7 @@ class CircleGraph extends Graph {
         this._funcGroup = funcGroup;
         this._data = this._preprocessData(data);
     }
-    static preprocessResults(results){
+    preprocessResults(results){
         const res = []
         for (const [id, value] of Object.entries(results)) {
             if (value.tags) {
@@ -30,15 +30,17 @@ class CircleGraph extends Graph {
                   }
                   row.label = value.name
                   row.description = value.description
+                  row.img = value.profilMediumImageUrl
                   row.group = tag
                   res.push(row);
                 }
-              } else {
+            } else {
                 const row = {
-                  id
+                    id
                 }
                 row.label = value.name
                 row.description = value.description
+                row.img = value.profilMediumImageUrl
                 row.group = "Autres"
                 res.push(row);
               }
@@ -46,6 +48,7 @@ class CircleGraph extends Graph {
         return res
     }
     _preprocessData(data) {
+        this._beforeUpdate()
         console.log("DATA", this._data);
         this._nodes = [];
 
@@ -262,13 +265,13 @@ class CircleGraph extends Graph {
     }
 
     draw(containerId) {
-        this._beforeDraw();
 
-        d3.select("#" + containerId)
+
+        d3.select(containerId)
             .selectAll("svg.graph")
             .remove();
         this._rootSvg = d3
-            .select("#" + containerId)
+            .select(containerId)
             .insert("svg", ":first-child")
             .attr("id", "graph")
             // .attr("height", h)
@@ -295,7 +298,6 @@ class CircleGraph extends Graph {
             .attr("dy", 1);
         this._update(this._data);
         this._correctTextParentSize();
-        this._afterDraw();
     }
 
     _update(data) {
@@ -436,7 +438,8 @@ class CircleGraph extends Graph {
                 (exit) => {
                     console.log(exit);
                 }
-            );
+                );
+                this._afterUpdate();
     }
     setColor(callback) {
         super.setColor(callback);

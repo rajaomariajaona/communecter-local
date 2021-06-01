@@ -11,7 +11,7 @@ class GraphTooltip {
 
     constructor(containerId) {
         this._parent = containerId;
-        this.tooltip = d3.select("#" + containerId)
+        this.tooltip = d3.select(containerId)
             .style("position", "relative")
             .style("overflow", "hidden")
             .append("xhtml:div")

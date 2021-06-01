@@ -27,7 +27,7 @@
             return Array.from(resSet)
         }
         var circleGraph = new CircleGraph(randomizeData(circleData), d => GraphUtils.slugify(d.group))
-        circleGraph.draw("graph-container")
+        circleGraph.draw("#graph-container")
         var cont = false
         var last = null
 
