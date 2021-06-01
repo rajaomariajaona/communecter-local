@@ -390,14 +390,20 @@ class CircleGraph extends Graph {
                         .style("border-radius", "5px")
                         .text(d => d.data.label)
                         .on("click", this._onClickNode)
-
-                    foreign.append("xhtml:img")
+                        
+                    foreign
                         .filter((d) => d.data.img)
+                        .append("xhtml:div")
+                        .style("overflow", "hidden")
+                        .style("max-width", "100%")
+                        .style("max-height", "100%")
+                        .style("font-size", "6px")
+                        .append("xhtml:img")
                         .attr("src", (d) => d.data.img)
-                        .attr("width", (d) => d.width)
-                        .attr("height", (d) => d.height)
-                        .attr("x", (d) => d.x)
-                        .attr("y", (d) => d.y);
+                        .attr("alt", (d) => d.data.label)
+                        .style("width", "100%")
+                        .style("height", "auto")
+                        
 
                     // const imgs = leaf_svg_g
                     //     .filter((d) => d.data.img)
