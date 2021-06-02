@@ -6,7 +6,7 @@ class NetworkGraph extends Graph {
     _linksNode = null;
     _nodes = null;
     _circlesNode = null;
-
+    _isEmpty = false;
     setCircleSize(callback) {
         this._circleSize = callback;
         this._circlesNode.attr("r", (d, e) => this._circleSize(d, e));
@@ -34,7 +34,7 @@ class NetworkGraph extends Graph {
 
     _preprocessData(rawData) {
         let rootCount = 0;
-        let root = {};
+        let root = null;
         const filteredData = []
         for (const row of rawData) {
             if(row.group == "root"){
@@ -42,6 +42,7 @@ class NetworkGraph extends Graph {
                 if(rootCount > 1){
                     throw new Error("Pas de donnée pour root ou plusieur root");
                 }
+                root = {}
                 root.data = row;
             }else{
                 filteredData.push({data: row})
@@ -73,9 +74,12 @@ class NetworkGraph extends Graph {
             links,
             groups,
         };
-        this._simulation = d3
-        .forceSimulation()
-        .nodes(res.nodes)
+        console.log(res);
+        this._isEmpty = !(res.links.length > 0);
+        if(!this._isEmpty){
+            this._simulation = d3
+            .forceSimulation()
+            .nodes(res.nodes)
             .force("charge_force", d3.forceManyBody().strength(-120))
             .force("center_force", d3.forceCenter(this._width / 2, this._height / 2))
             .force(
@@ -85,6 +89,7 @@ class NetworkGraph extends Graph {
                 .id((d) => d.data.id)
                 .strength((d) => 0.095)
                 ).stop();
+            }
         return res;
     }
     draw(containerId) {
@@ -112,23 +117,24 @@ class NetworkGraph extends Graph {
         return r;
     }
     _update() {
-        this._simulation.restart()
-        this._simulation.on("tick", () => this._tickActions());
-        console.log(this._data);
-        if (!this._rootG.select("g.links").node()) {
-            this._rootG.append("g").attr("class", "links");
-        }
-        this._rootG
+        if(!this._isEmpty){
+            this._simulation.restart()
+            this._simulation.on("tick", () => this._tickActions());
+            console.log(this._data);
+            if (!this._rootG.select("g.links").node()) {
+                this._rootG.append("g").attr("class", "links");
+            }
+            this._rootG
             .select("g.links")
             .selectAll("line")
             .data(this._data.links, d => d.source.id + " " + d.target.id)
             .join(
                 (enter) => {
                     this._linksNode = enter
-                        .append("line")
-                        .classed("links-line", true)
-                        .attr("stroke-width", 5)
-                        .style("stroke", "rgba(51,51,51,0.6)");
+                    .append("line")
+                    .classed("links-line", true)
+                    .attr("stroke-width", 5)
+                    .style("stroke", "rgba(51,51,51,0.6)");
                 },
                 (update) => {
                     
@@ -138,16 +144,16 @@ class NetworkGraph extends Graph {
                 (exit) => {
                     exit.remove();
                 }
-            );
-        if (!this._rootG.select("g.nodes").node()) {
-            this._rootG.append("g").attr("class", "nodes");
-        }
-        const nodes = this._rootG
-            .select("g.nodes")
-            .selectAll("svg.node")
-            .data(this._data.nodes, d => JSON.stringify(d.data))
-            .join((enter) => {
-                this._nodes = enter
+                );
+                if (!this._rootG.select("g.nodes").node()) {
+                    this._rootG.append("g").attr("class", "nodes");
+                }
+                const nodes = this._rootG
+                .select("g.nodes")
+                .selectAll("svg.node")
+                .data(this._data.nodes, d => JSON.stringify(d.data))
+                .join((enter) => {
+                    this._nodes = enter
                     .append("svg")
                     .style("overflow", "visible")
                     .classed("node", true)
@@ -158,60 +164,61 @@ class NetworkGraph extends Graph {
                         .on("start", (e, d) => this._dragStart(e, d))
                         .on("drag", (e, d) => this._dragDrag(e, d))
                         .on("end", (e, d) => this._dragEnd(e, d))
-                    );
-                this._circlesNode = this._nodes
-                    .append("circle")
-                    .attr("r", (d, i, n) => {
-                        const r = this._circleSize(d, i, n);
-                        d.innerSquare = GraphUtils.squareInnerCircle(0, 0, r);
-                        return r;
-                    })
-                    .attr("fill", (d, i, n) => this._color(d, i, n));
-                const foreign = this._nodes
-                    .append("foreignObject")
-                    .attr("x", (d) => d.innerSquare.x)
-                    .attr("y", (d) => d.innerSquare.y)
-                    .attr("width", (d) => d.innerSquare.width)
-                    .attr("height", (d) => d.innerSquare.height);
-
-                foreign
-                    .filter((d) => d.data.type == "group" || d.data.group == "root")
-                    .append("xhtml:div")
-                    .style("width", "100%")
-                    .style("height", "100%")
-                    .style("display", "flex")
-                    .style("justify-content", "center")
-                    .style("align-items", "center")
-                    .append("xhtml:i")
-                    .style("color", "white")
-                    .attr("class", this._defaultIcon);
-
-                foreign
-                    .filter((v, i) => v.img != undefined && v.img.trim() != "")
-                    .append("xhtml:img")
-                    .attr("src", (d) => d.data.img)
-                    .style("width", "100%")
-                    .style("height", "100%")
-                    .on("click", (e, d) => this._onClickNode(e, d));
-                this._nodes
-                    .append("text")
-                    .text((d) => d.data.label)
-                    .attr("font-size", 20)
-                    .attr("x", 15)
-                    .attr("y", 4);
-            }, update => {
-                console.log(update);
+                        );
+                        this._circlesNode = this._nodes
+                        .append("circle")
+                        .attr("r", (d, i, n) => {
+                            const r = this._circleSize(d, i, n);
+                            d.innerSquare = GraphUtils.squareInnerCircle(0, 0, r);
+                            return r;
+                        })
+                        .attr("fill", (d, i, n) => this._color(d, i, n));
+                        const foreign = this._nodes
+                        .append("foreignObject")
+                        .attr("x", (d) => d.innerSquare.x)
+                        .attr("y", (d) => d.innerSquare.y)
+                        .attr("width", (d) => d.innerSquare.width)
+                        .attr("height", (d) => d.innerSquare.height);
+                        
+                        foreign
+                        .filter((d) => d.data.type == "group" || d.data.group == "root")
+                        .append("xhtml:div")
+                        .style("width", "100%")
+                        .style("height", "100%")
+                        .style("display", "flex")
+                        .style("justify-content", "center")
+                        .style("align-items", "center")
+                        .append("xhtml:i")
+                        .style("color", "white")
+                        .attr("class", this._defaultIcon);
+                        
+                        foreign
+                        .filter((v, i) => v.img != undefined && v.img.trim() != "")
+                        .append("xhtml:img")
+                        .attr("src", (d) => d.data.img)
+                        .style("width", "100%")
+                        .style("height", "100%")
+                        .on("click", (e, d) => this._onClickNode(e, d));
+                        this._nodes
+                        .append("text")
+                        .text((d) => d.data.label)
+                        .attr("font-size", 20)
+                        .attr("x", 15)
+                        .attr("y", 4);
+                    }, update => {
+                        console.log(update);
             },
             exit => exit.remove());
-        this._leaves.push(nodes);
+            this._leaves.push(nodes);
+        }
     }
-    _dragStart(event, d) {
-        console.log(!event.active);
-        if (!event.active) this._simulation.alphaTarget(0.3).restart();
-        d.fx = d.x;
-        d.fy = d.y;
+        _dragStart(event, d) {
+            console.log(!event.active);
+            if (!event.active) this._simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
     }
-
+    
     _dragDrag(event, d) {
         d.fx = event.x;
         d.fy = event.y;
