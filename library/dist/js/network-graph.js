@@ -13,16 +13,16 @@ class NetworkGraph extends Graph {
     }
 
     _color = (d, i, n) => {
-        if (d.type == "group") {
+        if (d.data.type == "group") {
             return "#c62f80";
         }
-        if (d.group == "root") {
+        if (d.data.group == "root") {
             return "black";
         }
-        if (d.group == "TAGS") {
+        if (d.data.group == "TAGS") {
             return "steelblue";
         }
-        if (d.group == "PROJECTS") {
+        if (d.data.group == "PROJECTS") {
             return "purple";
         }
         return this._defaultColor(i);
@@ -33,34 +33,43 @@ class NetworkGraph extends Graph {
     }
 
     _preprocessData(rawData) {
-        const root = rawData.filter((d) => d.group == "root");
-        if (root.length != 1) {
-            throw new Error("Pas de donnée pour root ou plusieur root");
+        let rootCount = 0;
+        let root = {};
+        const filteredData = []
+        for (const row of rawData) {
+            if(row.group == "root"){
+                rootCount++;
+                if(rootCount > 1){
+                    throw new Error("Pas de donnée pour root ou plusieur root");
+                }
+                root.data = row;
+            }else{
+                filteredData.push({data: row})
+            }
         }
-        const filteredData = rawData.filter((d) => d.group != "root");
-        const dataByLinks = d3.group(filteredData, (d) => d.group);
+        const dataByLinks = d3.group(filteredData, (d) => d.data.group);
         const links = [];
         const groups = [];
         for (const [group, children] of dataByLinks.entries()) {
-            groups.push({
+            groups.push({data: {
                 id: group,
                 label: group,
                 type: "group",
-            });
+            }});
             links.push({
                 target: group,
-                source: root[0].id,
+                source: root.data.id,
             });
             for (const child of children) {
                 links.push({
                     source: group,
-                    target: child.id,
+                    target: child.data.id,
                 });
             }
         }
         const res = {
-            root: root[0],
-            nodes: [...root, ...groups, ...filteredData],
+            root,
+            nodes: [root, ...groups, ...filteredData],
             links,
             groups,
         };
@@ -73,7 +82,7 @@ class NetworkGraph extends Graph {
                 "links",
                 d3
                 .forceLink(res.links)
-                .id((d) => d.id)
+                .id((d) => d.data.id)
                 .strength((d) => 0.095)
                 ).stop();
         return res;
@@ -97,7 +106,7 @@ class NetworkGraph extends Graph {
     }
     _circleSize(d, i, n) {
         var r = 10;
-        if (d.group == "root" || d.type == "group") return 20;
+        if (d.data.group == "root" || d.data.type == "group") return 20;
         // if (r > 30)
         //     r = 30;
         return r;
@@ -136,7 +145,7 @@ class NetworkGraph extends Graph {
         const nodes = this._rootG
             .select("g.nodes")
             .selectAll("svg.node")
-            .data(this._data.nodes, d => d.id)
+            .data(this._data.nodes, d => JSON.stringify(d.data))
             .join((enter) => {
                 this._nodes = enter
                     .append("svg")
@@ -166,7 +175,7 @@ class NetworkGraph extends Graph {
                     .attr("height", (d) => d.innerSquare.height);
 
                 foreign
-                    .filter((d) => d.type == "group" || d.group == "root")
+                    .filter((d) => d.data.type == "group" || d.data.group == "root")
                     .append("xhtml:div")
                     .style("width", "100%")
                     .style("height", "100%")
@@ -180,13 +189,13 @@ class NetworkGraph extends Graph {
                 foreign
                     .filter((v, i) => v.img != undefined && v.img.trim() != "")
                     .append("xhtml:img")
-                    .attr("src", (d) => d.img)
+                    .attr("src", (d) => d.data.img)
                     .style("width", "100%")
                     .style("height", "100%")
                     .on("click", (e, d) => this._onClickNode(e, d));
                 this._nodes
                     .append("text")
-                    .text((d) => d.label)
+                    .text((d) => d.data.label)
                     .attr("font-size", 20)
                     .attr("x", 15)
                     .attr("y", 4);
