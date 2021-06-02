@@ -3,14 +3,13 @@ class NetworkGraph extends Graph {
     _defaultIcon = "fa fa-home";
     _defaultRootIcon = "fa fa-home";
     _simulation = null;
-    _groups = {};
     _linksNode = null;
     _nodes = null;
     _circlesNode = null;
 
     setCircleSize(callback) {
         this._circleSize = callback;
-        this._circlesNode.attr("r", (d, e) => this._circleSize(d, e))
+        this._circlesNode.attr("r", (d, e) => this._circleSize(d, e));
     }
 
     _color = (d, i, n) => {
@@ -18,28 +17,19 @@ class NetworkGraph extends Graph {
             return "#c62f80";
         }
         if (d.group == "root") {
-            return "black"
+            return "black";
         }
         if (d.group == "TAGS") {
-            return "steelblue"
+            return "steelblue";
         }
         if (d.group == "PROJECTS") {
-            return "purple"
+            return "purple";
         }
         return this._defaultColor(i);
     };
     constructor(rawData) {
         super();
-        const {
-            data,
-            root,
-            links,
-            groups
-        } = this._preprocessData(rawData);
-        this._data = data;
-        this._root = root;
-        this._groups = groups;
-        this._links = links;
+        this._data = this._preprocessData(rawData);
     }
 
     _preprocessData(rawData) {
@@ -68,12 +58,25 @@ class NetworkGraph extends Graph {
                 });
             }
         }
-        return {
+        const res = {
             root: root[0],
-            data: [...root, ...groups, ...filteredData],
+            nodes: [...root, ...groups, ...filteredData],
             links,
             groups,
         };
+        this._simulation = d3
+        .forceSimulation()
+        .nodes(res.nodes)
+            .force("charge_force", d3.forceManyBody().strength(-120))
+            .force("center_force", d3.forceCenter(this._width / 2, this._height / 2))
+            .force(
+                "links",
+                d3
+                .forceLink(res.links)
+                .id((d) => d.id)
+                .strength((d) => 0.095)
+                ).stop();
+        return res;
     }
     draw(containerId) {
         super.draw(containerId);
@@ -90,21 +93,7 @@ class NetworkGraph extends Graph {
                 this._rootG.attr("transform", e.transform);
             })
         );
-
         this._update();
-        this._simulation = d3
-            .forceSimulation()
-            .nodes(this._data)
-            .force("charge_force", d3.forceManyBody().strength(-120))
-            .force("center_force", d3.forceCenter(this._width / 2, this._height / 2))
-            .force(
-                "links",
-                d3
-                .forceLink(this._links)
-                .id((d) => d.id)
-                .strength((d) => 0.095)
-            );
-        this._simulation.on("tick", () => this._tickActions());
     }
     _circleSize(d, i, n) {
         var r = 10;
@@ -114,22 +103,40 @@ class NetworkGraph extends Graph {
         return r;
     }
     _update() {
+        this._simulation.restart()
+        this._simulation.on("tick", () => this._tickActions());
+        console.log(this._data);
+        if (!this._rootG.select("g.links").node()) {
+            this._rootG.append("g").attr("class", "links");
+        }
         this._rootG
-            .append("g")
-            .attr("class", "links")
+            .select("g.links")
             .selectAll("line")
-            .data(this._links)
-            .join((enter) => {
-                this._linksNode = enter
-                    .append("line")
-                    .attr("stroke-width", 5)
-                    .style("stroke", "rgba(51,51,51,0.6)");
-            });
+            .data(this._data.links, d => d.source.id + " " + d.target.id)
+            .join(
+                (enter) => {
+                    this._linksNode = enter
+                        .append("line")
+                        .classed("links-line", true)
+                        .attr("stroke-width", 5)
+                        .style("stroke", "rgba(51,51,51,0.6)");
+                },
+                (update) => {
+                    
+                    console.log(update);
+                    return update;
+                },
+                (exit) => {
+                    exit.remove();
+                }
+            );
+        if (!this._rootG.select("g.nodes").node()) {
+            this._rootG.append("g").attr("class", "nodes");
+        }
         const nodes = this._rootG
-            .append("g")
-            .attr("class", "nodes")
+            .select("g.nodes")
             .selectAll("svg.node")
-            .data(this._data)
+            .data(this._data.nodes, d => d.id)
             .join((enter) => {
                 this._nodes = enter
                     .append("svg")
@@ -146,19 +153,20 @@ class NetworkGraph extends Graph {
                 this._circlesNode = this._nodes
                     .append("circle")
                     .attr("r", (d, i, n) => {
-                        const r = this._circleSize(d, i, n)
+                        const r = this._circleSize(d, i, n);
                         d.innerSquare = GraphUtils.squareInnerCircle(0, 0, r);
-                        return r
+                        return r;
                     })
                     .attr("fill", (d, i, n) => this._color(d, i, n));
                 const foreign = this._nodes
                     .append("foreignObject")
-                    .attr("x", d => d.innerSquare.x)
-                    .attr("y", d => d.innerSquare.y)
-                    .attr("width", d => d.innerSquare.width)
-                    .attr("height", d => d.innerSquare.height)
+                    .attr("x", (d) => d.innerSquare.x)
+                    .attr("y", (d) => d.innerSquare.y)
+                    .attr("width", (d) => d.innerSquare.width)
+                    .attr("height", (d) => d.innerSquare.height);
 
-                foreign.filter(d => d.type == "group" || d.group == "root")
+                foreign
+                    .filter((d) => d.type == "group" || d.group == "root")
                     .append("xhtml:div")
                     .style("width", "100%")
                     .style("height", "100%")
@@ -175,13 +183,17 @@ class NetworkGraph extends Graph {
                     .attr("src", (d) => d.img)
                     .style("width", "100%")
                     .style("height", "100%")
-                    .on('click', (e, d) => this._onClickNode(e, d))
-                this._nodes.append('text')
-                    .text(d => d.label)
-                    .attr('font-size', 20)
-                    .attr('x', 15)
-                    .attr('y', 4)
-            });
+                    .on("click", (e, d) => this._onClickNode(e, d));
+                this._nodes
+                    .append("text")
+                    .text((d) => d.label)
+                    .attr("font-size", 20)
+                    .attr("x", 15)
+                    .attr("y", 4);
+            }, update => {
+                console.log(update);
+            },
+            exit => exit.remove());
         this._leaves.push(nodes);
     }
     _dragStart(event, d) {
@@ -202,15 +214,7 @@ class NetworkGraph extends Graph {
         d.fy = null;
     }
     _tickActions() {
-        // svg_g_g_circle
-        //     .attr("cx", function(d) {
-        //         return d.x;
-        //     })
-        //     .attr("cy", function(d) {
-        //         return d.y;
-        //     });
-
-        this._nodes
+        d3.selectAll("svg.node")
             // svg_g_g_image
             .attr("x", function(d) {
                 return d.x;
@@ -219,23 +223,8 @@ class NetworkGraph extends Graph {
                 return d.y;
             });
 
-        // svg_g_g_text
-        //     .attr('x', function(d) {
-        //         return d.x
-        //     })
-        //     .attr('y', function(d) {
-        //         return d.y
-        //     })
-        // svg_g_g_icon
-        //     .attr('x', function(d) {
-        //         return d.x
-        //     })
-        //     .attr('y', function(d) {
-        //         return d.y
-        //     })
-
         //update link positions
-        this._linksNode
+        d3.selectAll(".links-line")
             .attr("x1", function(d) {
                 return d.source.x;
             })
