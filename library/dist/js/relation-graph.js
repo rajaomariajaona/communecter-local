@@ -432,8 +432,7 @@ class RelationGraph extends Graph {
                         0.9 / Math.max((x1 - x0) / this._width, (y1 - y0) / this._height)
                     ) : 1
                 )
-                .translate(-(x0 + x1) / 2, -(y0 + y1) / 2),
-                d3.pointer(event, this._rootSvg.node())
+                .translate(-(x0 + x1) / 2, -(y0 + y1) / 2)
             )
             .end();
     }

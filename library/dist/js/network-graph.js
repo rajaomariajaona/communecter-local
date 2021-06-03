@@ -7,6 +7,7 @@ class NetworkGraph extends Graph {
     _nodes = null;
     _circlesNode = null;
     _isEmpty = false;
+    _funcGroup = d => d.data.group;
     setCircleSize(callback) {
         this._circleSize = callback;
         this._circlesNode.attr("r", (d, e) => this._circleSize(d, e));
@@ -27,9 +28,30 @@ class NetworkGraph extends Graph {
         }
         return this._defaultColor(i);
     };
-    constructor(rawData) {
+    constructor(rawData, funcGroup = d => d.data.group) {
         super();
+        this._funcGroup = funcGroup;
         this._data = this._preprocessData(rawData);
+    }
+
+    preprocessResults(results){
+        let countTag = 0;
+        let res = [{
+            label: "SEARCH",
+            type: "root",
+            group: "root"
+        }]
+        for (const [id, value] of Object.entries(results)) {
+        const row = {
+            id,
+            ...value
+            }
+            row.label = value.name
+            row.description = value.description
+            row.img = value.profilMediumImageUrl
+            res.push(row);
+        }
+        return res
     }
 
     _preprocessData(rawData) {
@@ -48,7 +70,8 @@ class NetworkGraph extends Graph {
                 filteredData.push({data: row})
             }
         }
-        const dataByLinks = d3.group(filteredData, (d) => d.data.group);
+        const dataByLinks = d3.group(filteredData, this._funcGroup);
+        console.log(dataByLinks);
         const links = [];
         const groups = [];
         for (const [group, children] of dataByLinks.entries()) {
@@ -97,9 +120,9 @@ class NetworkGraph extends Graph {
         this._rootG = this._rootSvg.append("g");
 
         this._rootSvg
-            // .attr("viewBox", [0, 0, this._width, this._height])
-            .attr("height", this._height)
-            .attr("width", this._width);
+            .attr("viewBox", [0, 0, this._width, this._height])
+            // .attr("height", this._height)
+            // .attr("width", this._width);
         // const rect = this._rootSvg.node().getBoundingClientRect();
 
         this._rootSvg.call(
@@ -111,7 +134,7 @@ class NetworkGraph extends Graph {
     }
     _circleSize(d, i, n) {
         var r = 10;
-        if (d.data.group == "root" || d.data.type == "group") return 20;
+        if (this._funcGroup(d) == "root" || d.data.type == "group") return 20;
         // if (r > 30)
         //     r = 30;
         return r;
@@ -181,7 +204,7 @@ class NetworkGraph extends Graph {
                         .attr("height", (d) => d.innerSquare.height);
                         
                         foreign
-                        .filter((d) => d.data.type == "group" || d.data.group == "root")
+                        .filter((d) => d.data.type == "group" || this._funcGroup(d) == "root")
                         .append("xhtml:div")
                         .style("width", "100%")
                         .style("height", "100%")
