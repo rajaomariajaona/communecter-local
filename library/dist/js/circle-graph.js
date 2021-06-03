@@ -355,6 +355,7 @@ class CircleGraph extends Graph {
                 (enter) => {
                     const leaf_svg_g = enter
                         .append("g")
+                        .style("cursor", "pointer")
                         .classed("leaf-group", true)
                         // .attr("id", (d, j, n) => {
                         // console.log(d3.select(n[0]).node().parentNode.__data__)

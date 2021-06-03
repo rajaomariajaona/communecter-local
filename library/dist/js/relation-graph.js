@@ -191,7 +191,9 @@ class RelationGraph extends Graph {
                 return JSON.stringify(d);
             })
             .join((enter) => {
-                const node = enter.append("svg").style("overflow", "visible");
+                const node = enter.append("svg")
+                    .style("overflow", "visible")
+                    .style("cursor", "pointer");
                 this._groupsNode = node.filter(
                     (d) => d.data.type && d.data.type == "group"
                 );

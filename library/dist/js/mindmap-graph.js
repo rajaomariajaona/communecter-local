@@ -71,7 +71,7 @@ class MindmapGraph extends Graph {
         this._treemap = d3
             .tree()
             .size([this._height, this._width])
-            .nodeSize([50, 180])
+            .nodeSize([50, 240])
             .separation((a, b) => {
                 if (a.parent == b.parent) return 1.5;
                 else return 2;
@@ -92,15 +92,16 @@ class MindmapGraph extends Graph {
     draw(containerId) {
         this._afterDraw()
         super.draw(containerId)
+        const w = this._width + this._margin.right + this._margin.left
+        const h =  this._height + this._margin.top + this._margin.bottom;
         this._rootSvg
-            .attr("width", this._width + this._margin.right + this._margin.left)
-            .attr("height", this._height + this._margin.top + this._margin.bottom);
+            .attr("viewBox", [0,0,w,h])
         this._rootG = this._rootSvg.append("g")
-            .style("transform-box", "fill-box")
-            .attr(
-                "transform",
-                "translate(" + this._margin.left + "," + (this._margin.top + this._height / 2) + ")"
-            );
+        const zoomEvent = d3.zoom().on("zoom", (e) => {
+            this._rootG.attr("transform", e.transform);
+            this._onZoom(e);
+        });
+        this._rootSvg.call(zoomEvent).call(zoomEvent.transform, d3.zoomIdentity.translate(this._margin.left, (this._margin.top + this._height / 2)))
         this._update(this._data);
         this._afterDraw()
     }
@@ -148,10 +149,11 @@ class MindmapGraph extends Graph {
                     )
                 const texts = node_g
                     .append("text")
-                    .text((d) => d.data.label)
+                    .text((d) => GraphUtils.truncate(d.data.label, 20))
                     .attr("x", this._nodePadding.left)
                     .attr("text-anchor", "start")
-                    .style("fill", "#455a64");
+                    .style("visibility", "hidden")
+
                 node_g.each((d, i, n) => {
                     const {
                         width,
@@ -159,9 +161,11 @@ class MindmapGraph extends Graph {
                         x,
                         y
                     } = n[i].getBBox();
+
                     const rectNode = d3
                         .select(n[i])
                         .insert("foreignObject", "text")
+                        .style("cursor", "pointer")
                         .attr("x", x - this._nodePadding.left)
                         .attr("y", y - this._nodePadding.top)
                         .attr("width", (d) =>
@@ -177,8 +181,25 @@ class MindmapGraph extends Graph {
                     const rect = rectNode.append("xhtml:div")
                         .style("height", "100%")
                         .style("width", "100%")
+                        .style("display", "flex")
+                        .style("justify-content", "center")
+                        .style("align-items", "center")
                         .style("border-radius", "10px")
-                        .style("background-color", (d, i, n) => this._color(d, d.depth, n));
+                        .style("background-color", (d, i, n) => this._color(d, d.depth, n))
+                        .text(d => GraphUtils.truncate(d.data.label, 20))
+                        .style("color", "#455a64");
+                        rect.on("mouseover", (e,d) => {
+                            const g_parent = d3.select(e.target.parentNode.parentNode)
+                            g_parent.select("text").text(d => d.data.label)
+                            g_parent.select("foreignObject").attr("width", g_parent.select("text").node().getBBox().width + this._nodePadding.left + this._nodePadding.right)
+                            g_parent.select("div").text(d => d.data.label)
+                        })
+                        rect.on("mouseout", (e,d) => {
+                            const g_parent = d3.select(e.target.parentNode.parentNode)
+                            g_parent.select("text").text(d => GraphUtils.truncate(d.data.label, 20))
+                            g_parent.select("foreignObject").attr("width", g_parent.select("text").node().getBBox().width + this._nodePadding.left + this._nodePadding.right)
+                            g_parent.select("div").text(d => GraphUtils.truncate(d.data.label, 20))
+                        })
                     this._colored.push(rect)
                 });
             },

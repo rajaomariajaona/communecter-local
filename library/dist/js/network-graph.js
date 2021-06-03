@@ -185,6 +185,7 @@ class NetworkGraph extends Graph {
                     this._nodes = enter
                     .append("svg")
                     .style("overflow", "visible")
+                    .style("cursor", "pointer")
                     .classed("node", true)
                     .on("click", (d, i, n) => this._onClickNode(d, i, n))
                     .call(
