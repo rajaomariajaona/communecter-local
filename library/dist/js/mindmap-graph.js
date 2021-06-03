@@ -26,6 +26,39 @@ class MindmapGraph extends Graph {
         super()
         this._data = this._preprocessData(data);
     }
+    preprocessResults(results){
+        let countTag = 0;
+        let res = {
+            id: "root",
+            label: "SEARCH"
+        };
+        let raw = []
+        for (const [id, value] of Object.entries(results)) {
+        const row = {
+            id,
+            ...value
+            }
+            row.label = value.name
+            row.description = value.description
+            row.img = value.profilMediumImageUrl
+            raw.push(row);
+        }
+        const typesGroup = d3.group(raw, d => d.collection, d => d.type);
+        let children = parcours(typesGroup);
+        function parcours(map) {
+            let children = []
+            if(map instanceof Map){
+                for (const [key,value] of map) {
+                    children.push({id: key, label: key, children: parcours(value)})
+                }
+            }else{
+                return map;
+            }
+            return children;
+        }
+        res.children = children
+        return res
+    }
     _preprocessData(rawData) {
         rawData = d3.hierarchy(rawData);
         this._width = this._width - this._margin.left - this._margin.right;
@@ -115,7 +148,7 @@ class MindmapGraph extends Graph {
                     )
                 const texts = node_g
                     .append("text")
-                    .text((d) => d.data.name)
+                    .text((d) => d.data.label)
                     .attr("x", this._nodePadding.left)
                     .attr("text-anchor", "start")
                     .style("fill", "#455a64");
