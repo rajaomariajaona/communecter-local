@@ -8,6 +8,11 @@ class NetworkGraph extends Graph {
     _circlesNode = null;
     _isEmpty = false;
     _funcGroup = d => d.data.group;
+    _onTick = () => {}
+
+    setOnTick(callback){
+        this._onTick = callback;
+    }
     setCircleSize(callback) {
         this._circleSize = callback;
         this._circlesNode.attr("r", (d, e) => this._circleSize(d, e));
@@ -128,6 +133,7 @@ class NetworkGraph extends Graph {
         this._rootSvg.call(
             d3.zoom().on("zoom", (e, d) => {
                 this._rootG.attr("transform", e.transform);
+                this._onZoom(e,d);
             })
         );
         this._update();
@@ -253,6 +259,7 @@ class NetworkGraph extends Graph {
         d.fy = null;
     }
     _tickActions() {
+        this._onTick()
         d3.selectAll("svg.node")
             // svg_g_g_image
             .attr("x", function(d) {

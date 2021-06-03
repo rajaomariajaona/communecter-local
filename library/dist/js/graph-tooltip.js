@@ -24,7 +24,7 @@ class GraphTooltip {
             <div class="row">
             <div class="col-xs-12" style="display: flex; align-items: center;">
                 <div style="margin-right: 10px;">
-                <div id="bulle-image" style="height: 50px; width: 50px; display: block; border-radius: 50%; background-size: contain; background-repeat: no-repeat; background-position: center center;">
+                <div id="bulle-image" style="height: 50px; width: 50px; display: block; border-radius: 50%; background-size: contain; background-repeat: no-repeat; background-position: center center; box-shadow: 0px 0px 5px -2px rgb(0 0 0 / 50%);">
                 </div>
                 
                 </div>
@@ -43,7 +43,7 @@ class GraphTooltip {
                 </div>
                 <div class="row">
                 <div class="col-xs-12" style="text-align: center;">
-                <a class="btn btn-more lbh-preview-element" id="bulle-anchor" href="#page.type.organizations.id.60631a86c7f7b859ca733385" onclick="tooltip.hide();">
+                <a class="btn btn-more lbh-preview-element" id="bulle-anchor" href="#page.type.organizations.id.60631a86c7f7b859ca733385">
                 En savoir plus
                 </a>
                 </div>
@@ -56,6 +56,7 @@ class GraphTooltip {
         this._title = this.tooltip.select("#bulle-title");
         this._image = this.tooltip.select("#bulle-image");
         this._anchor = this.tooltip.select("#bulle-anchor");
+        this._anchor.on('click', () => this.hide())
         this._description = this.tooltip.select("#bulle-description");
     }
 
