@@ -11,43 +11,48 @@ class GraphTooltip {
 
     constructor(containerId) {
         this._parent = containerId;
-        this.tooltip = d3.select(containerId)
-            .style("position", "relative")
-            .style("overflow", "hidden")
+        const container = d3.select(containerId)
+        .style("position", "relative")
+        .style("overflow", "hidden");
+        if(!container.select("div#graph-tooltip").node()){
+            this.tooltip = container
             .append("xhtml:div")
             .attr("id", "graph-tooltip")
             .style("width", "350px")
             .style("display", "none")
             .html(`<div class="container-fluid">
-        <div class="row">
+            <div class="row">
             <div class="col-xs-12" style="display: flex; align-items: center;">
                 <div style="margin-right: 10px;">
-                    <div id="bulle-image" style="height: 50px; width: 50px; display: block; border-radius: 50%; background-image: url(<?php echo $defaultImage ?>); background-size: contain; background-repeat: no-repeat; background-position: center center;">
-                    </div>
-
+                <div id="bulle-image" style="height: 50px; width: 50px; display: block; border-radius: 50%; background-size: contain; background-repeat: no-repeat; background-position: center center;">
+                </div>
+                
                 </div>
                 <h3 style="display: block; font-size: 0.9em" id="bulle-title">Titre</h3>
-            </div>
-        </div>
-        <div class="row" id="bulle-description">
-            <div class="col-xs-12">
+                </div>
+                </div>
+                <div class="row" id="bulle-description">
+                <div class="col-xs-12">
                 <span style="display: block; border-bottom: 1px solid #455a64; font-size: 1.1em; margin-bottom: 10px;">Description</span>
-            </div>
-            <div class="col-xs-12">
+                </div>
+                <div class="col-xs-12">
                 <p class="description" style="font-size: 0.8em; text-align: justify;">
-                    Lorem, ipsum dolor sit amet consectetur adipisicing elit. Veniam quos, odio id suscipit qui tempore.
+                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Veniam quos, odio id suscipit qui tempore.
                 </p>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-12" style="text-align: center;">
+                </div>
+                </div>
+                <div class="row">
+                <div class="col-xs-12" style="text-align: center;">
                 <a class="btn btn-more lbh-preview-element" id="bulle-anchor" href="#page.type.organizations.id.60631a86c7f7b859ca733385" onclick="tooltip.hide();">
-                    En savoir plus
+                En savoir plus
                 </a>
-            </div>
-        </div>
-    </div>
-    <div class="bulle-arrow"></div>`)
+                </div>
+                </div>
+                </div>
+                <div class="bulle-arrow"></div>`)
+        }else{
+            this.tooltip = container.select("div#graph-tooltip")
+        }
         this._title = this.tooltip.select("#bulle-title");
         this._image = this.tooltip.select("#bulle-image");
         this._anchor = this.tooltip.select("#bulle-anchor");
@@ -59,13 +64,15 @@ class GraphTooltip {
     }
     set node(n) {
         this._node = n;
+        this.goToNode()
     }
     goToNode() {
         if (this._node != null && this._node.node()) {
+            
             const n = $(this._node.node())
             var childPos = n.offset();
             const bnd = this._node.node().getBoundingClientRect();
-            var parentPos = $("#" + this._parent).offset();
+            var parentPos = $(this._parent).offset();
             const style = {
                 top: childPos.top - parentPos.top,
                 left: childPos.left - parentPos.left
@@ -94,7 +101,11 @@ class GraphTooltip {
         } else {
             this._description.style("display", 'none')
         }
-        this._anchor.attr("href", `#page.type.organizations.id.${d.id}`)
+        var collection = 'organizations';
+        if(data.collection){
+            collection = data.collection;
+        }
+        this._anchor.attr("href", `#page.type.${collection}.id.${d.id}`)
         this._last = data;
     }
     show() {

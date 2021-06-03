@@ -6,29 +6,57 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="dist/css/graph.css">
-    <link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css">
     <title>Graphs</title>
-
 </head>
 
 <body>
     <div id="graph-container">
 
     </div>
-    <script src="data/network-data.js"></script>
+    <script
+  src="https://code.jquery.com/jquery-2.2.4.min.js"
+  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+  crossorigin="anonymous"></script>
+    <script src="data/circle-data.js"></script>
     <script src="../d3.v6.min.js"></script>
-    <script src="dist/js/graph.js"></script>
+    <script src="dist/js/graph-tooltip.js"></script>
     <script src="dist/js/graph-utils.js"></script>
-    <script src="dist/js/network-graph.js"></script>
+    <script src="dist/js/graph.js"></script>
+    <script src="dist/js/circle-graph.js"></script>
     <script>
-        var networkGraph = new NetworkGraph([], d => d.data.type);
-        networkGraph.draw("#graph-container")
-        networkGraph.updateData(networkGraph.preprocessResults(networkResults))
+        function randomizeData(data) {
+            const rawLen = data.length;
+            let len = Math.floor(rawLen / 2);
+            let resSet = new Set();
+            for (let i = 0; i < len; i++) {
+                resSet.add(data[Math.floor(Math.random() * rawLen)])
+            }
+            return Array.from(resSet)
+        }
+        var circleGraph = new CircleGraph([],d => GraphUtils.slugify(d.group))
+        circleGraph.draw("#graph-container")
+        let  tooltip = new GraphTooltip("#graph-container")
+        circleGraph.setOnClickNode((e,d,n) => {
+            console.log("CLICKED",e,d,n)
+            tooltip.node = d3.select(e.target)
+            tooltip.setContent(d)
+            tooltip.show()
+        })
+        circleGraph.setOnZoom((e,d,n) => {
+            tooltip.goToNode();
+        })
+        circleGraph.updateData(circleGraph.preprocessResults((circleData2)))
         var cont = false
+        var last = null
 
         function change(l = null) {
+            if (!l) {
+                last = randomizeData(circleData)
+                circleGraph.updateData(last);
+            } else {
+                circleGraph.updateData(l);
+            }
             console.log("CHANGED")
-            networkGraph.updateData(networkData2);
             if (cont)
                 setTimeout(change, 2000)
         }
