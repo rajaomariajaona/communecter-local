@@ -191,7 +191,11 @@ class GraphUtils {
      * @returns Truncated text
      */
     static truncate(text, max, ellispsisText = '...') {
-        return (text.length > max) ? text.substr(0, max - 1) + ellispsisText : text;
+        if(text){
+            return (text.length > max) ? text.substr(0, max - 1) + ellispsisText : text;
+        }else{
+            return "";
+        }
     }
 
 

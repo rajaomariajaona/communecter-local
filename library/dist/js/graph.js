@@ -34,6 +34,12 @@ class Graph {
     _onClickNode = (event, data) => {
         console.log("CLICKED", data);
     };
+    _onMouseoverNode = (event,data) => {
+        console.log("MOUSEOVER", data);
+    }
+    _onMouseoutNode = (event,data) => {
+        console.log("MOUSEOVER", data);
+    }
     _onZoom = () => {};
     _defaultColor = d3.scaleOrdinal([
         "#F9C1C8",
@@ -73,6 +79,32 @@ class Graph {
             }
         }
     }
+    setOnMouseoverNode(callback) {
+        this._onMouseoverNode = callback;
+        if (this._isDrawed) {
+            if (Array.isArray(this._leaves)) {
+                for (const leaf of this._leaves) {
+                    leaf.on("mouseover", this._onMouseoverNode);
+                }
+            } else {
+                this._leaves.on("mouseover", this._onMouseoverNode);
+            }
+        }
+    }
+
+    setOnMouseoutNode(callback) {
+        this._onMouseoutNode = callback;
+        if (this._isDrawed) {
+            if (Array.isArray(this._leaves)) {
+                for (const leaf of this._leaves) {
+                    leaf.on("mouseout", this._onMouseoutNode);
+                }
+            } else {
+                this._leaves.on("mouseout", this._onMouseoutNode);
+            }
+        }
+    }
+
     setColor(callback) {
         this._color = callback;
         if (this._isDrawed) {
