@@ -188,6 +188,12 @@ class NetworkGraph extends Graph {
                     .style("cursor", "pointer")
                     .classed("node", true)
                     .on("click", (d, i, n) => this._onClickNode(d, i, n))
+                    .on("mouseover", (e,d) => {
+                        d3.select(e.currentTarget).select("text").text(d => d.data.label)
+                    })
+                    .on("mouseout", (e,d) => {
+                        d3.select(e.currentTarget).select("text").text(d => d.minified)
+                    })
                     .call(
                         d3
                         .drag()
@@ -231,7 +237,9 @@ class NetworkGraph extends Graph {
                         .on("click", (e, d) => this._onClickNode(e, d));
                         this._nodes
                         .append("text")
-                        .text((d) => d.data.label)
+                        .text((d) => {
+                            return d.minified = GraphUtils.truncate(d.data.label, 20);
+                        })
                         .attr("font-size", 20)
                         .attr("x", 15)
                         .attr("y", 4);

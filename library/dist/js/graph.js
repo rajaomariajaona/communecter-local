@@ -38,7 +38,7 @@ class Graph {
         console.log("MOUSEOVER", data);
     }
     _onMouseoutNode = (event,data) => {
-        console.log("MOUSEOVER", data);
+        console.log("MOUSEOUT", data);
     }
     _onZoom = () => {};
     _defaultColor = d3.scaleOrdinal([
@@ -151,6 +151,8 @@ class Graph {
         this._afterDraw = () => {
             callback();
             this._isDrawed = true;
+            this.setOnMouseoutNode(this._onMouseoutNode)
+            this.setOnMouseoverNode(this._onMouseoverNode)
         };
     }
     get rootG() {

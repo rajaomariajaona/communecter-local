@@ -61,16 +61,16 @@ class MindmapGraph extends Graph {
     }
     _preprocessData(rawData) {
         rawData = d3.hierarchy(rawData);
-        this._width = this._width - this._margin.left - this._margin.right;
-        this._height = this._height - this._margin.top - this._margin.bottom;
-        rawData.x0 = this._height / 2
+        const w = this._width - this._margin.left - this._margin.right;
+        const h = this._height - this._margin.top - this._margin.bottom;
+        rawData.x0 = h / 2
         rawData.y0 = 0
 
         this._source = rawData;
 
         this._treemap = d3
             .tree()
-            .size([this._height, this._width])
+            .size([w, h])
             .nodeSize([50, 240])
             .separation((a, b) => {
                 if (a.parent == b.parent) return 1.5;
@@ -128,6 +128,7 @@ class MindmapGraph extends Graph {
         this._duration = tmp;
     }
     _update(data) {
+        this._beforeUpdate()
         var treeData = this._treemap(data);
         this._nodes = treeData.descendants();
         this._links = treeData.descendants().slice(1);
@@ -147,6 +148,7 @@ class MindmapGraph extends Graph {
                         "transform",
                         (d) => "translate(" + this._source.y0 + "," + this._source.x0 + ")"
                     )
+                this._leaves.push(node_g);
                 const texts = node_g
                     .append("text")
                     .text((d) => GraphUtils.truncate(d.data.label, 20))
@@ -193,15 +195,18 @@ class MindmapGraph extends Graph {
                             g_parent.select("text").text(d => d.data.label)
                             g_parent.select("foreignObject").attr("width", g_parent.select("text").node().getBBox().width + this._nodePadding.left + this._nodePadding.right)
                             g_parent.select("div").text(d => d.data.label)
+                            this._onMouseoverNode(e,d)
                         })
                         rect.on("mouseout", (e,d) => {
                             const g_parent = d3.select(e.target.parentNode.parentNode)
                             g_parent.select("text").text(d => GraphUtils.truncate(d.data.label, 20))
                             g_parent.select("foreignObject").attr("width", g_parent.select("text").node().getBBox().width + this._nodePadding.left + this._nodePadding.right)
                             g_parent.select("div").text(d => GraphUtils.truncate(d.data.label, 20))
+                            this._onMouseoutNode(e,d)
                         })
                     this._colored.push(rect)
                 });
+                
             },
             (update) => {
                 node_g
@@ -229,7 +234,7 @@ class MindmapGraph extends Graph {
 
                 exit.select("text").style("fill-opacity", 1e-6);
             }
-        );
+            );
         var link = this._rootG
             .selectAll("path.link")
             .data(this._links, (d) => d.id)
@@ -286,6 +291,7 @@ class MindmapGraph extends Graph {
             d.x0 = d.x;
             d.y0 = d.y;
         });
+        this._afterUpdate()
     }
 
     _diagonal(s, d) {
