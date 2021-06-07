@@ -6,16 +6,33 @@ class NetworkGraph extends Graph {
     _linksNode = null;
     _nodes = null;
     _circlesNode = null;
+    _groupNode = null;
     _isEmpty = false;
     _funcGroup = d => d.data.group;
     _onTick = () => {}
+    _groupIcons = () => {
+        return this._defaultIcon;
+    }
+
+    setGroupIcon(callback){
+        this._groupIcons = callback;
+        if(this._groupNode){
+            this._groupNode.selectAll("i").attr("class", this._groupIcons)
+        }
+    }
 
     setOnTick(callback){
         this._onTick = callback;
     }
     setCircleSize(callback) {
-        this._circleSize = callback;
-        this._circlesNode.attr("r", (d, e) => this._circleSize(d, e));
+        this._circleSize = (d,i,n) => {
+            const r = callback(d,i,n);
+            this._afterCicleSize(d,r);
+            return r;
+        };
+        if(this._circlesNode){
+            this._circlesNode.attr("r",(d,i,n) => this._circleSize(d,i,n));
+        }
     }
 
     _color = (d, i, n) => {
@@ -137,13 +154,24 @@ class NetworkGraph extends Graph {
             })
         );
         this._update();
+        this._afterDraw()
     }
     _circleSize(d, i, n) {
         var r = 10;
-        if (this._funcGroup(d) == "root" || d.data.type == "group") return 20;
+        if (this._funcGroup(d) == "root" || d.data.type == "group") r = 20;
         // if (r > 30)
         //     r = 30;
+        this._afterCicleSize(d,r);
         return r;
+    }
+    _afterCicleSize(d,r){
+        d.innerSquare = GraphUtils.squareInnerCircle(0, 0, r, 5);
+        this._nodes
+            .selectAll("foreignObject")
+            .attr("x", (d) => d.innerSquare.x)
+            .attr("y", (d) => d.innerSquare.y)
+            .attr("width", (d) => d.innerSquare.width)
+            .attr("height", (d) => d.innerSquare.height);
     }
     _update() {
         if(!this._isEmpty){
@@ -201,22 +229,19 @@ class NetworkGraph extends Graph {
                         .on("drag", (e, d) => this._dragDrag(e, d))
                         .on("end", (e, d) => this._dragEnd(e, d))
                         );
-                        this._circlesNode = this._nodes
+                    this._circlesNode = this._nodes
                         .append("circle")
-                        .attr("r", (d, i, n) => {
-                            const r = this._circleSize(d, i, n);
-                            d.innerSquare = GraphUtils.squareInnerCircle(0, 0, r);
-                            return r;
-                        })
+                        .attr("r", (d,i,n) => this._circleSize(d,i,n))
                         .attr("fill", (d, i, n) => this._color(d, i, n));
-                        const foreign = this._nodes
+                    this._colored.push(this._circlesNode)
+
+                    const foreign = this._nodes
                         .append("foreignObject")
                         .attr("x", (d) => d.innerSquare.x)
                         .attr("y", (d) => d.innerSquare.y)
                         .attr("width", (d) => d.innerSquare.width)
                         .attr("height", (d) => d.innerSquare.height);
-                        
-                        foreign
+                    const group = foreign
                         .filter((d) => d.data.type == "group" || this._funcGroup(d) == "root")
                         .append("xhtml:div")
                         .style("width", "100%")
@@ -224,12 +249,13 @@ class NetworkGraph extends Graph {
                         .style("display", "flex")
                         .style("justify-content", "center")
                         .style("align-items", "center")
-                        .append("xhtml:i")
+                    this._groupNode = group;
+                    group.append("xhtml:i")
                         .style("color", "white")
-                        .attr("class", this._defaultIcon);
+                        .attr("class", this._groupIcons);
                         
-                        foreign
-                        .filter((v, i) => v.img != undefined && v.img.trim() != "")
+                    foreign
+                        .filter((d, i) => d.data.img != undefined && d.data.img.trim() != "")
                         .append("xhtml:img")
                         .attr("src", (d) => d.data.img)
                         .style("width", "100%")
