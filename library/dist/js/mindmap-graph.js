@@ -151,7 +151,7 @@ class MindmapGraph extends Graph {
                 this._leaves.push(node_g);
                 const texts = node_g
                     .append("text")
-                    .text((d) => GraphUtils.truncate(d.data.label, 20))
+                    .text((d) => GraphUtils.truncate(this._labelFunc(d), 20))
                     .attr("x", this._nodePadding.left)
                     .attr("text-anchor", "start")
                     .style("visibility", "hidden")
@@ -188,20 +188,20 @@ class MindmapGraph extends Graph {
                         .style("align-items", "center")
                         .style("border-radius", "10px")
                         .style("background-color", (d, i, n) => this._color(d, d.depth, n))
-                        .text(d => GraphUtils.truncate(d.data.label, 20))
+                        .text(d => GraphUtils.truncate(this._labelFunc(d), 20))
                         .style("color", "#455a64");
                         rect.on("mouseover", (e,d) => {
                             const g_parent = d3.select(e.target.parentNode.parentNode)
-                            g_parent.select("text").text(d => d.data.label)
+                            g_parent.select("text").text(this._labelFunc)
                             g_parent.select("foreignObject").attr("width", g_parent.select("text").node().getBBox().width + this._nodePadding.left + this._nodePadding.right)
-                            g_parent.select("div").text(d => d.data.label)
+                            g_parent.select("div").text(this._labelFunc)
                             this._onMouseoverNode(e,d)
                         })
                         rect.on("mouseout", (e,d) => {
                             const g_parent = d3.select(e.target.parentNode.parentNode)
-                            g_parent.select("text").text(d => GraphUtils.truncate(d.data.label, 20))
+                            g_parent.select("text").text(d => GraphUtils.truncate(this._labelFunc(d), 20))
                             g_parent.select("foreignObject").attr("width", g_parent.select("text").node().getBBox().width + this._nodePadding.left + this._nodePadding.right)
-                            g_parent.select("div").text(d => GraphUtils.truncate(d.data.label, 20))
+                            g_parent.select("div").text(d => GraphUtils.truncate(this._labelFunc(d), 20))
                             this._onMouseoutNode(e,d)
                         })
                     this._colored.push(rect)

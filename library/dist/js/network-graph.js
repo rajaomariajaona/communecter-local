@@ -101,15 +101,16 @@ class NetworkGraph extends Graph {
                 id: group,
                 label: group,
                 type: "group",
+                group: "group",
             }});
             links.push({
-                target: group,
-                source: root.data.id,
+                target: group + ".group",
+                source: root.data.id + ".root",
             });
             for (const child of children) {
                 links.push({
-                    source: group,
-                    target: child.data.id,
+                    source: group + ".group",
+                    target: child.data.id + "." + this._funcGroup(child),
                 });
             }
         }
@@ -131,7 +132,7 @@ class NetworkGraph extends Graph {
                 "links",
                 d3
                 .forceLink(res.links)
-                .id((d) => d.data.id)
+                .id((d) => d.data.id + "." + this._funcGroup(d))
                 .strength((d) => 0.095)
                 ).stop();
             }
@@ -217,10 +218,10 @@ class NetworkGraph extends Graph {
                     .classed("node", true)
                     .on("click", (d, i, n) => this._onClickNode(d, i, n))
                     .on("mouseover", (e,d) => {
-                        d3.select(e.currentTarget).select("text").text(d => d.data.label)
+                        d3.select(e.currentTarget).select("text").text(this._labelFunc(d))
                     })
                     .on("mouseout", (e,d) => {
-                        d3.select(e.currentTarget).select("text").text(d => d.minified)
+                        d3.select(e.currentTarget).select("text").text(d => GraphUtils.truncate(this._labelFunc(d), 20))
                     })
                     .call(
                         d3
@@ -261,11 +262,9 @@ class NetworkGraph extends Graph {
                         .style("width", "100%")
                         .style("height", "100%")
                         .on("click", (e, d) => this._onClickNode(e, d));
-                        this._nodes
+                    this._nodes
                         .append("text")
-                        .text((d) => {
-                            return d.minified = GraphUtils.truncate(d.data.label, 20);
-                        })
+                        .text((d) => GraphUtils.truncate(this._labelFunc(d), 20))
                         .attr("font-size", 20)
                         .attr("x", 15)
                         .attr("y", 4);

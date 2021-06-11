@@ -15,8 +15,9 @@ class CircleGraph extends Graph {
      * @param {*} data array of obj {img?: url, text?: string, id: string | number}
      * @param {*} funcGroup function to indicate which obj key to group
      */
-    constructor(data, funcGroup) {
+    constructor(data, funcGroup, authorizedTags = null) {
         super();
+        this._authorizedTags = authorizedTags;
         this._funcGroup = funcGroup;
         this._data = this._preprocessData(data);
     }
@@ -24,26 +25,23 @@ class CircleGraph extends Graph {
         const res = []
         for (const [id, value] of Object.entries(results)) {
             if (value.tags) {
-                for (const tag of value.tags) {
-                  const row = {
-                    id
-                  }
-                  row.label = value.name
-                  row.description = value.description
-                  row.img = value.profilMediumImageUrl
-                  row.group = tag
-                  res.push(row);
-                }
-            } else {
-                const row = {
-                    id
-                }
-                row.label = value.name
-                row.description = value.description
-                row.img = value.profilMediumImageUrl
-                row.group = "Autres"
-                res.push(row);
-              }
+                
+                    for (const tag of value.tags) {
+                        if(this._authorizedTags && this._authorizedTags.length > 0){
+                            if(!this._authorizedTags.includes(tag)){
+                                continue;
+                            }
+                        }
+                         const row = {
+                            id
+                        }
+                        row.label = value.name
+                        row.description = value.description
+                        row.img = value.profilMediumImageUrl
+                        row.group = tag
+                        res.push(row);
+                    }
+            }
         }
         return res
     }

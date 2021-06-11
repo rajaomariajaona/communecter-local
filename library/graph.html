@@ -33,7 +33,7 @@
             }
             return Array.from(resSet)
         }
-        var circleGraph = new CircleGraph([],d => GraphUtils.slugify(d.group))
+        var circleGraph = new CircleGraph([],d => GraphUtils.slugify(d.group), ["Apprentissage"])
         circleGraph.draw("#graph-container")
         let  tooltip = new GraphTooltip("#graph-container")
         circleGraph.setOnClickNode((e,d,n) => {

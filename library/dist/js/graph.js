@@ -8,8 +8,11 @@ class Graph {
     _rootG = null;
     _leaves = [];
     _colored = [];
+    _labeled = [];
     _width = 800;
     _height = 800;
+    _authorizedTags = [];
+    _labelFunc = (d,i,n) => d.data.label;
     _beforeDraw = () => {
         console.log("BEFORE DRAW")
     };
@@ -29,6 +32,10 @@ class Graph {
     }
     setAfterUpdate(callback){
         this._afterUpdate = callback;
+    }
+
+    setLabelFunc(callback){
+        this._labelFunc = callback;
     }
 
     _onClickNode = (event, data) => {

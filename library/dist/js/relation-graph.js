@@ -36,13 +36,14 @@ class RelationGraph extends Graph {
             coloredGroup.attr("fill", (d, i, n) => this._colorGroup(d, i, n));
         }
     }
-    constructor(rawData) {
+    constructor(rawData,authorizedTags = null) {
         super();
         const {
             data,
             links,
             groups
         } = this._preprocessData(rawData);
+        this._authorizedTags = authorizedTags;
         this._links = links;
         this._data = data;
         this._groups = groups;
@@ -51,7 +52,22 @@ class RelationGraph extends Graph {
     preprocessResults(results){
         const res = []
         for (const [id, value] of Object.entries(results)) {
-            res.push({...value, id, groups: value.tags ? value.tags : ["Autres"], label: value.name ? value.name : ""})
+            var tags = value.tags;
+            if(!tags){
+                continue;
+            }
+            var groups = tags;
+            if(this._authorizedTags){
+                if(this._authorizedTags.length <= 0){
+                    continue;
+                }
+                groups = tags.filter(x => this._authorizedTags.indexOf(x) !== -1);
+                console.log(groups);
+            }
+            if(!groups || groups.length <= 0){
+                continue;
+            }
+            res.push({...value, id, groups, label: value.name ? value.name : ""})
         }
         console.log(res);
         return res
