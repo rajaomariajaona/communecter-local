@@ -62,14 +62,12 @@ class RelationGraph extends Graph {
                     continue;
                 }
                 groups = tags.filter(x => this._authorizedTags.indexOf(x) !== -1);
-                console.log(groups);
             }
             if(!groups || groups.length <= 0){
                 continue;
             }
-            res.push({...value, id, groups, label: value.name ? value.name : ""})
+            res.push({...value, id, groups, label: value.name ? value.name : "", img: value.profilMediumImageUrl})
         }
-        console.log(res);
         return res
     }
 
@@ -423,7 +421,6 @@ class RelationGraph extends Graph {
             d3.select("#content").on("click", (e) => {
                 this._clicked = false;
                 e.stopPropagation();
-                console.log("HERE");
                 this._removeAllMouseEvent();
                 this._addMouseEvent(this._leaves, group);
                 this._leafMouseOut();

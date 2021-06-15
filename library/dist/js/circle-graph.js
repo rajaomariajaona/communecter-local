@@ -47,14 +47,11 @@ class CircleGraph extends Graph {
     }
     _preprocessData(data) {
         this._beforeUpdate()
-        console.log("DATA", this._data);
         this._nodes = [];
 
         const d = this._group(data, this._funcGroup);
         this._dfs(d);
 
-
-        console.log(this._nodes);
         const packed = d3.packSiblings(this._nodes);
 
         let minY = Infinity;
@@ -106,7 +103,6 @@ class CircleGraph extends Graph {
         if (this._rootSvg) {
             this._rootSvg.attr("viewBox", [0, 0, this.w, this.h]);
         }
-        console.log(d.descendants());
         return packed;
     }
 
@@ -261,13 +257,13 @@ class CircleGraph extends Graph {
         this._rootG = this._rootSvg
             .append("g")
             .attr("id", "circle-root")
-            .attr("transform", "translate(0,50)");
         const zoomEvent = d3.zoom().on("zoom", (e) => {
             this._rootG.attr("transform", e.transform);
             this._correctTextParentSize();
             this._onZoom(e);
         });
         this._rootSvg.call(zoomEvent);
+        this._rootSvg.call(zoomEvent.transform, d3.zoomIdentity.translate(0,50));
         const filter_ombre = this._rootSvg
             .append("defs")
             .append("filter")
@@ -277,7 +273,7 @@ class CircleGraph extends Graph {
             .attr("dx", 0)
             .attr("dy", 1);
         this._update(this._data);
-        this._correctTextParentSize();
+        
     }
 
     _update(data) {
@@ -288,7 +284,6 @@ class CircleGraph extends Graph {
             .selectAll("g")
             .data(data, (d) => JSON.stringify(d.data))
             .join((enter) => {
-                console.log("ENTERED");
                 const parent_g = enter.append("g");
                 parent_g.classed("divide", true);
                 const path = parent_g
@@ -355,10 +350,6 @@ class CircleGraph extends Graph {
                         .append("g")
                         .style("cursor", "pointer")
                         .classed("leaf-group", true)
-                        // .attr("id", (d, j, n) => {
-                        // console.log(d3.select(n[0]).node().parentNode.__data__)
-                        // return `id${i}-${j}`
-                        // })
                         .on("click", this._onClickNode);
 
                     this._leaves.push(leaf_svg_g);
@@ -415,12 +406,11 @@ class CircleGraph extends Graph {
 
                 },
                 (update) => {
-                    console.log(update);
                 },
                 (exit) => {
-                    console.log(exit);
                 }
                 );
+                this._correctTextParentSize();
                 this._afterUpdate();
     }
     setColor(callback) {

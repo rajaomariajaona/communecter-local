@@ -253,17 +253,6 @@ class GraphUtils {
         return text => res;
     }
 
-    static squareOuterCircle(x, y, width, height) {
-        const cx = x + width / 2;
-        const cy = y + height / 2;
-        const r = Math.sqrt((width / 2) ** 2 + (height / 2) ** 2)
-        return {
-            cx,
-            cy,
-            r
-        };
-    }
-
     static squareInnerCircle(cx, cy, r, padding = 0) {
         const l = Math.sin(Math.PI / 4) * (r - padding);
         const x = cx - l;

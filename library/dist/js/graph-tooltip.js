@@ -20,7 +20,9 @@ class GraphTooltip {
             .attr("id", "graph-tooltip")
             .style("width", "350px")
             .style("display", "none")
-            .html(`<div class="container-fluid">
+            .html(`
+            <i class="fa fa-close" style="position: absolute;top: 10px;font-size: 16px;right: 10px; cursor:pointer; z-index:1;" id="graph-tooltip-close"> </i>
+            <div class="container-fluid">
             <div class="row">
             <div class="col-xs-12" style="display: flex; align-items: center;">
                 <div style="margin-right: 10px;">
@@ -53,6 +55,7 @@ class GraphTooltip {
         }else{
             this.tooltip = container.select("div#graph-tooltip")
         }
+        this.tooltip.select("#graph-tooltip-close").on('click', () => this.hide());
         this._title = this.tooltip.select("#bulle-title");
         this._image = this.tooltip.select("#bulle-image");
         this._anchor = this.tooltip.select("#bulle-anchor");

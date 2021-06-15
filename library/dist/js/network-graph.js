@@ -93,7 +93,6 @@ class NetworkGraph extends Graph {
             }
         }
         const dataByLinks = d3.group(filteredData, this._funcGroup);
-        console.log(dataByLinks);
         const links = [];
         const groups = [];
         for (const [group, children] of dataByLinks.entries()) {
@@ -120,7 +119,6 @@ class NetworkGraph extends Graph {
             links,
             groups,
         };
-        console.log(res);
         this._isEmpty = !(res.links.length > 0);
         if(!this._isEmpty){
             this._simulation = d3
@@ -178,7 +176,6 @@ class NetworkGraph extends Graph {
         if(!this._isEmpty){
             this._simulation.restart()
             this._simulation.on("tick", () => this._tickActions());
-            console.log(this._data);
             if (!this._rootG.select("g.links").node()) {
                 this._rootG.append("g").attr("class", "links");
             }
@@ -195,8 +192,6 @@ class NetworkGraph extends Graph {
                     .style("stroke", "rgba(51,51,51,0.6)");
                 },
                 (update) => {
-                    
-                    console.log(update);
                     return update;
                 },
                 (exit) => {
@@ -269,14 +264,12 @@ class NetworkGraph extends Graph {
                         .attr("x", 15)
                         .attr("y", 4);
                     }, update => {
-                        console.log(update);
             },
             exit => exit.remove());
             this._leaves.push(nodes);
         }
     }
         _dragStart(event, d) {
-            console.log(!event.active);
             if (!event.active) this._simulation.alphaTarget(0.3).restart();
             d.fx = d.x;
             d.fy = d.y;
