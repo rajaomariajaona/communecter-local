@@ -229,6 +229,20 @@ class RelationGraph extends Graph {
                 this._leaves = node.filter(
                     (d) => !d.data.type || d.data.type != "group"
                 );
+                const circle = this._leaves
+                    .append("circle")
+                    .attr("r", this._radius)
+                    .attr("fill", (d, i) => (d.color = this._color(d, i)))
+                this.leaves
+                    .each(d => {
+                        d.innerSquare = GraphUtils.squareInnerCircle(0,0,this._radius, 10);
+                    })
+                this._leaves
+                    .append("foreignObject")
+                    .attr("x", d => d.innerSquare.x)
+                    .attr("y", d => d.innerSquare.y)
+                    .attr("width", d => d.innerSquare.width)
+                    .attr("height", d => d.innerSquare.height)
 
                 this._leaves.on("click", this._onClickNode);
                 this._zoom = d3.zoom().on("zoom", (e) => {
@@ -274,41 +288,32 @@ class RelationGraph extends Graph {
 
                 this._groupsNode.on("click", this._focusOnGroup);
 
-                const circle = this._leaves
-                    .append("circle")
-                    .attr("r", this._radius)
-                    .attr("fill", (d, i) => (d.color = this._color(d, i)));
+                
                 this._colored.push(circle);
-                this._leaves
+                const div = this._leaves
+                .selectAll("foreignObject")
+                .append("xhtml:div")
+                .style("width", "100%")
+                .style("height", "100%")
+                .style("display", "flex")
+                .style("justify-content", "center")
+                .style("align-items", "center")
+                div
                     .filter((d) => d.data.img)
-                    .append("image")
-                    .attr("xlink:href", (d) => d.data.img)
-                    .attr("width", (d) => 80)
-                    .attr("height", (d) => 80)
-                    .attr("transform", (d) => `translate(-40,-40)`);
-
-                const texts = this._leaves
+                    .append("xhtml:img")
+                    .attr("src", (d) => d.data.img)
+                    .style("width", "100%")
+                    .style("height", "auto")
+                const texts = div
                     .filter((d) => !d.data.img)
-                    .each((d) => (d.lines = GraphUtils.splitLines(d.data.label)))
-                    .append("text")
-                    .attr(
-                        "transform",
-                        (d) =>
-                        `scale(${isFinite((this._radius - 20) / GraphUtils.textRadius(d.lines)) ? (this._radius - 20) / GraphUtils.textRadius(d.lines) : 1})`
-                    )
-                    .selectAll("tspan")
-                    .data((d) => d.lines)
-                    .enter()
-                    .append("tspan")
-                    .attr("text-anchor", "middle")
-                    .attr("x", 0)
-                    .attr(
-                        "y",
-                        (d, i, n) =>
-                        (i - n[i].parentNode.__data__.lines.length / 2 + 0.8) * 20
-                    )
-                    .text((d) => d.text);
 
+                texts.append("xhtml:span")
+                    .style("text-align", "center")
+                    .text(d => d.data.label)
+
+                texts.each((d,i,n) => {
+                    GraphUtils.textfill(n[i], 'span', 20);
+                })
                 node.attr("x", (d) => d.x).attr("y", (d) => d.y);
                 const bound = this._rootG.node().getBBox();
                 const k = this._width / bound.width;
@@ -353,7 +358,7 @@ class RelationGraph extends Graph {
             .classed("svg-blur", false)
             .attr("opacity", "1")
             .attr("id", "node-active");
-
+        // const back_g = this._rootG
         const top_g = this._rootG
             .insert("g", "#node-active")
             .attr("id", "top-container");
@@ -365,16 +370,16 @@ class RelationGraph extends Graph {
             .attr("id", (_, i, node) => {
                 return "link-active-" + i;
             });
-        activeLink.each((l, i, node) => {
-            top_g.append("use").attr("xlink:href", "#link-active-" + i);
-        });
+        // activeLink.each((l, i, node) => {
+        //     top_g.append("use").attr("xlink:href", "#link-active-" + i);
+        // });
         const activeLeaf = this._leaves
             .filter((d) => d.data.groups.includes(data.data.id))
             .attr("opacity", "1")
             .attr("id", (_, i) => "leaf-active-" + i);
-        activeLeaf.each((l, i, node) => {
-            top_g.append("use").attr("xlink:href", "#leaf-active-" + i);
-        });
+        // activeLeaf.each((l, i, node) => {
+        //     top_g.append("use").attr("xlink:href", "#leaf-active-" + i);
+        // });
         this._toggleBlurNotActiveLeaf(activeLeaf);
         activeLink.classed("svg-blur", false);
     }

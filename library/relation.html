@@ -18,7 +18,10 @@
     <script src="data/relation-data.js"></script>
     <script src="data/circle-data.js"></script>
     <script src="../d3.v6.min.js"></script>
-    <script src="dist/js/all.js"></script>
+    <script src="../jquery-2.1.1.min.js"></script>
+    <script src="dist/js/graph.js"></script>
+    <script src="dist/js/graph-utils.js"></script>
+    <script src="dist/js/relation-graph.js"></script>
     <script>
         function randomizeData(data) {
             const rawLen = data.length;
@@ -47,6 +50,7 @@
             if (cont)
                 setTimeout(change, 2000)
         }
+        change()
         //setTimeout(change, 2000)
     </script>
 </body>

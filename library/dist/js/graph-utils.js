@@ -277,4 +277,19 @@ class GraphUtils {
         return bnd;
     }
 
+    static textfill(nodeSelector, textContainerSelector, maxFontPixels, alpha = 1){
+		var fontSize = maxFontPixels;
+		var ourText = $(textContainerSelector, nodeSelector);
+		var maxHeight = $(nodeSelector).height();
+		var maxWidth = $(nodeSelector).width();
+		var textHeight;
+		var textWidth;
+		do {
+		    ourText.css('font-size', fontSize);
+		    textHeight = ourText.height();
+		    textWidth = ourText.width();
+		    fontSize = fontSize - alpha;
+		} while ((textHeight > maxHeight || textWidth > maxWidth) && fontSize > 3);
+    }
+
 }
