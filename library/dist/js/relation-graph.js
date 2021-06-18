@@ -57,10 +57,7 @@ class RelationGraph extends Graph {
                 continue;
             }
             var groups = tags;
-            if(this._authorizedTags){
-                if(this._authorizedTags.length <= 0){
-                    continue;
-                }
+            if(this._authorizedTags && this._authorizedTags.length > 0){
                 groups = tags.filter(x => this._authorizedTags.indexOf(x) !== -1);
             }
             if(!groups || groups.length <= 0){

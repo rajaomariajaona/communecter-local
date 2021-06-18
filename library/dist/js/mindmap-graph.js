@@ -148,65 +148,51 @@ class MindmapGraph extends Graph {
                         "transform",
                         (d) => "translate(" + this._source.y0 + "," + this._source.x0 + ")"
                     )
-                this._leaves.push(node_g);
-                const texts = node_g
-                    .append("text")
-                    .text((d) => GraphUtils.truncate(this._labelFunc(d), 20))
-                    .attr("x", this._nodePadding.left)
-                    .attr("text-anchor", "start")
-                    .style("visibility", "hidden")
-
-                node_g.each((d, i, n) => {
-                    const {
-                        width,
-                        height,
-                        x,
-                        y
-                    } = n[i].getBBox();
-
-                    const rectNode = d3
-                        .select(n[i])
-                        .insert("foreignObject", "text")
-                        .style("cursor", "pointer")
-                        .attr("x", x - this._nodePadding.left)
-                        .attr("y", y - this._nodePadding.top)
-                        .attr("width", (d) =>
-                            (d.w =
-                                width + this._nodePadding.left + this._nodePadding.right)
-                        )
+                const rect = node_g.append("foreignObject")
+                    .style("cursor", "pointer")
+                    .attr("width", (d) =>
+                    {   
+                        const span = document.createElement("span")
+                        span.innerText = GraphUtils.truncate(this._labelFunc(d), 20);
+                        d.w = GraphUtils.computeBoundVirtualNode(span).width + this._nodePadding.left + this._nodePadding.right;
+                        return d.w;
+                    })
                         .attr(
                             "height",
                             (d) =>
-                            (d.h = height + this._nodePadding.top + this._nodePadding.bottom)
-                        )
-
-                    const rect = rectNode.append("xhtml:div")
-                        .style("height", "100%")
-                        .style("width", "100%")
-                        .style("display", "flex")
-                        .style("justify-content", "center")
-                        .style("align-items", "center")
-                        .style("border-radius", "10px")
-                        .style("background-color", (d, i, n) => this._color(d, d.depth, n))
-                        .text(d => GraphUtils.truncate(this._labelFunc(d), 20))
-                        .style("color", "#455a64");
-                        rect.on("mouseover", (e,d) => {
-                            const g_parent = d3.select(e.target.parentNode.parentNode)
-                            g_parent.select("text").text(this._labelFunc)
-                            g_parent.select("foreignObject").attr("width", g_parent.select("text").node().getBBox().width + this._nodePadding.left + this._nodePadding.right)
-                            g_parent.select("div").text(this._labelFunc)
-                            this._onMouseoverNode(e,d)
-                        })
-                        rect.on("mouseout", (e,d) => {
-                            const g_parent = d3.select(e.target.parentNode.parentNode)
-                            g_parent.select("text").text(d => GraphUtils.truncate(this._labelFunc(d), 20))
-                            g_parent.select("foreignObject").attr("width", g_parent.select("text").node().getBBox().width + this._nodePadding.left + this._nodePadding.right)
-                            g_parent.select("div").text(d => GraphUtils.truncate(this._labelFunc(d), 20))
-                            this._onMouseoutNode(e,d)
-                        })
-                    this._colored.push(rect)
-                });
-                
+                            (d.h = 15 + this._nodePadding.top + this._nodePadding.bottom)
+                            )
+                    .attr("x", 0)
+                    .attr("y", d => - d.h / 2)
+                    .append("xhtml:div")
+                    .style("height", "100%")
+                    .style("width", "100%")
+                    .style("display", "flex")
+                    .style("justify-content", "center")
+                    .style("align-items", "center")
+                    .style("border-radius", "10px")
+                    .style("background-color", (d, i, n) => this._color(d, d.depth, n))
+                    .text(d => GraphUtils.truncate(this._labelFunc(d), 20))
+                    .style("color", "#455a64")
+                    .on("mouseover", (e,d) => {
+                        const g_parent = d3.select(e.target.parentNode.parentNode)
+                        const span = document.createElement("span")
+                        span.innerText = this._labelFunc(d);
+                        g_parent.select("foreignObject")
+                            .attr("width", 
+                                GraphUtils.computeBoundVirtualNode(span).width + this._nodePadding.left + this._nodePadding.right
+                            );
+                        g_parent.select("div").text(this._labelFunc)
+                        this._onMouseoverNode(e,d)
+                    })
+                    .on("mouseout", (e,d) => {
+                        const g_parent = d3.select(e.target.parentNode.parentNode)
+                        g_parent.select("foreignObject").attr("width", d.w)
+                        g_parent.select("div").text(d => GraphUtils.truncate(this._labelFunc(d), 20))
+                        this._onMouseoutNode(e,d)
+                    })
+                this._colored.push(rect)
+                this._leaves.push(node_g);
             },
             (update) => {
                 node_g
