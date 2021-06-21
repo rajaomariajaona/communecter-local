@@ -60,7 +60,7 @@ class RelationGraph extends Graph {
             if(this._authorizedTags && this._authorizedTags.length > 0){
                 groups = tags.filter(x => this._authorizedTags.indexOf(x) !== -1);
             }
-            if(!groups || groups.length <= 0){
+            if(!groups || !groups.length > 0){
                 continue;
             }
             res.push({...value, id, groups, label: value.name ? value.name : "", img: value.profilMediumImageUrl})

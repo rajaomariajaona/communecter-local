@@ -1,4 +1,8 @@
 class MindmapGraph extends Graph {
+    _rootObj = {
+        id: "root",
+        label: "SEARCH"
+    };
     _duration = 750;
     _nodePadding = {
         top: 5,
@@ -22,16 +26,16 @@ class MindmapGraph extends Graph {
     _links = [];
     _treemap = null;
 
-    constructor(data) {
+    constructor(data, rootObj = null ) {
         super()
         this._data = this._preprocessData(data);
+        if(rootObj){
+            this._rootObj = rootObj;
+        }
     }
     preprocessResults(results){
         let countTag = 0;
-        let res = {
-            id: "root",
-            label: "SEARCH"
-        };
+        let res = this._rootObj;
         let raw = []
         for (const [id, value] of Object.entries(results)) {
         const row = {
