@@ -207,31 +207,34 @@ class NetworkGraph extends Graph {
                 .data(this._data.nodes, d => JSON.stringify(d.data))
                 .join((enter) => {
                     this._nodes = enter
-                    .append("svg")
-                    .style("overflow", "visible")
-                    .style("cursor", "pointer")
-                    .classed("node", true)
-                    .on("click", (d, i, n) => this._onClickNode(d, i, n))
-                    .on("mouseover", (e,d) => {
-                        d3.select(e.currentTarget).select("text").text(this._labelFunc(d))
-                    })
-                    .on("mouseout", (e,d) => {
-                        d3.select(e.currentTarget).select("text").text(d => GraphUtils.truncate(this._labelFunc(d), 20))
-                    })
-                    .call(
-                        d3
-                        .drag()
-                        .on("start", (e, d) => this._dragStart(e, d))
-                        .on("drag", (e, d) => this._dragDrag(e, d))
-                        .on("end", (e, d) => this._dragEnd(e, d))
-                        );
-                    this._circlesNode = this._nodes
-                        .append("circle")
-                        .attr("r", (d,i,n) => this._circleSize(d,i,n))
-                        .attr("fill", (d, i, n) => this._color(d, i, n));
-                    this._colored.push(this._circlesNode)
+                        .append("svg")
+                        .style("overflow", "visible")
+                        .style("cursor", "pointer")
+                        .classed("node", true)
+                    this._nodes.append("g")
+                        .on("click", (d, i, n) => this._onClickNode(d, i, n))
+                        .on("mouseover", (e,d) => {
+                            d3.select(e.currentTarget).select("text").text(this._labelFunc(d))
+                        })
+                        .on("mouseout", (e,d) => {
+                            d3.select(e.currentTarget).select("text").text(d => GraphUtils.truncate(this._labelFunc(d), 20))
+                        })
+                        .call(
+                            d3
+                                .drag()
+                                .on("start", (e, d) => this._dragStart(e, d))
+                                .on("drag", (e, d) => this._dragDrag(e, d))
+                                .on("end", (e, d) => this._dragEnd(e, d))
+                                );
+                        this._circlesNode = this._nodes
+                            .select("g")
+                            .append("circle")
+                            .attr("r", (d,i,n) => this._circleSize(d,i,n))
+                            .attr("fill", (d, i, n) => this._color(d, i, n));
+                        this._colored.push(this._circlesNode)
 
                     const foreign = this._nodes
+                        .select("g")
                         .append("foreignObject")
                         .attr("x", (d) => d.innerSquare.x)
                         .attr("y", (d) => d.innerSquare.y)
@@ -258,6 +261,7 @@ class NetworkGraph extends Graph {
                         .style("height", "100%")
                         .on("click", (e, d) => this._onClickNode(e, d));
                     this._nodes
+                        .select("g")
                         .append("text")
                         .text((d) => GraphUtils.truncate(this._labelFunc(d), 20))
                         .attr("font-size", 20)
