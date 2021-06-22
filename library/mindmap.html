@@ -21,7 +21,7 @@
     <script src="dist/js/graph.js"></script>
     <script src="dist/js/mindmap-graph.js"></script>
     <script>
-        var mindmapGraph = new MindmapGraph(mindData);
+        var mindmapGraph = new MindmapGraph(mindData,0);
         mindmapGraph.draw("#graph-container")
         var cont = false
         function change(l = null) {
@@ -31,7 +31,7 @@
             if (cont)
                 setTimeout(change, 2000)
         }
-        //change()
+        change()
     </script>
 </body>
 

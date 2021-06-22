@@ -26,12 +26,15 @@ class MindmapGraph extends Graph {
     _links = [];
     _treemap = null;
 
-    constructor(data, rootObj = null ) {
+    _depth = null;
+
+    constructor(data, depthToCollapse = null, rootObj = null ) {
         super()
         this._data = this._preprocessData(data);
         if(rootObj){
             this._rootObj = rootObj;
         }
+        this._depth = depthToCollapse;
     }
     preprocessResults(results){
         let countTag = 0;
@@ -106,6 +109,9 @@ class MindmapGraph extends Graph {
             this._onZoom(e);
         });
         this._rootSvg.call(zoomEvent).call(zoomEvent.transform, d3.zoomIdentity.translate(this._margin.left, (this._margin.top + this._height / 2)))
+        if(this._depth != null && this._depth >= 0){
+            this.collapseAll(this._data, this._depth);
+        }
         this._update(this._data);
         this._afterDraw()
     }
@@ -128,6 +134,9 @@ class MindmapGraph extends Graph {
         this._data = this._preprocessData(data);
         const tmp = this._duration;
         this._duration = 0
+        if(this._depth != null && this._depth >= 0){
+            this.collapseAll(this._data, this._depth);
+        }
         this._update(this._data)
         this._duration = tmp;
     }
@@ -303,6 +312,30 @@ class MindmapGraph extends Graph {
             ${d.y} ${d.x}`;
         }
         return path;
+    }
+    collapseAll(data, depth){
+        if(data.depth < depth){
+            if(data.children){
+                for (const child of Object.values(data.children)) {
+                    this.collapseAll(child, depth);
+                }
+            }
+        }else if(data.depth > depth){
+            if(data.children){
+                for (const child of Object.values(data.children)) {
+                    this.collapseAll(child, depth + 1);
+                }
+            }
+                return;
+        }else{
+            if(data.children){
+                for (const child of Object.values(data.children)) {
+                    this.collapseAll(child, depth + 1);
+                }
+            }
+            data._children = data.children
+            data.children = null;
+        }
     }
     _click(e, d) {
         if (d.children) {
