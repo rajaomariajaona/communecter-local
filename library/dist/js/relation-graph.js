@@ -151,6 +151,7 @@ class RelationGraph extends Graph {
         d3.select(containerId)
             .selectAll("svg.graph")
             .remove();
+        this._height = GraphUtils.heightByViewportRatio(this._width);
         this._rootSvg = d3
             .select(containerId)
             .append("svg")
@@ -164,6 +165,18 @@ class RelationGraph extends Graph {
         this._update();
         
     }
+
+    _attachViewBoxResize = () => {
+        window.onresize = (e) => {
+            this._height = GraphUtils.heightByViewportRatio(this._width);
+            this._rootSvg
+                .attr("viewBox", [-this._width / 2, -this._height / 2,
+                    this._width,
+                    this._height,
+                ]);
+        }
+    }
+
     updateData(rawData) {
         const {
             data,
@@ -342,7 +355,6 @@ class RelationGraph extends Graph {
         });
 
         this._linksNode.classed("svg-blur", true)
-        console.log(e.currentTarget);
         d3.select($(e.currentTarget).closest("svg").get()[0])
             .attr("opacity", "1")
             .classed("svg-blur", false)

@@ -139,12 +139,8 @@ class NetworkGraph extends Graph {
     draw(containerId) {
         super.draw(containerId);
         this._rootG = this._rootSvg.append("g");
-
         this._rootSvg
             .attr("viewBox", [0, 0, this._width, this._height])
-            // .attr("height", this._height)
-            // .attr("width", this._width);
-        // const rect = this._rootSvg.node().getBoundingClientRect();
 
         this._rootSvg.call(
             d3.zoom().on("zoom", (e, d) => {

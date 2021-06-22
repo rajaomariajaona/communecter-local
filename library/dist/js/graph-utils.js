@@ -291,5 +291,7 @@ class GraphUtils {
 		    fontSize = fontSize - alpha;
 		} while ((textHeight > maxHeight || textWidth > maxWidth) && fontSize > 3);
     }
-
+    static heightByViewportRatio(width){
+        return (window.innerHeight * width) / window.innerWidth;
+    }
 }

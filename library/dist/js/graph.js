@@ -10,13 +10,20 @@ class Graph {
     _colored = [];
     _labeled = [];
     _width = 800;
-    _height = 800;
+    _height = GraphUtils.heightByViewportRatio(this._width);
     _authorizedTags = [];
     _labelFunc = (d,i,n) => d.data.label;
     _beforeDraw = () => {
         console.log("BEFORE DRAW")
     };
+    _attachViewBoxResize = () => {
+        window.onresize = (e) => {
+            this._height = GraphUtils.heightByViewportRatio(this._width);
+            this._rootSvg.attr("viewBox", [0,0,this._width, this._height])
+        }
+    }
     _afterDraw = () => {
+        this._attachViewBoxResize();
         console.log("AFTER DRAW")
         this._isDrawed = true;
     };
@@ -157,6 +164,7 @@ class Graph {
     setAfterDraw(callback) {
         this._afterDraw = () => {
             callback();
+            this._attachViewBoxResize();
             this._isDrawed = true;
             this.setOnMouseoutNode(this._onMouseoutNode)
             this.setOnMouseoverNode(this._onMouseoverNode)

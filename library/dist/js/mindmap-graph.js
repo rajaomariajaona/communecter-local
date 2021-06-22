@@ -69,7 +69,7 @@ class MindmapGraph extends Graph {
     _preprocessData(rawData) {
         rawData = d3.hierarchy(rawData);
         const w = this._width - this._margin.left - this._margin.right;
-        const h = this._height - this._margin.top - this._margin.bottom;
+        const h = GraphUtils.heightByViewportRatio(w);
         rawData.x0 = h / 2
         rawData.y0 = 0
 
@@ -97,10 +97,10 @@ class MindmapGraph extends Graph {
         return rawData;
     }
     draw(containerId) {
-        this._afterDraw()
+        this._beforeDraw()
         super.draw(containerId)
         const w = this._width + this._margin.right + this._margin.left
-        const h =  this._height + this._margin.top + this._margin.bottom;
+        const h =  GraphUtils.heightByViewportRatio(w);
         this._rootSvg
             .attr("viewBox", [0,0,w,h])
         this._rootG = this._rootSvg.append("g")
@@ -114,6 +114,13 @@ class MindmapGraph extends Graph {
         }
         this._update(this._data);
         this._afterDraw()
+    }
+    _attachViewBoxResize = () => {
+        window.onresize = (e) => {
+            let w = this._width + this._margin.right + this._margin.left
+            let h = GraphUtils.heightByViewportRatio(w);
+            this._rootSvg.attr("viewBox", [0,0,w, h])
+        }
     }
     setColor(callback) {
         this._color = callback;

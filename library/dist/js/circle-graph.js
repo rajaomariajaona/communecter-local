@@ -8,8 +8,6 @@ class CircleGraph extends Graph {
     _nodes = [];
     _size = null;
     _funcGroup = null;
-    w = 0;
-    h = 0;
     /**
      *
      * @param {*} data array of obj {img?: url, text?: string, id: string | number}
@@ -90,18 +88,17 @@ class CircleGraph extends Graph {
         }
         const enclose = d3.packEnclose(packed);
         if (this._isDataEmpty(data)) {
-            this.w = 800;
-            this.h = this.w;
+            this._height = GraphUtils.heightByViewportRatio(this._width);
             if (this._rootSvg) {
-                this._rootSvg.attr("viewBox", [0, 0, this.w, this.h]);
+                this._rootSvg.attr("viewBox", [0, 0, this._width, this._height]);
             }
             return packed;
         }
         // CALCUL the X and Y SIZE fitting the entire graph
-        this.w = enclose.r * 2;
-        this.h = this.w;
+        this._width = enclose.r * 2;
+        this._height = GraphUtils.heightByViewportRatio(this._width);
         if (this._rootSvg) {
-            this._rootSvg.attr("viewBox", [0, 0, this.w, this.h]);
+            this._rootSvg.attr("viewBox", [0, 0, this._width, this._height]);
         }
         return packed;
     }
@@ -273,7 +270,7 @@ class CircleGraph extends Graph {
             .attr("dx", 0)
             .attr("dy", 1);
         this._update(this._data);
-        
+        this._afterDraw()
     }
 
     _update(data) {
