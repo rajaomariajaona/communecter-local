@@ -404,7 +404,7 @@ class RelationGraph extends Graph {
             .attr("id", "node-active");
 
         const top_g = this._rootG
-            .insert("g", "#node-active")
+            .insert("g", "*")
             .attr("id", "top-container");
         const activeLink = this._linksNode
             .filter((e) => e.target.data.id == data.data.id)
@@ -414,9 +414,9 @@ class RelationGraph extends Graph {
             .attr("id", (_, i, node) => {
                 return "link-active-" + i;
             });
-        // activeLink.each((l, i, node) => {
-        //     top_g.append("use").attr("xlink:href", "#link-active-" + i);
-        // });
+        activeLink.each((l, i, node) => {
+            top_g.append("use").attr("xlink:href", "#link-active-" + i);
+        });
         const activeLeaf = this._leaves
             .filter((d) => d.data.groups.includes(data.data.id))
             .attr("opacity", "1")
@@ -468,7 +468,7 @@ class RelationGraph extends Graph {
         //     .attr("height", bound.data.height)
         //     .attr("fill", "none")
         //     .attr("stroke", "red")
-        this._boundZoomToGroup(x, y, x + width, y + height).finally(() => {
+        this._boundZoomToGroup(x, y, x + width, y + height, this._radius).finally(() => {
             this._clicked = true;
             d3.select("#content").on("click", (e) => {
                 this._clicked = false;
@@ -481,7 +481,11 @@ class RelationGraph extends Graph {
             });
         });
     }
-    async _boundZoomToGroup(x0, y0, x1, y1) {
+    async _boundZoomToGroup(x0, y0, x1, y1, padding = 0) {
+        x0 -= padding;
+        y0 -= padding;
+        x1 += padding * 2;
+        y0 += padding * 2;
         return this._rootSvg
             .transition()
             .duration(750)
