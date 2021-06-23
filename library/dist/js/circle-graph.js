@@ -250,7 +250,7 @@ class CircleGraph extends Graph {
         if (k > 2.5) {
             k = 2.5;
         }
-        const parentTexts = d3.selectAll("textPath.parent-text");
+        const parentTexts = this._rootSvg.selectAll("textPath.parent-text");
         parentTexts.style("font-size", `${30 * k}px`);
     }
 
@@ -338,7 +338,7 @@ class CircleGraph extends Graph {
                     // .attr("y", (d) => d.y);
             });
 
-        d3.selectAll("g.leaf-svg")
+        this._rootSvg.selectAll("g.leaf-svg")
             .selectAll("g")
             .data(
                 (d) => d.children,

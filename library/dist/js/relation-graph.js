@@ -325,7 +325,7 @@ class RelationGraph extends Graph {
         });
     }
     _leafMouseOver(e, data) {
-        d3.select("g#top-container").remove();
+        this._rootSvg.select("g#top-container").remove();
         this._leaves.each((d,i,n) => {
             d3.select(n[i]).classed("svg-blur", true)
         });
@@ -383,7 +383,7 @@ class RelationGraph extends Graph {
         }
     }
     _groupMouseOver(e, data) {
-        d3.select("g#top-container").remove();
+        this._rootSvg.select("g#top-container").remove();
         this._groupsNode.each((d,i,n) => {
             d3.select(n[i]).classed("svg-blur", true)
         });
@@ -434,7 +434,7 @@ class RelationGraph extends Graph {
             .attr("stroke-width", 1.1)
             .classed("active", false)
             .attr("id", null);
-        const top = d3.select("g#top-container");
+        const top = this._rootSvg.select("g#top-container");
         if (top) {
             top.remove();
         }
@@ -448,7 +448,7 @@ class RelationGraph extends Graph {
             y,
             width,
             height
-        } = d3
+        } = this._rootSvg
             .select("g#top-container")
             .node()
             .getBBox();
@@ -461,14 +461,14 @@ class RelationGraph extends Graph {
         //     .attr("stroke", "red")
         this._boundZoomToGroup(x, y, x + width, y + height, this._radius).finally(() => {
             this._clicked = true;
-            d3.select("#content").on("click", (e) => {
+            this._rootSvg.select("#content").on("click", (e) => {
                 this._clicked = false;
                 e.stopPropagation();
                 this._removeAllMouseEvent();
                 this._addMouseEvent(this._leaves, group);
                 this._leafMouseOut();
                 this._groupMouseOut();
-                d3.select("#content").on("click", null);
+                this._rootSvg.select("#content").on("click", null);
             });
         });
     }

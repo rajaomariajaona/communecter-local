@@ -176,7 +176,6 @@ class MindmapGraph extends Graph {
                         "transform",
                         (d) => "translate(" + this._source.y0 + "," + this._source.x0 + ")"
                     )
-                console.log("SOURCE", this._source.y0, this._source.x0);
                 const rect = node_g.append("foreignObject")
                     .style("cursor", "pointer")
                     .attr("width", (d) =>

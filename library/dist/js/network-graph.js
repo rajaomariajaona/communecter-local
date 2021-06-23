@@ -284,11 +284,11 @@ class NetworkGraph extends Graph {
     }
     _tickActions() {
         this._onTick()
-        d3.selectAll("g.node")
+        this._rootSvg.selectAll("g.node")
         .attr("transform", d=> `translate(${d.x}, ${d.y})`);
 
         //update link positions
-        d3.selectAll(".links-line")
+        this._rootSvg.selectAll(".links-line")
             .attr("x1", function(d) {
                 return d.source.x;
             })
