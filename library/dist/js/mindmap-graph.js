@@ -103,7 +103,6 @@ class MindmapGraph extends Graph {
         const h =  GraphUtils.heightByViewportRatio(w);
         this._rootSvg
             .attr("viewBox", [0,0,w,h])
-        this._rootG = this._rootSvg.append("g")
         this._zoom = d3.zoom().on("zoom", (e) => {
             this._rootG.attr("transform", e.transform);
             this._onZoom(e);

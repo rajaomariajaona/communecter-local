@@ -147,20 +147,13 @@ class RelationGraph extends Graph {
     }
 
     draw(containerId) {
-
-        d3.select(containerId)
-            .selectAll("svg.graph")
-            .remove();
+        super.draw(containerId);
         this._height = GraphUtils.heightByViewportRatio(this._width);
-        this._rootSvg = d3
-            .select(containerId)
-            .append("svg")
-            .attr("id", "graph")
+        this._rootSvg
             .attr("viewBox", [-this._width / 2, -this._height / 2,
                 this._width,
                 this._height,
             ]);
-        this._rootG = this._rootSvg.append("g");
         this._rootG.append("g").attr("id", "links-group");
         this._update();
         this._afterDraw()

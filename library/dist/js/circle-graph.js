@@ -243,19 +243,10 @@ class CircleGraph extends Graph {
     }
 
     draw(containerId) {
-        d3.select(containerId)
-            .selectAll("svg.graph")
-            .remove();
-        this._rootSvg = d3
-            .select(containerId)
-            .insert("svg", ":first-child")
-            .attr("id", "graph")
-            // .attr("height", h)
-            // .attr("width", w)
+        super.draw(containerId);
+        this._rootSvg
             .attr("viewBox", [0, 0, this._width, this._height]);
-        this._rootSvg.selectAll("*").remove();
-        this._rootG = this._rootSvg
-            .append("g")
+        this._rootG
             .attr("id", "circle-root")
         this._zoom = d3.zoom().on("zoom", (e) => {
             this._rootG.attr("transform", e.transform);
