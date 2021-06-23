@@ -12,6 +12,9 @@ class Graph {
     _width = 800;
     _height = GraphUtils.heightByViewportRatio(this._width);
     _authorizedTags = [];
+    _zoomInK = 1.2;
+    _zoomOutK = 0.8;
+    _navigationNode = null;
     _labelFunc = (d,i,n) => d.data.label;
     _beforeDraw = () => {
         console.log("BEFORE DRAW")
@@ -154,6 +157,7 @@ class Graph {
         return false;
     }
     draw(containerId) {
+        this._containerId = containerId;
         d3.select(containerId)
             .selectAll("svg.graph")
             .remove();
@@ -161,6 +165,8 @@ class Graph {
             .select(containerId)
             .insert("svg", ":first-child")
             .attr("id", "graph");
+        this._rootG = this._rootSvg.append("g");
+        this.drawNavigation(containerId);
     }
     setAfterDraw(callback) {
         this._afterDraw = () => {
@@ -176,6 +182,15 @@ class Graph {
         console.log("INIT ZOOM");
         this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.translate(0,0).scale(1))
     }
+    _zoomBy = (value) => {
+        this._zoom.scaleBy(this._rootSvg.transition(), value)
+    }
+    zoomIn = () => {
+        this._zoomBy(this._zoomInK);
+    }
+    zoomOut = () => {
+        this._zoomBy(this._zoomOutK);
+    }
     get rootG() {
         return this._rootG;
     }
@@ -184,5 +199,56 @@ class Graph {
     }
     get leaves() {
         return this._leaves;
+    }
+    drawNavigation(containerId){
+        const container = d3.select(containerId)
+            .style("position", "relative");
+        this._navigationNode = container
+            .append("xhtml:div")
+            .style("height", "80px")
+            .style("width", "30px")
+            .style("border-radius", "4px")
+            .style("box-shadow", "rgb(0 0 0 / 50%) 0px 0px 3px -1px")
+            .style("background-color", "white")
+            .style("z-index", 2)
+            .style("border-color", "#acacaa")
+            .style("position", "absolute")
+            .style("top", "10px")
+            .style("left", "10px")
+            .style("display", "flex")
+            .style("flex-direction", "column")
+            .style("align-items", "center")
+            .style("justify-content", "space-around")
+
+        const zoomIn = this._navigationNode
+            .append("xhtml:button")
+            .style("width", "100%")
+            .style("height", "100%")
+            .style("background-color", "transparent")
+            .style("border", "none")
+        zoomIn.append("xhtml:i")
+            .attr("class", "fa fa-plus")
+        const zoomOut = this._navigationNode
+            .append("xhtml:button")
+            .style("width", "100%")
+            .style("height", "100%")
+            .style("background-color", "transparent")
+            .style("border", "none")
+        zoomOut.append("xhtml:i")
+            .attr("class", "fa fa-minus")
+        const zoomReset = this._navigationNode
+            .append("xhtml:button")
+            .style("width", "100%")
+            .style("height", "100%")
+            .style("background-color", "transparent")
+            .style("border", "none")
+        zoomReset.append("xhtml:i")
+            .attr("class", "fa fa-arrows-alt")
+
+        zoomIn.on("click", this.zoomIn)
+        zoomOut.on("click", this.zoomOut)
+        zoomReset.on("click", this.initZoom)
+
+        console.log(container);
     }
 }
