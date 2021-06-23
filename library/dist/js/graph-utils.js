@@ -292,7 +292,8 @@ class GraphUtils {
 		} while ((textHeight > maxHeight || textWidth > maxWidth) && fontSize > 3);
     }
     static heightByViewportRatio(width){
-        return (window.innerHeight * width) / window.innerWidth;
+        // return (window.innerHeight * width) / window.innerWidth;
+        return (7 * width) / 16;
     }
     static centerRectIntoRect(parentRect, childRect){
         const parentCenterX = parentRect.x + parentRect.width / 2;

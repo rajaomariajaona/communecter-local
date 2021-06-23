@@ -19,14 +19,7 @@ class Graph {
     _beforeDraw = () => {
         console.log("BEFORE DRAW")
     };
-    _attachViewBoxResize = () => {
-        $(window).resize((e) => {
-            this._height = GraphUtils.heightByViewportRatio(this._width);
-            this._rootSvg.attr("viewBox", [0,0,this._width, this._height])
-        })
-    }
     _afterDraw = () => {
-        this._attachViewBoxResize();
         this.initZoom();
         console.log("AFTER DRAW")
         this._isDrawed = true;
@@ -171,7 +164,6 @@ class Graph {
     setAfterDraw(callback) {
         this._afterDraw = () => {
             callback();
-            this._attachViewBoxResize();
             this.initZoom();
             this._isDrawed = true;
             this.setOnMouseoutNode(this._onMouseoutNode)

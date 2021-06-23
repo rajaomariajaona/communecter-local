@@ -128,14 +128,7 @@ class MindmapGraph extends Graph {
         const k2 = isFinite(containerBound.height / bound.height) ? ((containerBound.height - 200) / bound.height): 1;
         const k = (k1 > k2 ? k2 : k1);
 
-        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(this._margin.left, (this._margin.top + this._height / 2)).scale(k))
-    }
-    _attachViewBoxResize = () => {
-        $(window).resize((e) => {
-            let w = this._width + this._margin.right + this._margin.left
-            let h = GraphUtils.heightByViewportRatio(w);
-            this._rootSvg.attr("viewBox", [0,0,w, h])
-        })
+        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(this._margin.left, (this._margin.top + containerBound.height / 2)).scale(k))
     }
     setColor(callback) {
         this._color = callback;
@@ -183,6 +176,7 @@ class MindmapGraph extends Graph {
                         "transform",
                         (d) => "translate(" + this._source.y0 + "," + this._source.x0 + ")"
                     )
+                console.log("SOURCE", this._source.y0, this._source.x0);
                 const rect = node_g.append("foreignObject")
                     .style("cursor", "pointer")
                     .attr("width", (d) =>
@@ -192,11 +186,7 @@ class MindmapGraph extends Graph {
                         d.w = GraphUtils.computeBoundVirtualNode(span).width + this._nodePadding.left + this._nodePadding.right;
                         return d.w;
                     })
-                        .attr(
-                            "height",
-                            (d) =>
-                            (d.h = 15 + this._nodePadding.top + this._nodePadding.bottom)
-                            )
+                    .attr("height",(d) =>(d.h = 15 + this._nodePadding.top + this._nodePadding.bottom))
                     .attr("x", 0)
                     .attr("y", d => - d.h / 2)
                     .append("xhtml:div")

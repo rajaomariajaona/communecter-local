@@ -159,17 +159,6 @@ class RelationGraph extends Graph {
         this._afterDraw()
     }
 
-    _attachViewBoxResize = () => {
-        $(window).resize((e) => {
-            this._height = GraphUtils.heightByViewportRatio(this._width);
-            this._rootSvg
-                .attr("viewBox", [-this._width / 2, -this._height / 2,
-                    this._width,
-                    this._height,
-                ]);
-        })
-    }
-
     updateData(rawData) {
         const {
             data,
