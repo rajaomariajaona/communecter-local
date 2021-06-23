@@ -17,10 +17,10 @@ class Graph {
         console.log("BEFORE DRAW")
     };
     _attachViewBoxResize = () => {
-        window.onresize = (e) => {
+        $(window).resize((e) => {
             this._height = GraphUtils.heightByViewportRatio(this._width);
             this._rootSvg.attr("viewBox", [0,0,this._width, this._height])
-        }
+        })
     }
     _afterDraw = () => {
         this._attachViewBoxResize();

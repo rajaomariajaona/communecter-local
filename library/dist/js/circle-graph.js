@@ -249,7 +249,7 @@ class CircleGraph extends Graph {
             .attr("id", "graph")
             // .attr("height", h)
             // .attr("width", w)
-            .attr("viewBox", [0, 0, this.w, this.h]);
+            .attr("viewBox", [0, 0, this._width, this._height]);
         this._rootSvg.selectAll("*").remove();
         this._rootG = this._rootSvg
             .append("g")

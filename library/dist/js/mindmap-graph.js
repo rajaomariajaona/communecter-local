@@ -116,11 +116,11 @@ class MindmapGraph extends Graph {
         this._afterDraw()
     }
     _attachViewBoxResize = () => {
-        window.onresize = (e) => {
+        $(window).resize((e) => {
             let w = this._width + this._margin.right + this._margin.left
             let h = GraphUtils.heightByViewportRatio(w);
             this._rootSvg.attr("viewBox", [0,0,w, h])
-        }
+        })
     }
     setColor(callback) {
         this._color = callback;

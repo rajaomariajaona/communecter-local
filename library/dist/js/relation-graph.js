@@ -163,18 +163,18 @@ class RelationGraph extends Graph {
         this._rootG = this._rootSvg.append("g");
         this._rootG.append("g").attr("id", "links-group");
         this._update();
-        
+        this._afterDraw()
     }
 
     _attachViewBoxResize = () => {
-        window.onresize = (e) => {
+        $(window).resize((e) => {
             this._height = GraphUtils.heightByViewportRatio(this._width);
             this._rootSvg
                 .attr("viewBox", [-this._width / 2, -this._height / 2,
                     this._width,
                     this._height,
                 ]);
-        }
+        })
     }
 
     updateData(rawData) {
@@ -333,6 +333,12 @@ class RelationGraph extends Graph {
                 }
                 this._addMouseEvent(this._leaves, this._groupsNode);
             });
+            const bound = this._rootG.node().getBBox();
+            const containerBound = this._rootSvg.node().getBoundingClientRect();
+            const k = isFinite(containerBound.width / bound.width) ? (containerBound.width / bound.width) - 0.1 : 1;
+            console.log( "KKKK", bound, containerBound);
+            console.log("KKKK", k);
+            this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.scale(k))
             this._afterDraw();
     }
 
