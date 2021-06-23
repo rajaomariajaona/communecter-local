@@ -43,6 +43,9 @@ class CircleGraph extends Graph {
         }
         return res
     }
+    initZoom = () => {
+        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.translate(0,50));
+    }
     _preprocessData(data) {
         this._beforeUpdate()
         this._nodes = [];
@@ -254,13 +257,12 @@ class CircleGraph extends Graph {
         this._rootG = this._rootSvg
             .append("g")
             .attr("id", "circle-root")
-        const zoomEvent = d3.zoom().on("zoom", (e) => {
+        this._zoom = d3.zoom().on("zoom", (e) => {
             this._rootG.attr("transform", e.transform);
             this._correctTextParentSize();
             this._onZoom(e);
         });
-        this._rootSvg.call(zoomEvent);
-        this._rootSvg.call(zoomEvent.transform, d3.zoomIdentity.translate(0,50));
+        this._rootSvg.call(this._zoom);
         const filter_ombre = this._rootSvg
             .append("defs")
             .append("filter")

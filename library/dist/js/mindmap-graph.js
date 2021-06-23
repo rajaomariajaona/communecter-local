@@ -104,16 +104,19 @@ class MindmapGraph extends Graph {
         this._rootSvg
             .attr("viewBox", [0,0,w,h])
         this._rootG = this._rootSvg.append("g")
-        const zoomEvent = d3.zoom().on("zoom", (e) => {
+        this._zoom = d3.zoom().on("zoom", (e) => {
             this._rootG.attr("transform", e.transform);
             this._onZoom(e);
         });
-        this._rootSvg.call(zoomEvent).call(zoomEvent.transform, d3.zoomIdentity.translate(this._margin.left, (this._margin.top + this._height / 2)))
+        this._rootSvg.call(this._zoom);
         if(this._depth != null && this._depth >= 0){
             this.collapseAll(this._data, this._depth);
         }
         this._update(this._data);
         this._afterDraw()
+    }
+    initZoom = () => {
+        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.translate(this._margin.left, (this._margin.top + this._height / 2)))
     }
     _attachViewBoxResize = () => {
         $(window).resize((e) => {

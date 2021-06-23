@@ -333,12 +333,6 @@ class RelationGraph extends Graph {
                 }
                 this._addMouseEvent(this._leaves, this._groupsNode);
             });
-            const bound = this._rootG.node().getBBox();
-            const containerBound = this._rootSvg.node().getBoundingClientRect();
-            const k = isFinite(containerBound.width / bound.width) ? (containerBound.width / bound.width) - 0.1 : 1;
-            console.log( "KKKK", bound, containerBound);
-            console.log("KKKK", k);
-            this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.scale(k))
             this._afterDraw();
     }
 
@@ -551,5 +545,14 @@ class RelationGraph extends Graph {
         this._groupsNode.on("mouseover", (e, d) => this._groupMouseOver(e, d));
         this._groupsNode.on("mouseout", (e, d) => this._groupMouseOut(e));
         this._groupsNode.on("click", (e, d) => this._focusOnGroup(e, d));
+    }
+    initZoom = () => {
+        console.log("INIT ZOOM");
+        const bound = this._rootG.node().getBBox();
+        const containerBound = this._rootSvg.node().getBoundingClientRect();
+        const k = isFinite(containerBound.width / bound.width) ? (containerBound.width / bound.width) - 0.1 : 1;
+        console.log( "KKKK", bound, containerBound);
+        console.log("KKKK", k);
+        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.scale(k))
     }
 }

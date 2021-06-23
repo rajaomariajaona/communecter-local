@@ -24,6 +24,7 @@ class Graph {
     }
     _afterDraw = () => {
         this._attachViewBoxResize();
+        this.initZoom();
         console.log("AFTER DRAW")
         this._isDrawed = true;
     };
@@ -165,10 +166,15 @@ class Graph {
         this._afterDraw = () => {
             callback();
             this._attachViewBoxResize();
+            this.initZoom();
             this._isDrawed = true;
             this.setOnMouseoutNode(this._onMouseoutNode)
             this.setOnMouseoverNode(this._onMouseoverNode)
         };
+    }
+    initZoom = () => {
+        console.log("INIT ZOOM");
+        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.translate(0,0).scale(1))
     }
     get rootG() {
         return this._rootG;
