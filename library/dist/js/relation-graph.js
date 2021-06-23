@@ -319,11 +319,6 @@ class RelationGraph extends Graph {
                     GraphUtils.textfill(n[i], 'span', 20);
                 })
                 nodeSvg.attr("x", (d) => d.x).attr("y", (d) => d.y);
-                const bound = this._rootG.node().getBBox();
-                const k = this._width / bound.width;
-                if(isFinite(k)){
-                    this._rootSvg.call(this._zoom.scaleTo, k);
-                }
                 this._addMouseEvent(this._leaves, this._groupsNode);
             });
             this._afterDraw();
@@ -540,12 +535,18 @@ class RelationGraph extends Graph {
         this._groupsNode.on("click", (e, d) => this._focusOnGroup(e, d));
     }
     initZoom = () => {
-        console.log("INIT ZOOM");
-        const bound = this._rootG.node().getBBox();
+        const currentZoom = d3.zoomTransform(this._rootSvg.node());
+
+        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity)
+        const bound = this._rootG.node().getBoundingClientRect();
+        this._rootSvg.call(this._zoom.transform, currentZoom);
+
         const containerBound = this._rootSvg.node().getBoundingClientRect();
-        const k = isFinite(containerBound.width / bound.width) ? (containerBound.width / bound.width) - 0.1 : 1;
-        console.log( "KKKK", bound, containerBound);
-        console.log("KKKK", k);
-        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.scale(k))
+
+        const k1 = isFinite(containerBound.width / bound.width) ? ((containerBound.width - 50) / bound.width): 1;
+        const k2 = isFinite(containerBound.height / bound.height) ? ((containerBound.height - 50) / bound.height): 1;
+        const k = (k1 > k2 ? k2 : k1);
+
+        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.scale(k))
     }
 }
