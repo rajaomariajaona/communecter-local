@@ -302,4 +302,19 @@ class NetworkGraph extends Graph {
                 return d.target.y;
             });
     }
+    initZoom = () => {
+        const currentZoom = d3.zoomTransform(this._rootSvg.node());
+
+        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity)
+        const bound = this._rootG.node().getBoundingClientRect();
+        this._rootSvg.call(this._zoom.transform, currentZoom);
+
+        const containerBound = this._rootSvg.node().getBoundingClientRect();
+
+        const k1 = isFinite(containerBound.width / bound.width) ? ((containerBound.width - 50) / bound.width): 1;
+        const k2 = isFinite(containerBound.height / bound.height) ? ((containerBound.height - 50) / bound.height): 1;
+        const k = (k1 > k2 ? k2 : k1);
+
+        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.scale(k))
+    }
 }

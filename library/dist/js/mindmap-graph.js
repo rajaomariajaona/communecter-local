@@ -113,9 +113,22 @@ class MindmapGraph extends Graph {
         }
         this._update(this._data);
         this._afterDraw()
+        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.translate(this._margin.left, (this._margin.top + this._height / 2)))
     }
     initZoom = () => {
-        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.translate(this._margin.left, (this._margin.top + this._height / 2)))
+        const currentZoom = d3.zoomTransform(this._rootSvg.node());
+
+        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity)
+        const bound = this._rootG.node().getBoundingClientRect();
+        this._rootSvg.call(this._zoom.transform, currentZoom);
+
+        const containerBound = this._rootSvg.node().getBoundingClientRect();
+
+        const k1 = isFinite(containerBound.width / bound.width) ? ((containerBound.width - 200) / bound.width): 1;
+        const k2 = isFinite(containerBound.height / bound.height) ? ((containerBound.height - 200) / bound.height): 1;
+        const k = (k1 > k2 ? k2 : k1);
+
+        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(this._margin.left, (this._margin.top + this._height / 2)).scale(k))
     }
     _attachViewBoxResize = () => {
         $(window).resize((e) => {
