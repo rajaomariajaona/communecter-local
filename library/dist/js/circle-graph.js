@@ -44,7 +44,19 @@ class CircleGraph extends Graph {
         return res
     }
     initZoom = () => {
-        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.translate(0,50));
+        const currentZoom = d3.zoomTransform(this._rootSvg.node());
+
+        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity)
+        const bound = this._rootG.node().getBoundingClientRect();
+        this._rootSvg.call(this._zoom.transform, currentZoom);
+
+        const containerBound = this._rootSvg.node().getBoundingClientRect();
+
+        const k1 = isFinite(containerBound.width / bound.width) ? ((containerBound.width - 50) / bound.width): 1;
+        const k2 = isFinite(containerBound.height / bound.height) ? ((containerBound.height - 50) / bound.height): 1;
+        const k = (k1 > k2 ? k2 : k1);
+
+        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(containerBound.width / 2, 0).scale(k))
     }
     _preprocessData(data) {
         this._beforeUpdate()
@@ -263,7 +275,8 @@ class CircleGraph extends Graph {
             .attr("dx", 0)
             .attr("dy", 1);
         this._update(this._data);
-        this._afterDraw()
+        this._afterDraw();
+        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.translate(0,50));
     }
 
     _update(data) {
