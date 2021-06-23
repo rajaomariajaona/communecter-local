@@ -196,11 +196,11 @@ class NetworkGraph extends Graph {
                 }
                 const nodes = this._rootG
                 .select("g.nodes")
-                .selectAll("svg.node")
+                .selectAll("g.node")
                 .data(this._data.nodes, d => JSON.stringify(d.data))
                 .join((enter) => {
                     this._nodes = enter
-                        .append("svg")
+                        .append("g")
                         .style("overflow", "visible")
                         .style("cursor", "pointer")
                         .classed("node", true)
@@ -284,14 +284,8 @@ class NetworkGraph extends Graph {
     }
     _tickActions() {
         this._onTick()
-        d3.selectAll("svg.node")
-            // svg_g_g_image
-            .attr("x", function(d) {
-                return d.x;
-            })
-            .attr("y", function(d) {
-                return d.y;
-            });
+        d3.selectAll("g.node")
+        .attr("transform", d=> `translate(${d.x}, ${d.y})`);
 
         //update link positions
         d3.selectAll(".links-line")

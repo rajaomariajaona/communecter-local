@@ -202,16 +202,18 @@ class RelationGraph extends Graph {
             });
 
         this._rootG
-            .selectAll("svg")
+            .selectAll("g.leaf")
             .data(this._data, (d) => {
                 // return JSON.stringify(d.data)
                 return JSON.stringify(d);
             })
             .join((enter) => {
-                const nodeSvg = enter.append("svg")
+                const nodeSvg = enter
+                    .append("g")
+                    .classed("leaf", true)
                     .style("overflow", "visible")
                     .style("cursor", "pointer");
-                const node = nodeSvg.append("g")
+                const node = nodeSvg
                 this._groupsNode = node.filter(
                     (d) => d.data.type && d.data.type == "group"
                 );
@@ -318,7 +320,7 @@ class RelationGraph extends Graph {
                 texts.each((d,i,n) => {
                     GraphUtils.textfill(n[i], 'span', 20);
                 })
-                nodeSvg.attr("x", (d) => d.x).attr("y", (d) => d.y);
+                nodeSvg.attr("transform", (d) => `translate(${d.x}, ${d.y})`);
                 this._addMouseEvent(this._leaves, this._groupsNode);
             });
             this._afterDraw();
@@ -336,14 +338,14 @@ class RelationGraph extends Graph {
     _leafMouseOver(e, data) {
         d3.select("g#top-container").remove();
         this._leaves.each((d,i,n) => {
-            d3.select(n[i].parentNode).classed("svg-blur", true)
+            d3.select(n[i]).classed("svg-blur", true)
         });
         this._groupsNode.each((d,i,n) => {
-            d3.select(n[i].parentNode).classed("svg-blur", true)
+            d3.select(n[i]).classed("svg-blur", true)
         });
 
         this._linksNode.classed("svg-blur", true)
-        d3.select($(e.currentTarget).closest("svg").get()[0])
+        d3.select(e.currentTarget)
             .attr("opacity", "1")
             .classed("svg-blur", false)
             .attr("id", "node-active");
@@ -368,7 +370,7 @@ class RelationGraph extends Graph {
             .filter((d) => data.data.groups.includes(d.data.id))
             
         activeGroup.each((l, i, node) => {
-            d3.select(node[i].parentNode).classed("svg-blur", false).attr("id", (_, i) => "group-active-" + i);
+            d3.select(node[i]).classed("svg-blur", false).attr("id", (_, i) => "group-active-" + i);
             top_g.append("use").attr("xlink:href", "#group-active-" + i);
         });
     }
@@ -376,10 +378,10 @@ class RelationGraph extends Graph {
         // groups.attr("fill", d => d.data.color)
         // circles.attr("fill", d => d.data.color)
         this._leaves.each((d,i,n) => {
-            d3.select(n[i].parentNode).classed("svg-blur", false).attr("id", null);
+            d3.select(n[i]).classed("svg-blur", false).attr("id", null);
         });
         this._groupsNode.each((d,i,n) => {
-            d3.select(n[i].parentNode).classed("svg-blur", false).attr("id", null);
+            d3.select(n[i]).classed("svg-blur", false).attr("id", null);
         });
         this._linksNode.attr("stroke-width", 1.1)
             .classed("active", false)
@@ -394,11 +396,11 @@ class RelationGraph extends Graph {
     _groupMouseOver(e, data) {
         d3.select("g#top-container").remove();
         this._groupsNode.each((d,i,n) => {
-            d3.select(n[i].parentNode).classed("svg-blur", true)
+            d3.select(n[i]).classed("svg-blur", true)
         });
         this._linksNode.classed("svg-blur", true)
 
-        d3.select($(e.currentTarget).closest("svg").get()[0])
+        d3.select(e.currentTarget)
             .classed("svg-blur", false)
             .attr("opacity", "1")
             .attr("id", "node-active");
@@ -422,7 +424,7 @@ class RelationGraph extends Graph {
             .attr("opacity", "1")
 
         activeLeaf.each((l, i, node) => {
-            d3.select(node[i].parentNode).attr("id", (_, i) => "leaf-active-" + i);
+            d3.select(node[i]).attr("id", (_, i) => "leaf-active-" + i);
         });
         this._toggleBlurNotActiveLeaf(activeLeaf);
         activeLink.classed("svg-blur", false);
@@ -430,10 +432,10 @@ class RelationGraph extends Graph {
     _groupMouseOut(d, i) {
         this._toggleBlurNotActiveLeaf(false);
         this._leaves.each((d,i,n) => {
-            d3.select(n[i].parentNode).attr("opacity", "1").attr("id", null);
+            d3.select(n[i]).attr("opacity", "1").attr("id", null);
         });
         this._groupsNode.each((d,i,n) => {
-            d3.select(n[i].parentNode).attr("opacity", "1")
+            d3.select(n[i]).attr("opacity", "1")
             .classed("svg-blur", false)
             .attr("id", null);
         });
@@ -512,17 +514,17 @@ class RelationGraph extends Graph {
             this._leaves
                 .on("click", (e) => e.stopPropagation())
                 .each((d,i,n) => {
-                   d3.select(n[i].parentNode).classed("svg-blur", true)
+                   d3.select(n[i]).classed("svg-blur", true)
                 });
             activeLeaf.on("click", this._onClickNode)
             activeLeaf.each((l, i, node) => {
-                d3.select(node[i].parentNode).classed("svg-blur", false);
+                d3.select(node[i]).classed("svg-blur", false);
             });
         } else {
             this._leaves
                 .on("click", (e) => e.stopPropagation())
                 .each((d,i,n) => {
-                   d3.select(n[i].parentNode).classed("svg-blur", false)
+                   d3.select(n[i]).classed("svg-blur", false)
                 });
         }
     }

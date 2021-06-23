@@ -317,16 +317,15 @@ class CircleGraph extends Graph {
                     .attr("filter", "url(#ombre)");
                 this._colored.push(circle_parent);
                 const leaf_svg = parent_g
-                    .append("svg")
+                    .append("g")
                     .style("overflow", "visible")
                     .classed("leaf-svg", true)
-                    .attr("x", (d) => d.x - d.r + d.dr)
-                    .attr("y", (d) => d.y - d.r + d.dr);
+                    .attr("transform", d => `translate(${d.x - d.r + d.dr}, ${d.y - d.r + d.dr})`)
                     // .attr("x", (d) => d.x)
                     // .attr("y", (d) => d.y);
             });
 
-        d3.selectAll("svg.leaf-svg")
+        d3.selectAll("g.leaf-svg")
             .selectAll("g")
             .data(
                 (d) => d.children,
