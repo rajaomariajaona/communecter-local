@@ -99,10 +99,6 @@ class MindmapGraph extends Graph {
     draw(containerId) {
         this._beforeDraw()
         super.draw(containerId)
-        const w = this._width + this._margin.right + this._margin.left
-        const h =  GraphUtils.heightByViewportRatio(w);
-        this._rootSvg
-            .attr("viewBox", [0,0,w,h])
         this._zoom = d3.zoom().on("zoom", (e) => {
             this._rootG.attr("transform", e.transform);
             this._onZoom(e);
@@ -115,20 +111,37 @@ class MindmapGraph extends Graph {
         this._afterDraw()
         this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.translate(this._margin.left, (this._margin.top + this._height / 2)))
     }
+
+    adaptViewBoxByRatio(ratio = 16/7){
+        const w = this._width + this._margin.right + this._margin.left
+        const h =  GraphUtils.heightByViewportRatio(w,ratio);
+        this._rootSvg
+            .attr("viewBox", [0,0,w,h])
+    }
+
     initZoom = () => {
         const currentZoom = d3.zoomTransform(this._rootSvg.node());
 
-        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity)
+        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity);
         const bound = this._rootG.node().getBoundingClientRect();
         this._rootSvg.call(this._zoom.transform, currentZoom);
 
         const containerBound = this._rootSvg.node().getBoundingClientRect();
-
-        const k1 = isFinite(containerBound.width / bound.width) ? ((containerBound.width - 200) / bound.width): 1;
-        const k2 = isFinite(containerBound.height / bound.height) ? ((containerBound.height - 200) / bound.height): 1;
+        const k1 = isFinite(containerBound.width / bound.width) ? ((containerBound.width - 50) / bound.width): 1;
+        const k2 = isFinite(containerBound.height / bound.height) ? ((containerBound.height - 50) / bound.height): 1;
         const k = (k1 > k2 ? k2 : k1);
+        const currentViewBox = this._rootSvg.node().viewBox.baseVal;
 
-        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(this._margin.left, (this._margin.top + containerBound.height / 2)).scale(k))
+        console.log(containerBound, bound);
+        
+        //ADAPT TRANSFORMATION INTO VIEWBOX SCOPE
+        const wRatio = currentViewBox.width / containerBound.width;
+        const hRatio = currentViewBox.height / containerBound.height;
+        let tx = (containerBound.width / 2) - (bound.width / 2) * k;
+        let ty = (containerBound.height / 2) - (bound.height / 2) * k + Math.abs(containerBound.y - bound.y) * k ;
+        tx *= wRatio;
+        ty *= hRatio;
+        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(k))
     }
     setColor(callback) {
         this._color = callback;
@@ -181,6 +194,7 @@ class MindmapGraph extends Graph {
                     .attr("width", (d) =>
                     {   
                         const span = document.createElement("span")
+                        span.style.cssText = "font-size: 12px";
                         span.innerText = GraphUtils.truncate(this._labelFunc(d), 20);
                         d.w = GraphUtils.computeBoundVirtualNode(span).width + this._nodePadding.left + this._nodePadding.right;
                         return d.w;
