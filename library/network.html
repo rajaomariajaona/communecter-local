@@ -122,12 +122,9 @@
     <script src="dist/js/graph-utils.js"></script>
     <script src="dist/js/network-graph.js"></script>
     <script>
-        var networkGraph = new NetworkGraph([], d => d.data.type);
+        var networkGraph = new NetworkGraph([], d => d.data.group);
         networkGraph.draw("#graph-container")
         networkGraph.updateData(networkGraph.preprocessResults(networkResults))
-        networkGraph.setOnTick(() => {
-            console.log("TICK")
-        })
         var cont = false
 
         function change(l = null) {

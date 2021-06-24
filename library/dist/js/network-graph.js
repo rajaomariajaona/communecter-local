@@ -64,14 +64,24 @@ class NetworkGraph extends Graph {
             group: "root"
         }]
         for (const [id, value] of Object.entries(results)) {
-        const row = {
-            id,
-            ...value
+            if (value.tags) {
+                
+                    for (const tag of value.tags) {
+                        if(this._authorizedTags && this._authorizedTags.length > 0){
+                            if(!this._authorizedTags.includes(tag)){
+                                continue;
+                            }
+                        }
+                         const row = {
+                            id
+                        }
+                        row.label = value.name
+                        row.description = value.description
+                        row.img = value.profilMediumImageUrl
+                        row.group = tag
+                        res.push(row);
+                    }
             }
-            row.label = value.name
-            row.description = value.description
-            row.img = value.profilMediumImageUrl
-            res.push(row);
         }
         return res
     }

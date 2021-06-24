@@ -40,17 +40,29 @@ class MindmapGraph extends Graph {
         let countTag = 0;
         let res = this._rootObj;
         let raw = []
+
         for (const [id, value] of Object.entries(results)) {
-        const row = {
-            id,
-            ...value
+            if (value.tags) {
+                
+                    for (const tag of value.tags) {
+                        if(this._authorizedTags && this._authorizedTags.length > 0){
+                            if(!this._authorizedTags.includes(tag)){
+                                continue;
+                            }
+                        }
+                         const row = {
+                            id
+                        }
+                        row.label = value.name
+                        row.description = value.description
+                        row.img = value.profilMediumImageUrl
+                        row.group = tag
+                        raw.push(row);
+                    }
             }
-            row.label = value.name
-            row.description = value.description
-            row.img = value.profilMediumImageUrl
-            raw.push(row);
         }
-        const typesGroup = d3.group(raw, d => d.collection, d => d.type);
+
+        const typesGroup = d3.group(raw, d => d.group);
         let children = parcours(typesGroup);
         function parcours(map) {
             let children = []
