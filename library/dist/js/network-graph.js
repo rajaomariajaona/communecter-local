@@ -313,6 +313,16 @@ class NetworkGraph extends Graph {
         const k2 = isFinite(containerBound.height / bound.height) ? ((containerBound.height - 50) / bound.height): 1;
         const k = (k1 > k2 ? k2 : k1);
 
-        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(containerBound.width / 2 - (bound.width / 2) * k, containerBound.height / 2 - (bound.height / 2) * k).scale(k))
+        
+        const currentViewBox = this._rootSvg.node().viewBox.baseVal;
+        
+        //ADAPT TRANSFORMATION INTO VIEWBOX SCOPE
+        const wRatio = currentViewBox.width / containerBound.width;
+        const hRatio = currentViewBox.height / containerBound.height;
+        let tx = (containerBound.width / 2) - (bound.width / 2) * k;
+        let ty = (containerBound.height / 2) - (bound.height / 2) * k + Math.abs(containerBound.y - bound.y) * k ;
+        tx *= wRatio;
+        ty *= hRatio;
+        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(k));
     }
 }
