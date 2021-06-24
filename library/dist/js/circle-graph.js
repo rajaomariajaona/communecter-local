@@ -103,18 +103,10 @@ class CircleGraph extends Graph {
         }
         const enclose = d3.packEnclose(packed);
         if (this._isDataEmpty(data)) {
-            this._height = GraphUtils.heightByViewportRatio(this._width);
-            if (this._rootSvg) {
-                this._rootSvg.attr("viewBox", [0, 0, this._width, this._height]);
-            }
             return packed;
         }
         // CALCUL the X and Y SIZE fitting the entire graph
         this._width = enclose.r * 2;
-        this._height = GraphUtils.heightByViewportRatio(this._width);
-        if (this._rootSvg) {
-            this._rootSvg.attr("viewBox", [0, 0, this._width, this._height]);
-        }
         return packed;
     }
 
@@ -256,8 +248,6 @@ class CircleGraph extends Graph {
 
     draw(containerId) {
         super.draw(containerId);
-        this._rootSvg
-            .attr("viewBox", [0, 0, this._width, this._height]);
         this._rootG
             .attr("id", "circle-root")
         this._zoom = d3.zoom().on("zoom", (e) => {

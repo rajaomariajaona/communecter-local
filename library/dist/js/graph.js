@@ -159,7 +159,13 @@ class Graph {
             .insert("svg", ":first-child")
             .attr("id", "graph");
         this._rootG = this._rootSvg.append("g");
+        this.adaptViewBoxByRatio()
         this.drawNavigation(containerId);
+    }
+    adaptViewBoxByRatio(ratio = 16/7){
+        this._height = GraphUtils.heightByViewportRatio(this._width, ratio);
+        this._rootSvg
+            .attr("viewBox", [0, 0, this._width, this._height]);
     }
     setAfterDraw(callback) {
         this._afterDraw = () => {

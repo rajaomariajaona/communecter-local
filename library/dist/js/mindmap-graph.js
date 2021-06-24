@@ -130,9 +130,8 @@ class MindmapGraph extends Graph {
         const k1 = isFinite(containerBound.width / bound.width) ? ((containerBound.width - 50) / bound.width): 1;
         const k2 = isFinite(containerBound.height / bound.height) ? ((containerBound.height - 50) / bound.height): 1;
         const k = (k1 > k2 ? k2 : k1);
+        
         const currentViewBox = this._rootSvg.node().viewBox.baseVal;
-
-        console.log(containerBound, bound);
         
         //ADAPT TRANSFORMATION INTO VIEWBOX SCOPE
         const wRatio = currentViewBox.width / containerBound.width;

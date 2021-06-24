@@ -11,6 +11,8 @@ class RelationGraph extends Graph {
     _groupRadius = 100;
     _marginCollide = 35;
     _coloredGroup = [];
+    _minX = 0;
+    _minY = 0;
     _onClickGroup = () => {};
     _colorGroup = (d, i, n) => {
         return this._defaultColorGroup(i);
@@ -148,15 +150,15 @@ class RelationGraph extends Graph {
 
     draw(containerId) {
         super.draw(containerId);
-        this._height = GraphUtils.heightByViewportRatio(this._width);
-        this._rootSvg
-            .attr("viewBox", [-this._width / 2, -this._height / 2,
-                this._width,
-                this._height,
-            ]);
         this._rootG.append("g").attr("id", "links-group");
         this._update();
         this._afterDraw()
+    }
+
+    adaptViewBoxByRatio(ratio = 16/7){
+        this._height = GraphUtils.heightByViewportRatio(this._width,ratio);
+        this._rootSvg
+            .attr("viewBox", [0, 0,this._width,this._height]);
     }
 
     updateData(rawData) {
@@ -538,6 +540,19 @@ class RelationGraph extends Graph {
         const k2 = isFinite(containerBound.height / bound.height) ? ((containerBound.height - 50) / bound.height): 1;
         const k = (k1 > k2 ? k2 : k1);
 
-        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.scale(k))
+        const currentViewBox = this._rootSvg.node().viewBox.baseVal;
+        
+        //ADAPT TRANSFORMATION INTO VIEWBOX SCOPE
+        const wRatio = currentViewBox.width / containerBound.width;
+        const hRatio = currentViewBox.height / containerBound.height;
+
+        let tx = Math.abs(containerBound.x - bound.x) * k + (containerBound.width / 2 - (bound.width / 2) * k);
+        let ty = Math.abs(containerBound.y - bound.y) * k + (containerBound.height / 2 - (bound.height / 2) * k);
+        tx *= wRatio;
+        ty *= hRatio;
+        console.log(currentViewBox.x);
+        tx += currentViewBox.x
+        ty += currentViewBox.y
+        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(k))
     }
 }

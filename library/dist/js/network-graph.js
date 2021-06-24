@@ -138,8 +138,6 @@ class NetworkGraph extends Graph {
     }
     draw(containerId) {
         super.draw(containerId);
-        this._rootSvg
-            .attr("viewBox", [0, 0, this._width, this._height])
         this._zoom = d3.zoom().on("zoom", (e, d) => {
             this._rootG.attr("transform", e.transform);
             this._onZoom(e,d);
