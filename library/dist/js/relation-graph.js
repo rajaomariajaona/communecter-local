@@ -445,23 +445,7 @@ class RelationGraph extends Graph {
         this._onClickGroup();
         event.stopPropagation();
         this._removeAllMouseEvent();
-        const {
-            x,
-            y,
-            width,
-            height
-        } = this._rootSvg
-            .select("g#top-container")
-            .node()
-            .getBBox();
-        // svg.append("rect")
-        //     .attr("x", bound.data.x)
-        //     .attr("y", bound.data.y)
-        //     .attr("width", bound.data.width)
-        //     .attr("height", bound.data.height)
-        //     .attr("fill", "none")
-        //     .attr("stroke", "red")
-        this._boundZoomToGroup(x, y, x + width, y + height, this._radius).finally(() => {
+        this._boundZoomToGroup(this._radius).finally(() => {
             this._clicked = true;
             this._rootSvg.select("#content").on("click", (e) => {
                 this._clicked = false;
@@ -474,31 +458,49 @@ class RelationGraph extends Graph {
             });
         });
     }
-    async _boundZoomToGroup(x0, y0, x1, y1, padding = 0) {
-        x0 -= padding;
-        y0 -= padding;
-        x1 += padding * 2;
-        y0 += padding * 2;
-        return this._rootSvg
-            .transition()
-            .duration(750)
-            .call(
-                this._zoom.transform,
-                d3.zoomIdentity
-                // .translate(width / 2, height / 2)
-                .translate(0, 0)
-                .scale(
-                    isFinite(Math.min(
-                        8,
-                        0.9 / Math.max((x1 - x0) / this._width, (y1 - y0) / this._height)
-                    )) ? Math.min(
-                        8,
-                        0.9 / Math.max((x1 - x0) / this._width, (y1 - y0) / this._height)
-                    ) : 1
-                )
-                .translate(-(x0 + x1) / 2, -(y0 + y1) / 2)
-            )
-            .end();
+    async _boundZoomToGroup(padding = 0) {
+        const currentZoom = d3.zoomTransform(this._rootSvg.node());
+
+        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity)
+        const bound = this._rootG.node().getBoundingClientRect();
+        const targetBound = this._rootSvg.select("g#top-container").node().getBoundingClientRect();
+        console.log(targetBound)
+        this._rootSvg.call(this._zoom.transform, currentZoom);
+
+        const containerBound = this._rootSvg.node().getBoundingClientRect();
+
+        const k1 = isFinite(containerBound.width / bound.width) ? ((containerBound.width - 50) / bound.width): 1;
+        const k2 = isFinite(containerBound.height / bound.height) ? ((containerBound.height - 50) / bound.height): 1;
+        const k = (k1 > k2 ? k2 : k1);
+
+        const l1 = isFinite(containerBound.width / targetBound.width) ? ((containerBound.width - padding * 2) / targetBound.width): 1;
+        const l2 = isFinite(containerBound.height / targetBound.height) ? ((containerBound.height - padding * 2) / targetBound.height): 1;
+        const l = (l1 > l2 ? l2 : l1);
+
+        const currentViewBox = this._rootSvg.node().viewBox.baseVal;
+        
+        //ADAPT TRANSFORMATION INTO VIEWBOX SCOPE
+        const wRatio = currentViewBox.width / containerBound.width;
+        const hRatio = currentViewBox.height / containerBound.height;
+
+        let tx = Math.abs(containerBound.x - bound.x) * k + (containerBound.width / 2 - (bound.width / 2) * k);
+        let ty = Math.abs(containerBound.y - bound.y) * k + (containerBound.height / 2 - (bound.height / 2) * k);
+        tx *= wRatio;
+        ty *= hRatio;
+        tx += currentViewBox.x
+        ty += currentViewBox.y
+
+        let ux = (containerBound.x - targetBound.x) * l + (containerBound.width / 2 - (targetBound.width / 2) * l);
+        let uy = (containerBound.y - targetBound.y) * l + (containerBound.height / 2 - (targetBound.height / 2) * l);
+        ux *= wRatio;
+        uy *= hRatio;
+        ux += currentViewBox.x
+        uy += currentViewBox.y
+
+        return this._rootSvg.transition().duration(750)
+        .call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(k))
+        .call(this._zoom.transform, d3.zoomIdentity.translate(ux,uy).scale(l))
+        .end()
     }
     _toggleBlurNotActiveLeaf(activeLeaf) {
         if (activeLeaf) {
@@ -550,9 +552,8 @@ class RelationGraph extends Graph {
         let ty = Math.abs(containerBound.y - bound.y) * k + (containerBound.height / 2 - (bound.height / 2) * k);
         tx *= wRatio;
         ty *= hRatio;
-        console.log(currentViewBox.x);
         tx += currentViewBox.x
         ty += currentViewBox.y
-        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(k))
+        return this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(k))
     }
 }

@@ -198,6 +198,9 @@ class Graph {
     get leaves() {
         return this._leaves;
     }
+    get isDrawed() {
+        return this._isDrawed;
+    }
     drawNavigation(containerId){
         const container = d3.select(containerId)
             .style("position", "relative");
