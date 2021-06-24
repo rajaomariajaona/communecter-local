@@ -194,7 +194,7 @@ class MindmapGraph extends Graph {
                     .attr("width", (d) =>
                     {   
                         const span = document.createElement("span")
-                        span.style.cssText = "font-size: 12px";
+                        span.style.cssText = "font-size: 15px";
                         span.innerText = GraphUtils.truncate(this._labelFunc(d), 20);
                         d.w = GraphUtils.computeBoundVirtualNode(span).width + this._nodePadding.left + this._nodePadding.right;
                         return d.w;
