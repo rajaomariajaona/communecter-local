@@ -294,16 +294,4 @@ class GraphUtils {
     static heightByViewportRatio(width, ratio = 16 / 7){
         return width / ratio;
     }
-    static centerRectIntoRect(parentRect, childRect){
-        const parentCenterX = parentRect.x + parentRect.width / 2;
-        const parentCenterY = parentRect.y + parentRect.height / 2;
-        const childCenterX = childRect.x + childRect.width / 2;
-        const childCenterY = childRect.y + childRect.height / 2;
-        console.log(parentRect);
-        console.log(childRect);
-        return {
-            tx: parentCenterX - childCenterX,
-            ty: parentCenterY - childCenterY,
-        };
-    }
 }

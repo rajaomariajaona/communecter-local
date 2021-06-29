@@ -1,6 +1,6 @@
 class NetworkGraph extends Graph {
     _root = {};
-    _defaultIcon = "fa fa-home";
+    _defaultIcon = "fa fa-tag";
     _defaultRootIcon = "fa fa-home";
     _simulation = null;
     _linksNode = null;
