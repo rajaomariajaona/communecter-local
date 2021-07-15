@@ -122,7 +122,7 @@
     <script src="dist/js/graph-utils.js"></script>
     <script src="dist/js/network-graph.js"></script>
     <script>
-        var networkGraph = new NetworkGraph([], d => d.data.group);
+        var networkGraph = new NetworkGraph([], d => d.data.type);
         networkGraph.draw("#graph-container")
         networkGraph.updateData(networkGraph.preprocessResults(networkResults))
         var cont = false

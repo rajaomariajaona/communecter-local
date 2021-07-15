@@ -8,7 +8,7 @@ class NetworkGraph extends Graph {
     _circlesNode = null;
     _groupNode = null;
     _isEmpty = false;
-    _funcGroup = d => d.data.group;
+    _funcGroup = d => d.data.type;
     _onTick = () => {}
     _groupIcons = () => {
         return this._defaultIcon;
@@ -50,7 +50,7 @@ class NetworkGraph extends Graph {
         }
         return this._defaultColor(i);
     };
-    constructor(rawData, funcGroup = d => d.data.group) {
+    constructor(rawData, funcGroup = d => d.data.type) {
         super();
         this._funcGroup = funcGroup;
         this._data = this._preprocessData(rawData);
@@ -92,9 +92,26 @@ class NetworkGraph extends Graph {
                 console.log(root)
             }else{
                 filteredData.push({data: row})
+                if(row.tags){
+                    for (const tag of row.tags) {
+                        tags.add(tag);
+                    }
+                }
             }
         }
+        for (const tag of [...tags]) {
+            filteredData.push({
+                data : {
+                    label: tag,
+                    id : tag,
+                    group : 'tags',
+                    type : 'tags',
+                }
+            })
+        }
+
         const dataByLinks = d3.group(filteredData, this._funcGroup);
+        console.log(dataByLinks);
         const links = [];
         const groups = [];
         for (const [group, children] of dataByLinks.entries()) {
@@ -113,41 +130,10 @@ class NetworkGraph extends Graph {
                     source: group + ".group",
                     target: child.data.id + "." + this._funcGroup(child),
                 });
-                if(child.data.tags){
-                    for (const tag of child.data.tags) {
-                        tags.add(tag);
-                    }
-                }
             }
         }
-        groups.push({data: {
-            id: "tags",
-            label: "tags",
-            type: "group",
-            group: "group",
-        }});
         
-        // links.push({
-        //     target: "tags.group",
-        //     source: "root.root",
-        // });
 
-        
-        for (const tag of [...tags]) {
-            filteredData.push({
-                data : {
-                    label: tag,
-                    id : tag,
-                    group : 'tags',
-                    type : 'tags',
-                }
-            })
-            links.push({
-                source: "tags.group",
-                target: tag + '.tags',
-            });
-        }
-        console.log(filteredData)
         
         const res = {
             root,
@@ -160,8 +146,14 @@ class NetworkGraph extends Graph {
             this._simulation = d3
             .forceSimulation()
             .nodes(res.nodes)
-            .force("charge_force", d3.forceManyBody().strength(-120))
+            .force("charge_force", d3.forceManyBody().strength(d => {
+                if(d.data.id == "tags" && d.data.type == "group" && d.data.group == "group"){
+                    return -10000
+                }
+                return -120
+            }))
             .force("center_force", d3.forceCenter(this._width / 2, this._height / 2))
+            .force("collide", d3.forceCollide(50))
             .force(
                 "links",
                 d3
@@ -183,10 +175,9 @@ class NetworkGraph extends Graph {
         this._afterDraw()
     }
     _circleSize(d, i, n) {
-        var r = 10;
+        var r = 30;
         if (this._funcGroup(d) == "root" || d.data.type == "group") r = 20;
-        // if (r > 30)
-        //     r = 30;
+        if (d.data.type == "tags") r = 10;
         this._afterCicleSize(d,r);
         return r;
     }
@@ -288,6 +279,7 @@ class NetworkGraph extends Graph {
                         .style("height", "100%")
                         .on("click", (e, d) => this._onClickNode(e, d));
                     this._nodes
+                        .filter(d => !GraphUtils.hasImage(d))
                         .select("g")
                         .append("text")
                         .text((d) => GraphUtils.truncate(this._labelFunc(d), 20))
