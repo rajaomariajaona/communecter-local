@@ -1,6 +1,6 @@
 class NetworkGraph extends Graph {
     _root = {};
-    _defaultIcon = "fa fa-tag";
+    _defaultIcon = "fa fa-home";
     _defaultRootIcon = "fa fa-home";
     _simulation = null;
     _linksNode = null;
@@ -64,32 +64,23 @@ class NetworkGraph extends Graph {
             group: "root"
         }]
         for (const [id, value] of Object.entries(results)) {
-            if (value.tags) {
-                
-                    for (const tag of value.tags) {
-                        if(this._authorizedTags && this._authorizedTags.length > 0){
-                            if(!this._authorizedTags.includes(tag)){
-                                continue;
-                            }
-                        }
-                         const row = {
-                            id
-                        }
-                        row.label = value.name
-                        row.description = value.description
-                        row.img = value.profilMediumImageUrl
-                        row.group = tag
-                        res.push(row);
-                    }
+        const row = {
+            id,
+            ...value
             }
+            row.label = value.name
+            row.description = value.description
+            row.img = value.profilMediumImageUrl
+            res.push(row);
         }
         return res
     }
 
     _preprocessData(rawData) {
         let rootCount = 0;
-        let root = null;
+        var root = null;
         const filteredData = []
+        const tags = new Set();
         for (const row of rawData) {
             if(row.group == "root"){
                 rootCount++;
@@ -98,6 +89,7 @@ class NetworkGraph extends Graph {
                 }
                 root = {}
                 root.data = row;
+                console.log(root)
             }else{
                 filteredData.push({data: row})
             }
@@ -121,8 +113,42 @@ class NetworkGraph extends Graph {
                     source: group + ".group",
                     target: child.data.id + "." + this._funcGroup(child),
                 });
+                if(child.data.tags){
+                    for (const tag of child.data.tags) {
+                        tags.add(tag);
+                    }
+                }
             }
         }
+        groups.push({data: {
+            id: "tags",
+            label: "tags",
+            type: "group",
+            group: "group",
+        }});
+        
+        // links.push({
+        //     target: "tags.group",
+        //     source: "root.root",
+        // });
+
+        
+        for (const tag of [...tags]) {
+            filteredData.push({
+                data : {
+                    label: tag,
+                    id : tag,
+                    group : 'tags',
+                    type : 'tags',
+                }
+            })
+            links.push({
+                source: "tags.group",
+                target: tag + '.tags',
+            });
+        }
+        console.log(filteredData)
+        
         const res = {
             root,
             nodes: [root, ...groups, ...filteredData],
@@ -134,11 +160,8 @@ class NetworkGraph extends Graph {
             this._simulation = d3
             .forceSimulation()
             .nodes(res.nodes)
-            .force("charge_force", d3.forceManyBody().strength(-1000))
-            // .force("center_force", d3.forceCenter(this._width / 2, this._height / 2))
-            .force("y", d3.forceY())
-            .force("x", d3.forceX())
-            .force("collide", d3.forceCollide(100))
+            .force("charge_force", d3.forceManyBody().strength(-120))
+            .force("center_force", d3.forceCenter(this._width / 2, this._height / 2))
             .force(
                 "links",
                 d3
@@ -160,7 +183,7 @@ class NetworkGraph extends Graph {
         this._afterDraw()
     }
     _circleSize(d, i, n) {
-        var r = 35;
+        var r = 10;
         if (this._funcGroup(d) == "root" || d.data.type == "group") r = 20;
         // if (r > 30)
         //     r = 30;
@@ -215,25 +238,21 @@ class NetworkGraph extends Graph {
                         .style("overflow", "visible")
                         .style("cursor", "pointer")
                         .classed("node", true)
-                        .call(
-                            d3
-                                .drag()
-                                .on("start", (e, d) => this._dragStart(e, d))
-                                .on("drag", (e, d) => this._dragDrag(e, d))
-                                .on("end", (e, d) => this._dragEnd(e, d))
-                            );
                     this._nodes.append("g")
                         .on("click", (d, i, n) => this._onClickNode(d, i, n))
                         .on("mouseover", (e,d) => {
                             d3.select(e.currentTarget).select("text").text(this._labelFunc(d))
                         })
                         .on("mouseout", (e,d) => {
-                            const textNode = d3.select(e.currentTarget).select("text")
-                            if(textNode.node()){
-                                textNode.text(d => GraphUtils.truncate(this._labelFunc(d), 20))
-                            }
+                            d3.select(e.currentTarget).select("text").text(d => GraphUtils.truncate(this._labelFunc(d), 20))
                         })
-                        
+                        .call(
+                            d3
+                                .drag()
+                                .on("start", (e, d) => this._dragStart(e, d))
+                                .on("drag", (e, d) => this._dragDrag(e, d))
+                                .on("end", (e, d) => this._dragEnd(e, d))
+                                );
                         this._circlesNode = this._nodes
                             .select("g")
                             .append("circle")
@@ -262,14 +281,13 @@ class NetworkGraph extends Graph {
                         .attr("class", this._groupIcons);
                         
                     foreign
-                        .filter((d, i) => GraphUtils.hasImage(d))
+                        .filter((d, i) => d.data.img != undefined && d.data.img.trim() != "")
                         .append("xhtml:img")
                         .attr("src", (d) => d.data.img)
                         .style("width", "100%")
                         .style("height", "100%")
                         .on("click", (e, d) => this._onClickNode(e, d));
                     this._nodes
-                        .filter(d => !GraphUtils.hasImage(d))
                         .select("g")
                         .append("text")
                         .text((d) => GraphUtils.truncate(this._labelFunc(d), 20))
