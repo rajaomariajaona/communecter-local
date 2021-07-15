@@ -134,8 +134,11 @@ class NetworkGraph extends Graph {
             this._simulation = d3
             .forceSimulation()
             .nodes(res.nodes)
-            .force("charge_force", d3.forceManyBody().strength(-120))
-            .force("center_force", d3.forceCenter(this._width / 2, this._height / 2))
+            .force("charge_force", d3.forceManyBody().strength(-1000))
+            // .force("center_force", d3.forceCenter(this._width / 2, this._height / 2))
+            .force("y", d3.forceY())
+            .force("x", d3.forceX())
+            .force("collide", d3.forceCollide(100))
             .force(
                 "links",
                 d3
@@ -157,7 +160,7 @@ class NetworkGraph extends Graph {
         this._afterDraw()
     }
     _circleSize(d, i, n) {
-        var r = 10;
+        var r = 35;
         if (this._funcGroup(d) == "root" || d.data.type == "group") r = 20;
         // if (r > 30)
         //     r = 30;
@@ -212,21 +215,25 @@ class NetworkGraph extends Graph {
                         .style("overflow", "visible")
                         .style("cursor", "pointer")
                         .classed("node", true)
-                    this._nodes.append("g")
-                        .on("click", (d, i, n) => this._onClickNode(d, i, n))
-                        .on("mouseover", (e,d) => {
-                            d3.select(e.currentTarget).select("text").text(this._labelFunc(d))
-                        })
-                        .on("mouseout", (e,d) => {
-                            d3.select(e.currentTarget).select("text").text(d => GraphUtils.truncate(this._labelFunc(d), 20))
-                        })
                         .call(
                             d3
                                 .drag()
                                 .on("start", (e, d) => this._dragStart(e, d))
                                 .on("drag", (e, d) => this._dragDrag(e, d))
                                 .on("end", (e, d) => this._dragEnd(e, d))
-                                );
+                            );
+                    this._nodes.append("g")
+                        .on("click", (d, i, n) => this._onClickNode(d, i, n))
+                        .on("mouseover", (e,d) => {
+                            d3.select(e.currentTarget).select("text").text(this._labelFunc(d))
+                        })
+                        .on("mouseout", (e,d) => {
+                            const textNode = d3.select(e.currentTarget).select("text")
+                            if(textNode.node()){
+                                textNode.text(d => GraphUtils.truncate(this._labelFunc(d), 20))
+                            }
+                        })
+                        
                         this._circlesNode = this._nodes
                             .select("g")
                             .append("circle")
@@ -255,13 +262,14 @@ class NetworkGraph extends Graph {
                         .attr("class", this._groupIcons);
                         
                     foreign
-                        .filter((d, i) => d.data.img != undefined && d.data.img.trim() != "")
+                        .filter((d, i) => GraphUtils.hasImage(d))
                         .append("xhtml:img")
                         .attr("src", (d) => d.data.img)
                         .style("width", "100%")
                         .style("height", "100%")
                         .on("click", (e, d) => this._onClickNode(e, d));
                     this._nodes
+                        .filter(d => !GraphUtils.hasImage(d))
                         .select("g")
                         .append("text")
                         .text((d) => GraphUtils.truncate(this._labelFunc(d), 20))

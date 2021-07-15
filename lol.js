@@ -1,0 +1,5 @@
+    join(
+        enter => /* */,
+        update => /* */,
+        exit => /* */
+    );

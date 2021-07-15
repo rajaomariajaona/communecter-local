@@ -211,7 +211,7 @@ class Graph {
             .style("border-radius", "4px")
             .style("box-shadow", "rgb(0 0 0 / 50%) 0px 0px 3px -1px")
             .style("background-color", "white")
-            .style("z-index", 2)
+            .style("z-index", 20000)
             .style("border-color", "#acacaa")
             .style("position", "absolute")
             .style("top", "10px")

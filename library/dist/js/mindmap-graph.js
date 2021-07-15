@@ -111,10 +111,12 @@ class MindmapGraph extends Graph {
     draw(containerId) {
         this._beforeDraw()
         super.draw(containerId)
+        //Creation du zoom et parametrage du callback pour appliquer la transformation sur la balise g
         this._zoom = d3.zoom().on("zoom", (e) => {
             this._rootG.attr("transform", e.transform);
             this._onZoom(e);
         });
+        //attacher le zoom sur la balise svg
         this._rootSvg.call(this._zoom);
         if(this._depth != null && this._depth >= 0){
             this.collapseAll(this._data, this._depth);

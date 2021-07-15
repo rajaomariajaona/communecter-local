@@ -294,4 +294,7 @@ class GraphUtils {
     static heightByViewportRatio(width, ratio = 16 / 7){
         return width / ratio;
     }
+    static hasImage(d){
+        return d.data.img != undefined && d.data.img.trim() != "";
+    }
 }
