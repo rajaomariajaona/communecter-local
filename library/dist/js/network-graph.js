@@ -92,10 +92,10 @@ class NetworkGraph extends Graph {
                 console.log(root)
             }else{
                 filteredData.push({data: row})
-                if(row.tags){
-                    for (const tag of row.tags) {
-                        tags.add(tag);
-                    }
+            }
+            if(row.tags){
+                for (const tag of row.tags) {
+                    tags.add(tag);
                 }
             }
         }

@@ -9,6 +9,16 @@
     <link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css">
     <title>MINDMAP</title>
 
+    <script>
+        var costum = {
+            lists : {
+                
+            }
+        }
+        costum.lists.theme = JSON.parse("{\"Agriculture | Alimentation\":{\"agricultural production\":\"Production agricole\",\"GAS\":\"GAS\",\"Shops of the world\":\"Boutiques du monde\",\"CSA\":\"CSA\",\"Urban gardens\":\"Jardins urbains\",\"Farmers markets\":\"Marchés agricoles\",\"Catering and administration\":\"Restauration et administration\"},\"Économie\":{\"Carpenters\":\"Charpentiers\",\"Social tailors\":\"Tailleurs sociaux\",\"Fair trade\":\"Commerce équitable\"},\"Éducation\":{\"Cultural activities\":\"Activités culturelles\",\"GAS\":\"GAS\",\"Education and training\":\"Éducation et formation\",\"Research\":\"Recherche\",\"Information\":\"Informations\"},\"Construction\":{\"Sustainable living\":\"Mode de vie durable\",\"Territory care\":\"Soins du territoire\",\"Ciclofficine\":\"Ciclofficine\",\"Other forms of sustainable mobility\":\"Autres formes de mobilité durable\",\"Building\":\"Imeuble\"},\"Épargne et finances\":{\"Social coins\":\"Pièces sociales\",\"MAG\":\"MAG\",\"Shops of the world\":\"Boutiques du monde\"},\"Santé\":{\"Sport\":\"Sport\",\"Health and care\":\"Santé et soins\",\"Counters for psychological listening\":\"Compteurs pour l'écoute psychologique\",\"Mutual aid benches\":\"Bancs d'entraide\"},\"Energie et nouvelles technologies\":{\"Energy supplies\":\"Approvisionnements en énergie\",\"Energy production\":\"Production d'énergie\",\"Wireless Networks\":\"Réseaux sans fil\",\"Repair café\":\"Repair café\",\"Fablab\":\"Fablab\"},\"Citoyenneté\":{\"Legal branches\":\"Branches juridiques\",\"Advocacy and local policies\":\"Plaidoyer et politiques locales\",\"Neighborhood committees\":\"Comités de quartier\"},\"Voyage et hospitalité\":{\"Travel and hospitality\":\"Voyage et hospitalité\"}}")
+
+    </script>
+
 </head>
 
 <body>
@@ -145,6 +155,7 @@
     <script src="dist/js/mindmap-graph.js"></script>
     <script>
         var mindmapGraph = new MindmapGraph(mindData,1);
+        mindmapGraph.setTheme(costum.lists.theme)
         mindmapGraph.draw("#graph-container")
         var cont = false
         function change(l = null) {

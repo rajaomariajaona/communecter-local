@@ -17,6 +17,7 @@ class MindmapGraph extends Graph {
         bottom: 30,
         left: 90,
     };
+    _theme = null;
     _collapsed = [];
 
     _source = null;
@@ -36,39 +37,60 @@ class MindmapGraph extends Graph {
         }
         this._depth = depthToCollapse;
     }
-    preprocessResults(results){
+
+    setTheme(value){
+        this._theme = value;
+    }
+
+    _preprocessResultsByTheme(results){
         let countTag = 0;
         let res = this._rootObj;
         let raw = []
-
+        const tags = new Set()
         for (const [id, value] of Object.entries(results)) {
-            if (value.tags) {
-                
-                    for (const tag of value.tags) {
-                        if(this._authorizedTags && this._authorizedTags.length > 0){
-                            if(!this._authorizedTags.includes(tag)){
-                                continue;
+            const row = {
+            id,
+            ...value
+            }
+            row.label = value.name
+            row.description = value.description
+            row.img = value.profilMediumImageUrl
+            let hasTheme = false;
+            if(row.tags){
+                for (const tag of row.tags) {
+                    for (const [theme, themeTagsObj] of Object.entries(this._theme)) {
+                        for (const themeTag of Object.values(themeTagsObj)) {
+                            if(tag == themeTag){
+                                hasTheme = true;
+                                raw.push({...row, theme})
+                                tags.add(tag);
                             }
                         }
-                         const row = {
-                            id
-                        }
-                        row.label = value.name
-                        row.description = value.description
-                        row.img = value.profilMediumImageUrl
-                        row.group = tag
-                        raw.push(row);
                     }
+                }
             }
         }
-
-        const typesGroup = d3.group(raw, d => d.group);
+        for (const tag of [...tags]) {
+            for (const [theme, themeTagsObj] of Object.entries(this._theme)) {
+                for (const themeTag of Object.values(themeTagsObj)) {
+                    if(tag == themeTag){
+                        raw.push({theme, collection: 'tags', id: tag, label: tag})
+                    }
+                }
+            }
+        }
+        console.log(raw);
+        const typesGroup = d3.group(raw, d => d.theme, d => d.collection, d => d.type);
         let children = parcours(typesGroup);
         function parcours(map) {
             let children = []
             if(map instanceof Map){
                 for (const [key,value] of map) {
-                    children.push({id: key, label: key, children: parcours(value)})
+                    if(key){
+                        children.push({id: key, label: key, children: parcours(value)})
+                    }else{
+                        children = parcours(value);
+                    }
                 }
             }else{
                 return map;
@@ -77,6 +99,63 @@ class MindmapGraph extends Graph {
         }
         res.children = children
         return res
+    }
+
+    _preprocessResultsDefault(results){
+        let countTag = 0;
+        let res = this._rootObj;
+        let raw = []
+        const tags = new Set()
+        for (const [id, value] of Object.entries(results)) {
+            const row = {
+            id,
+            ...value
+            }
+            row.label = value.name
+            row.description = value.description
+            row.img = value.profilMediumImageUrl
+            raw.push(row);
+            if(row.tags){
+                for (const tag of row.tags) {
+                    tags.add(tag);
+                }
+            }
+        }
+        for (const tag of [...tags]) {
+            raw.push({
+                    label: tag,
+                    id : tag,
+                    group : 'tags',
+                    collection : 'tags',
+            })
+        }
+        const typesGroup = d3.group(raw, d => d.collection, d => d.type);
+        let children = parcours(typesGroup);
+        function parcours(map) {
+            let children = []
+            if(map instanceof Map){
+                for (const [key,value] of map) {
+                    if(key){
+                        children.push({id: key, label: key, children: parcours(value)})
+                    }else{
+                        children = parcours(value);
+                    }
+                }
+            }else{
+                return map;
+            }
+            return children;
+        }
+        res.children = children
+        return res
+    }
+
+    preprocessResults(results){
+        if(this._theme){
+            return this._preprocessResultsByTheme(results);
+        }else{
+            return this._preprocessResultsDefault(results);
+        }
     }
     _preprocessData(rawData) {
         rawData = d3.hierarchy(rawData);
@@ -111,12 +190,10 @@ class MindmapGraph extends Graph {
     draw(containerId) {
         this._beforeDraw()
         super.draw(containerId)
-        //Creation du zoom et parametrage du callback pour appliquer la transformation sur la balise g
         this._zoom = d3.zoom().on("zoom", (e) => {
             this._rootG.attr("transform", e.transform);
             this._onZoom(e);
         });
-        //attacher le zoom sur la balise svg
         this._rootSvg.call(this._zoom);
         if(this._depth != null && this._depth >= 0){
             this.collapseAll(this._data, this._depth);
