@@ -49,3 +49,7 @@
 .svg-blur * {
     filter: grayscale(100%) opacity(20%);
 }
+.fullscreen{
+    height: 100vh!important;
+    width: 100vw!important;
+}

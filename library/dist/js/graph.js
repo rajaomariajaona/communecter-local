@@ -203,10 +203,12 @@ class Graph {
     }
     drawNavigation(containerId){
         const container = d3.select(containerId)
+        .style("background-color", "white")
             .style("position", "relative");
+        
         this._navigationNode = container
             .append("xhtml:div")
-            .style("height", "80px")
+            .style("height", "110px")
             .style("width", "30px")
             .style("border-radius", "4px")
             .style("box-shadow", "rgb(0 0 0 / 50%) 0px 0px 3px -1px")
@@ -229,6 +231,7 @@ class Graph {
             .style("border", "none")
         zoomIn.append("xhtml:i")
             .attr("class", "fa fa-plus")
+
         const zoomOut = this._navigationNode
             .append("xhtml:button")
             .style("width", "100%")
@@ -237,6 +240,7 @@ class Graph {
             .style("border", "none")
         zoomOut.append("xhtml:i")
             .attr("class", "fa fa-minus")
+
         const zoomReset = this._navigationNode
             .append("xhtml:button")
             .style("width", "100%")
@@ -246,10 +250,62 @@ class Graph {
         zoomReset.append("xhtml:i")
             .attr("class", "fa fa-arrows-alt")
 
+        const fullscreen = this._navigationNode
+            .append("xhtml:button")
+            .style("width", "100%")
+            .style("height", "100%")
+            .style("background-color", "transparent")
+            .style("border", "none")
+        fullscreen.append("xhtml:i")
+            .attr("class", "fa fa-window-maximize")
+        
         zoomIn.on("click", this.zoomIn)
         zoomOut.on("click", this.zoomOut)
         zoomReset.on("click", this.initZoom)
 
-        console.log(container);
+        fullscreen.on("click", () => {
+            if (
+                document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement
+              ) {
+                if (document.exitFullscreen) {
+                  document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                  document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                  document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                  document.msExitFullscreen();
+                }
+                this.adaptViewBoxByRatio()
+                d3.select(this._containerId)
+                    .classed("fullscreen", false)
+              } else {
+                let element = document.querySelector(containerId)
+                if (element.requestFullscreen) {
+                  element.requestFullscreen();
+                } else if (element.mozRequestFullScreen) {
+                  element.mozRequestFullScreen();
+                } else if (element.webkitRequestFullscreen) {
+                  element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                } else if (element.msRequestFullscreen) {
+                  element.msRequestFullscreen();
+                }
+                this._fullscreen()
+              }
+        })
+
+        document.onfullscreenchange = (e) => {
+            this.adaptViewBoxByRatio()
+        }
+        
+    }
+    _fullscreen(){
+        const container = d3.select(this._containerId)
+            .classed("fullscreen", true)
+        const { width, height} = container.node().getBoundingClientRect();
+        this.adaptViewBoxByRatio(width / height)
     }
 }
