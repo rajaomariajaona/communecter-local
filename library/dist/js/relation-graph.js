@@ -462,7 +462,7 @@ class RelationGraph extends Graph {
         const currentZoom = d3.zoomTransform(this._rootSvg.node());
 
         this._rootSvg.call(this._zoom.transform, d3.zoomIdentity)
-        const bound = this._rootG.node().getBoundingClientRect();
+        const bound = this._rootG.node().getBoundingClientRect(); console.log(bound)
         const targetBound = this._rootSvg.select("g#top-container").node().getBoundingClientRect();
         console.log(targetBound)
         this._rootSvg.call(this._zoom.transform, currentZoom);
@@ -533,7 +533,7 @@ class RelationGraph extends Graph {
         const currentZoom = d3.zoomTransform(this._rootSvg.node());
 
         this._rootSvg.call(this._zoom.transform, d3.zoomIdentity)
-        const bound = this._rootG.node().getBoundingClientRect();
+        const bound = this._rootG.node().getBoundingClientRect(); console.log(bound)
         this._rootSvg.call(this._zoom.transform, currentZoom);
 
         const containerBound = this._rootSvg.node().getBoundingClientRect();

@@ -152,7 +152,7 @@ class NetworkGraph extends Graph {
                 }
                 return -120
             }))
-            .force("center_force", d3.forceCenter(this._width / 2, this._height / 2))
+            .force("center_force", d3.forceCenter(this._width, this._width))
             .force("collide", d3.forceCollide(50))
             .force(
                 "links",
@@ -331,19 +331,20 @@ class NetworkGraph extends Graph {
     initZoom = () => {
         const currentZoom = d3.zoomTransform(this._rootSvg.node());
 
-        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity)
+        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity);
         const bound = this._rootG.node().getBoundingClientRect();
         this._rootSvg.call(this._zoom.transform, currentZoom);
 
         const containerBound = this._rootSvg.node().getBoundingClientRect();
-
         const k1 = isFinite(containerBound.width / bound.width) ? ((containerBound.width - 50) / bound.width): 1;
         const k2 = isFinite(containerBound.height / bound.height) ? ((containerBound.height - 50) / bound.height): 1;
         const k = (k1 > k2 ? k2 : k1);
-
         
         const currentViewBox = this._rootSvg.node().viewBox.baseVal;
+        this._rootSvg.attr("viewBox", [0,0,5000,3500])
         
+        console.log(containerBound.x - bound.x);
+
         //ADAPT TRANSFORMATION INTO VIEWBOX SCOPE
         const wRatio = currentViewBox.width / containerBound.width;
         const hRatio = currentViewBox.height / containerBound.height;
@@ -351,6 +352,9 @@ class NetworkGraph extends Graph {
         let ty = (containerBound.height / 2) - (bound.height / 2) * k + Math.abs(containerBound.y - bound.y) * k ;
         tx *= wRatio;
         ty *= hRatio;
-        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(k));
+        tx -= (bound.x * k);
+        tx = containerBound.x - bound.x;
+        ty = 0;
+        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty))
     }
 }

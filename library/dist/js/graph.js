@@ -298,7 +298,15 @@ class Graph {
         })
 
         document.onfullscreenchange = (e) => {
-            this.adaptViewBoxByRatio()
+            if (
+                document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement
+              )
+              {
+                this.adaptViewBoxByRatio(window.innerWidth/window.innerHeight)
+              }
         }
         
     }
