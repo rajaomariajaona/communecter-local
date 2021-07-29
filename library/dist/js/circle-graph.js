@@ -21,6 +21,7 @@ class CircleGraph extends Graph {
     }
     preprocessResults(results){
         const res = []
+        var tags = new Set();
         for (const [id, value] of Object.entries(results)) {
             if (value.tags) {
                 
@@ -37,9 +38,14 @@ class CircleGraph extends Graph {
                         row.description = value.description
                         row.img = value.profilMediumImageUrl
                         row.group = tag
+                        tags.add(tag);
                         res.push(row);
                     }
             }
+        }
+        this.tags =[...tags];
+        if(this._authorizedTags.length > 0){
+            this.tags = this._authorizedTags;
         }
         return res
     }

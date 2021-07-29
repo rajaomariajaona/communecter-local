@@ -79,6 +79,10 @@ class MindmapGraph extends Graph {
                 }
             }
         }
+        this.tags = [...tags];
+        if(this._authorizedTags.length > 0){
+            this.tags = this._authorizedTags;
+        }
         console.log(raw);
         const typesGroup = d3.group(raw, d => d.theme, d => d.collection, d => d.type);
         let children = parcours(typesGroup);
@@ -121,6 +125,7 @@ class MindmapGraph extends Graph {
                 }
             }
         }
+        this.tags = [...tags];
         for (const tag of [...tags]) {
             raw.push({
                     label: tag,
@@ -128,6 +133,9 @@ class MindmapGraph extends Graph {
                     group : 'tags',
                     collection : 'tags',
             })
+        }
+        if(this._authorizedTags.length > 0){
+            this.tags = this._authorizedTags;
         }
         const typesGroup = d3.group(raw, d => d.collection, d => d.type);
         let children = parcours(typesGroup);

@@ -53,6 +53,7 @@ class RelationGraph extends Graph {
 
     preprocessResults(results){
         const res = []
+        var tags = new Set();
         for (const [id, value] of Object.entries(results)) {
             var tags = value.tags;
             if(!tags){
@@ -65,7 +66,14 @@ class RelationGraph extends Graph {
             if(!groups || !groups.length > 0){
                 continue;
             }
+            for (const group of groups) {
+                tags.add(group);
+            }
             res.push({...value, id, groups, label: value.name ? value.name : "", img: value.profilMediumImageUrl})
+        }
+        this.tags = [...tags];
+        if(this._authorizedTags.length > 0){
+            this.tags = this._authorizedTags;
         }
         return res
     }

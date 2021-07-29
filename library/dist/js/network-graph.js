@@ -109,7 +109,10 @@ class NetworkGraph extends Graph {
                 }
             })
         }
-
+        this.tags = [...tags];
+        if(this._authorizedTags.length > 0){
+            this.tags = this._authorizedTags;
+        }
         const dataByLinks = d3.group(filteredData, this._funcGroup);
         console.log(dataByLinks);
         const links = [];

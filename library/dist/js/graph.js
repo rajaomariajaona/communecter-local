@@ -15,6 +15,7 @@ class Graph {
     _zoomInK = 1.2;
     _zoomOutK = 0.8;
     _navigationNode = null;
+    tags = [];
     _labelFunc = (d,i,n) => d.data.label;
     _beforeDraw = () => {
         console.log("BEFORE DRAW")
