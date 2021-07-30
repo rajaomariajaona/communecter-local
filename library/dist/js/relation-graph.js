@@ -38,7 +38,7 @@ class RelationGraph extends Graph {
             coloredGroup.attr("fill", (d, i, n) => this._colorGroup(d, i, n));
         }
     }
-    constructor(rawData,authorizedTags = null) {
+    constructor(rawData,authorizedTags = []) {
         super();
         const {
             data,
