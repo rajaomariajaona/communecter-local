@@ -21,6 +21,7 @@ class CircleGraph extends Graph {
         this._data = this._preprocessData(data);
     }
     preprocessResults(results){
+        super.preprocessResults(results);
         const res = []
         var tags = new Set();
         for (const [id, value] of Object.entries(results)) {

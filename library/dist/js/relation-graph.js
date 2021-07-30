@@ -52,6 +52,7 @@ class RelationGraph extends Graph {
     }
 
     preprocessResults(results){
+        super.preprocessResults(results);
         const res = []
         var tags = new Set();
         for (const [id, value] of Object.entries(results)) {

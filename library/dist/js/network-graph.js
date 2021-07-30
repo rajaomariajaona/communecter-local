@@ -57,6 +57,7 @@ class NetworkGraph extends Graph {
     }
 
     preprocessResults(results){
+        super.preprocessResults(results);
         let countTag = 0;
         let res = [{
             label: "SEARCH",

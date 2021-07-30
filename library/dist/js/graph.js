@@ -2,6 +2,8 @@ class Graph {
     _isDrawing = false;
     _isUpdating = false;
     _isDrawed = false;
+    _lastResults = [];
+    _rawData = [];
     _data = [];
     _zoom = null;
     _rootSvg = null;
@@ -72,6 +74,7 @@ class Graph {
         return this._defaultColor(i);
     };
     updateData(data) {
+        this._rawData = data;
         this._data = this._preprocessData(data);
         this._update(this._data);
     }
@@ -138,11 +141,8 @@ class Graph {
         return data;
     }
     preprocessResults(results){
-        const res = []
-        for (const [id, value] of Object.entries(results)) {
-            res.push({...value, id})
-        }
-        return res
+        this._lastResults = results;
+        return results
     }
     _isDataEmpty(data) {
         if (Array.isArray(data) && data.length == 0) {
@@ -310,6 +310,16 @@ class Graph {
               }
         }
         
+    }
+    setAuthorizedTags(authorizedTags,redraw = false, isData = false){
+        this._authorizedTags = authorizedTags;
+        if(redraw){
+            if(isData){
+                this.updateData(this._rawData);
+            }else{
+                this.updateData(this.preprocessResults(this._lastResults));
+            }
+        }
     }
     _fullscreen(){
         const container = d3.select(this._containerId)

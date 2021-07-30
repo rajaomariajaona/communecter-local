@@ -159,6 +159,7 @@ class MindmapGraph extends Graph {
     }
 
     preprocessResults(results){
+        super.preprocessResults(results);
         if(this._theme){
             return this._preprocessResultsByTheme(results);
         }else{
