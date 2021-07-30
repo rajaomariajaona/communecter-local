@@ -17,7 +17,11 @@ class Graph {
     _zoomInK = 1.2;
     _zoomOutK = 0.8;
     _navigationNode = null;
+    _previsualisationContainer = null;
+    _containerId = null;
     tags = [];
+    _previsualisationHeight = 200;
+    _previsualisationWidth = 300;
     _labelFunc = (d,i,n) => d.data.label;
     _beforeDraw = () => {
         console.log("BEFORE DRAW")
@@ -202,10 +206,56 @@ class Graph {
     get isDrawed() {
         return this._isDrawed;
     }
+    drawPrevisualisation(containerId){
+        const container = d3.select(containerId)
+            .style("background-color", "white")
+            .style("position", "relative");
+        this._previsualisationContainer = container
+            .append("xhtml:div")
+            .style("height", this._previsualisationHeight + "px")
+            .style("width", this._previsualisationWidth + "px")
+            .style("overflow", "hidden")
+            .style("border-radius", "4px")
+            .style("box-shadow", "rgb(0 0 0 / 50%) 0px 0px 3px -1px")
+            .style("background-color", "white")
+            .style("z-index", 20000)
+            .style("border-color", "#acacaa")
+            .style("position", "absolute")
+            .style("top", "10px")
+            .style("left", "60px")
+        this._previsualisationContainer
+            .append("xhtml:div")
+        container.on("mousemove", (e) => {
+            this.updatePrevisualisation(e.layerX, e.layerY);
+        });
+        this.updatePrevisualisation();
+    }
+    updatePrevisualisation(x = null, y = null){
+        const {width, height} = d3.select(this._containerId).node().getBoundingClientRect();
+        if(x == null || y == null){
+            x = width / 2;
+            y = height / 2;
+        }
+        const div = this._previsualisationContainer
+            .select("div")
+            .style("height", height + "px")
+            .style("width", width + "px")
+        div.html(this._rootSvg.node().outerHTML);
+        const rootSvg = this._previsualisationContainer
+            .select("svg")
+            .attr("id", null)
+        rootSvg.attr("transform", null)
+        div.style("transform-origin", `${x}px ${y}px`)
+        div.style("transform", `translate(-${x - this._previsualisationWidth / 2}px, -${y - this._previsualisationHeight / 2}px)`)
+    }
     drawNavigation(containerId){
         const container = d3.select(containerId)
         .style("background-color", "white")
             .style("position", "relative");
+
+        setTimeout(() => {
+            this.drawPrevisualisation(containerId);
+        },500);
         
         this._navigationNode = container
             .append("xhtml:div")
