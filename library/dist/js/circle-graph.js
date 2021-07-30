@@ -1,4 +1,5 @@
 class CircleGraph extends Graph {
+    _id = Math.random()*1000;
     _textColored = [];
     _circlePadding = 30;
     _splitRegex = /(?=[A-Z][a-z])|\s+/g;
@@ -294,11 +295,11 @@ class CircleGraph extends Graph {
             .join((enter) => {
                 const parent_g = enter.append("g");
                 parent_g.classed("divide", true);
-                const path = parent_g
+                const path = parent_g5
                     .append("path")
                     .attr("stroke", "none")
                     .attr("fill", "none")
-                    .attr("id", (d) => `path-${GraphUtils.slugify(d["data"][0])}`)
+                    .attr("id", (d) => `path-${GraphUtils.slugify(d["data"][0])}-${this._id}`)
                     .attr(
                         "d",
                         (d) =>
@@ -316,7 +317,7 @@ class CircleGraph extends Graph {
                     .classed("parent-text", true)
                     .attr(
                         "xlink:href",
-                        (d) => `#path-${GraphUtils.slugify(d["data"][0])}`
+                        (d) => `#path-${GraphUtils.slugify(d["data"][0])}-${this._id}`
                     )
                     .text((d) => d.children[0].data.group)
                     .attr("fill", (d, i) =>
