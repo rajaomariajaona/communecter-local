@@ -14,7 +14,7 @@ class CircleGraph extends Graph {
      * @param {*} data array of obj {img?: url, text?: string, id: string | number}
      * @param {*} funcGroup function to indicate which obj key to group
      */
-    constructor(data, funcGroup, authorizedTags = null) {
+    constructor(data, funcGroup, authorizedTags = []) {
         super();
         this._authorizedTags = authorizedTags;
         this._funcGroup = funcGroup;
@@ -145,6 +145,7 @@ class CircleGraph extends Graph {
     }
 
     _dfs(parent) {
+        console.log(parent);
         if (parent.children) {
             if (parent.children[0].children) {
                 // not leaf
@@ -291,11 +292,11 @@ class CircleGraph extends Graph {
         this._textColored = [];
         this._rootG
             .selectAll("g")
-            .data(data, (d) => JSON.stringify(d.data))
+            .data(data, (d) => JSON.stringify(d.data) + d.x + d.y + d.r)
             .join((enter) => {
                 const parent_g = enter.append("g");
                 parent_g.classed("divide", true);
-                const path = parent_g5
+                const path = parent_g
                     .append("path")
                     .attr("stroke", "none")
                     .attr("fill", "none")
@@ -412,12 +413,7 @@ class CircleGraph extends Graph {
 
                     this._leaves.push(foreign);
 
-                },
-                (update) => {
-                },
-                (exit) => {
-                }
-                );
+                });
                 this._correctTextParentSize();
                 this._afterUpdate();
     }

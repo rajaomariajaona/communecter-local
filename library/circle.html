@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="dist/css/graph.css">
+    <link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css">
     <title>CIRCLE</title>
 </head>
 
@@ -135,17 +136,17 @@
         }
         var circleGraph = new CircleGraph([],d => GraphUtils.slugify(d.group))
         circleGraph.draw("#graph-container")
-        circleGraph.updateData(circleGraph.preprocessResults((circleData2)))
+        circleGraph.updateData(circleGraph.preprocessResults((circleData)))
+        circleGraph.initZoom();
         var cont = false
-        var last = null
-
+        var last = true;
         function change(l = null) {
-            if (!l) {
-                last = randomizeData(circleData)
-                circleGraph.updateData(last);
-            } else {
-                circleGraph.updateData(l);
+            if(last){
+                circleGraph.updateData(circleGraph.preprocessResults((circleData2)));
+            }else{
+                circleGraph.updateData(circleGraph.preprocessResults((circleData)));
             }
+            last = !last;
             console.log("CHANGED")
             if (cont)
                 setTimeout(change, 2000)
