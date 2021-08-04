@@ -70,15 +70,15 @@ class MindmapGraph extends Graph {
                 }
             }
         }
-        for (const tag of [...tags]) {
-            for (const [theme, themeTagsObj] of Object.entries(this._theme)) {
-                for (const themeTag of Object.values(themeTagsObj)) {
-                    if(tag == themeTag){
-                        raw.push({theme, collection: 'tags', id: tag, label: tag})
-                    }
-                }
-            }
-        }
+        // for (const tag of [...tags]) {
+        //     for (const [theme, themeTagsObj] of Object.entries(this._theme)) {
+        //         for (const themeTag of Object.values(themeTagsObj)) {
+        //             if(tag == themeTag){
+        //                 raw.push({theme, collection: 'tags', id: tag, label: tag})
+        //             }
+        //         }
+        //     }
+        // }
         this.tags = [...tags];
         if(this._authorizedTags.length > 0){
             this.tags = this._authorizedTags;
@@ -126,14 +126,14 @@ class MindmapGraph extends Graph {
             }
         }
         this.tags = [...tags];
-        for (const tag of [...tags]) {
-            raw.push({
-                    label: tag,
-                    id : tag,
-                    group : 'tags',
-                    collection : 'tags',
-            })
-        }
+        // for (const tag of [...tags]) {
+        //     raw.push({
+        //             label: tag,
+        //             id : tag,
+        //             group : 'tags',
+        //             collection : 'tags',
+        //     })
+        // }
         if(this._authorizedTags.length > 0){
             this.tags = this._authorizedTags;
         }
