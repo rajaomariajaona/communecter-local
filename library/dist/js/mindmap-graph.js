@@ -1,4 +1,5 @@
 class MindmapGraph extends Graph {
+    _modeAdd = false;
     _rootObj = {
         id: "root",
         label: "SEARCH"
@@ -29,8 +30,9 @@ class MindmapGraph extends Graph {
 
     _depth = null;
 
-    constructor(data, depthToCollapse = null, rootObj = null ) {
+    constructor(data, depthToCollapse = null, rootObj = null , modeAdd = false) {
         super()
+        this._modeAdd = modeAdd;
         this._data = this._preprocessData(data);
         if(rootObj){
             this._rootObj = rootObj;
@@ -166,7 +168,23 @@ class MindmapGraph extends Graph {
             return this._preprocessResultsDefault(results);
         }
     }
+    _addPlusNode(rawData, depth){
+        console.log(depth, rawData);
+        if(rawData.children && rawData.children.length > 0){
+            for (let i = 0; i < rawData.children.length; i++) {
+                rawData.children[i] = this._addPlusNode(rawData.children[i], depth + 1);
+            }
+            rawData.children.push({id: "plus", label: "+"})
+        }else{
+            rawData.children = [{id: "plus", label: "+"}];
+        }
+        return rawData;
+    }
     _preprocessData(rawData) {
+        if(this._modeAdd){
+            rawData = this._addPlusNode(rawData, 0);
+        }
+        console.log(rawData);
         rawData = d3.hierarchy(rawData);
         const w = this._width - this._margin.left - this._margin.right;
         const h = GraphUtils.heightByViewportRatio(w);
