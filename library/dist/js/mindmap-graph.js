@@ -174,9 +174,9 @@ class MindmapGraph extends Graph {
             for (let i = 0; i < rawData.children.length; i++) {
                 rawData.children[i] = this._addPlusNode(rawData.children[i], depth + 1);
             }
-            rawData.children.push({id: "plus", label: "+"})
+            rawData.children.push({id: "plus", name: "+", label: "+"})
         }else{
-            rawData.children = [{id: "plus", label: "+"}];
+            rawData.children = [{id: "plus", name: "+", label: "+"}];
         }
         return rawData;
     }
