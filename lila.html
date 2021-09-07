@@ -1,0 +1,140 @@
+
+<svg id="draw">
+
+</svg>
+
+<script src="./d3.v6.min.js"></script>
+
+<script>
+    var line = d3.line().curve(d3.curveCardinal.tension(-0.5));
+    var width = 800;
+    var height = 600;
+    var circleSize = 50;
+    var handleSize = circleSize;
+    var handleHeadSize = 10;
+    var canDrag = true;
+
+    var circleColor = "red";
+    var pathColor = "blue";
+    var textColor = "white";
+
+    var data = [{"x":348,"y":426.6425996664696,"r":0.1},{"x":381,"y":310.7695841927805,"r":50,"text":"lol1"},{"x":559,"y":307.42537324801134,"r":50,"text":"lol2"},{"x":664,"y":210.5834774310638,"r":50,"text":"lol3"},{"x":537,"y":122.58347743106381,"r":50,"text":"lol4"},{"x":395,"y":132.5834774310638,"r":50,"text":"lol5"},{"x":355,"y":22.0676263662647,"r":0.1}];
+
+    var selected = data[0];
+    const svg = d3.select("svg#draw")
+      .attr("viewBox", [-14, 0, width + 28, height])
+      .attr("tabindex", 1)
+      .attr("pointer-events", "all")
+      .call(d3.drag()
+        .subject(dragsubject)
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", d => {
+            console.log("VITA")
+        }),
+        );
+
+  svg.append("style").text(`
+    svg[tabindex] {
+    display: block;
+    margin: 0 -14px;
+    border: solid 2px transparent;
+    box-sizing: border-box;
+    }
+    svg[tabindex]:focus {
+    outline: none;
+    border: solid 2px lightblue;
+    }
+`);
+
+  svg.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", pathColor)
+      .attr("stroke-dasharray","10,10")
+      .attr("stroke-width", 3)
+      .call(update);
+
+  // d3.select(window).on("keydown", keydown);
+
+  function update() {
+    svg.select("path").attr("d", d => line(d.map(x => [x.x,x.y])));
+    const circle = svg.selectAll("g")
+        .data(data, d => d)
+
+    circle.enter().append("g")
+        .call(g => { g.append("circle")
+            .attr("r", (d,i) => i != 0 && i != data.length - 1 ? handleSize : handleHeadSize)
+            .attr("fill", "none")
+        })
+        .call(g => {
+            g.append("circle")
+                .attr("fill", circleColor)
+                .attr("r", (d,i) => d.r = i != 0 && i != data.length - 1 ? circleSize : 0.1)
+            g
+                .filter((d,i) => i != 0 && i != data.length - 1)
+                .append("foreignObject")
+                .attr("transform", `translate(-${(Math.cos(Math.PI / 4) * circleSize)},-${(Math.cos(Math.PI / 4) * circleSize)})`)
+                .attr("width", (Math.cos(Math.PI / 4) * circleSize) * 2)
+                .attr("height", (Math.cos(Math.PI / 4) * circleSize) * 2)
+                .append("xhtml:div")
+                .style("width", "100%")
+                .style("height", "100%")
+                .style("display", "flex")
+                .style("justify-content", "center")
+                .style("align-items", "center")
+                .style("color", textColor)
+                .text(d => d.text)
+        })
+      .merge(circle)
+        .attr("transform", d => `translate(${d.x}, ${d.y})`)
+      .select("circle:last-child")
+        .attr("fill", d => d === selected ? "lightblue" : "yellow");
+
+    circle.exit().remove();
+  }
+
+  function dragsubject(event) {
+    let subject = event.sourceEvent.target.__data__;
+//    if (!subject) {
+//      data.push(subject = {x : event.x, y: event.y});
+//      data = data;
+//      update();
+//    }
+    return subject;
+  }
+
+  function dragstarted({subject}) {
+    if(canDrag){
+        selected = subject;
+        update();
+    }
+  }
+
+  function dragged(event) {
+    if(canDrag){
+        var i = data.indexOf(event.subject);
+        event.subject.x = Math.max(-14, Math.min(width + 14, i != 0 && i != data.length - 1 ? event.x - circleSize / 2 : event.x));
+        event.subject.y = Math.max(0, Math.min(height, i != 0 && i != data.length - 1 ? event.y - circleSize / 2 : event.y));
+        data = data;
+        update();
+    }
+  }
+
+//  function keydown(event) {
+//    if (!selected) return;
+//    switch (event.key) {
+//      case "Backspace":
+//      case "Delete": {
+//        event.preventDefault();
+//        const i = data.indexOf(selected);
+//        data.splice(i, 1);
+//        data = data;
+//        selected = data.length ? data[i > 0 ? i - 1 : 0] : null;
+//        update();
+//        break;
+//      }
+//    }
+//  }
+  
+</script>
