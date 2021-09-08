@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="badge.css">
+    <title>BADGE DESIGN</title>
+</head>
+<body>
+
+    <div id="content">
+        <div id="control-panel">
+
+        </div>
+        <div id="main-content">
+            <div id="svg-handler-container">
+                <div class="svg-container">
+                    <svg id="artboard" viewBox="0 0 400 400">
+                        <svg class="element" viewBox="0 0 300 300" x="0" y="0" width="100" height="100">
+                            <circle cx="150" cy="150" r="150" fill="red" />
+                        </svg>
+                    </svg>
+                </div>
+                <div id="handler">
+                    <div id="handle-tl"></div>
+                    <div id="handle-tr"></div>
+                    <div id="handle-br"></div>
+                    <div id="handle-bl"></div>
+                    <div id="handle-ct"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const artboard = document.querySelector("svg#artboard");
+        const elements = artboard.querySelectorAll(".element");
+        const handler = document.querySelector("#handler");
+        artboard.addEventListener('click', function(event) {
+            if(!isDragging && event.currentTarget == event.target){
+                selectedElement = null;
+                handler.style.display = "none";
+            }
+        })
+        var selectedElement = null;
+        var offset = null;
+        var isDragging = false;
+        for(const element of elements){
+            element.addEventListener("mousedown", dragStart);
+            element.addEventListener("mouseup", dragEnd);
+        }
+        function dragStart(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            console.log("DRAGSTART");
+            isDragging = true;
+            const target = event.currentTarget;
+            selectedElement = target;
+            var x = target.getAttribute('x');
+            x = x ? parseFloat(x) : 0;
+            var y = target.getAttribute('y');
+            y = y ? parseFloat(y) : 0;
+            offset = getMousePosition(event);
+            offset.x -= x;
+            offset.y -= y;
+            document.addEventListener("mouseup", dragEnd);
+            document.addEventListener("mousemove", drag);
+            putHandler();
+        }
+        
+        function dragEnd(event) {
+            if(isDragging){
+                event.preventDefault();
+                event.stopPropagation();
+                isDragging = false;
+                document.removeEventListener("mouseup", dragEnd);
+                document.removeEventListener("mousemove", drag);
+                console.log("DRAGEND");
+            }
+        }
+        function drag(event){
+            if(isDragging){
+                event.preventDefault();
+                event.stopPropagation();
+                const target = selectedElement;
+                var coord = getMousePosition(event);
+                target.setAttributeNS(null, 'x', coord.x - offset.x);
+                target.setAttributeNS(null, 'y', coord.y - offset.y);
+                putHandler();
+            }
+        }
+        function getMousePosition(evt) {
+            var CTM = artboard.getScreenCTM();
+            return {
+              x: (evt.clientX - CTM.e) / CTM.a,
+              y: (evt.clientY - CTM.f) / CTM.d
+            };
+        }
+
+        function putHandler(){
+            if(selectedElement){
+                var x = selectedElement.getAttribute('x');
+                var y = selectedElement.getAttribute('y');
+                var width = selectedElement.getAttribute('width');
+                width = width ? parseFloat(width) : 0;
+                var height = selectedElement.getAttribute('height');
+                height = height ? parseFloat(height) : 0;
+                handler.style.left = x + "px";
+                handler.style.top = y + "px";
+                handler.style.width = width + "px";
+                handler.style.height = height + "px";
+                handler.style.display = "block";
+            }
+        }
+    </script>
+    
+</body>
+</html>
