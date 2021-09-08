@@ -57,19 +57,11 @@
             var handleTR = document.querySelector("#handle-tr");
             var handleBR = document.querySelector("#handle-br");
             var handleBL = document.querySelector("#handle-bl");
-            var handleCT = document.querySelector("#handle-ct");
 
             handleTL.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   artboard.removeEventListener('mousemove', scaleTL);}); artboard.addEventListener('mousemove', scaleTL);})
             handleTR.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   artboard.removeEventListener('mousemove', scaleTR);}); artboard.addEventListener('mousemove', scaleTR);})
             handleBR.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   artboard.removeEventListener('mousemove', scaleBR);}); artboard.addEventListener('mousemove', scaleBR);})
             handleBL.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   artboard.removeEventListener('mousemove', scaleBL);}); artboard.addEventListener('mousemove', scaleBL);})
-            handleCT.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   artboard.removeEventListener('mousemove', scaleCT);}); artboard.addEventListener('mousemove', scaleCT);})
-
-            
-            
-            
-            
-            
         }
 
         function dragStart(event) {
@@ -157,6 +149,18 @@
             if(selectedElement){
                 event.preventDefault();
                 event.stopPropagation();
+                var {x,y,width, height} = getRectOfSelectedElement();
+                var oldX = x;
+                var oldY = y;
+                var positionMouse = getMousePosition(event);
+                x = positionMouse.x;
+                y = positionMouse.y;
+                width += oldX - x;
+                height += oldY - y;
+                selectedElement.setAttribute('x',x);
+                selectedElement.setAttribute('y',y);
+                selectedElement.setAttribute('width',width);
+                selectedElement.setAttribute('height',height);
                 putHandler();
             }
         }
@@ -164,6 +168,15 @@
             if(selectedElement){
                 event.preventDefault();
                 event.stopPropagation();
+                var {x,y,width, height} = getRectOfSelectedElement();
+                var oldY = y;
+                var positionMouse = getMousePosition(event);
+                y = positionMouse.y;
+                width = positionMouse.x - Number(x);
+                height += oldY - y;
+                selectedElement.setAttribute('y',y);
+                selectedElement.setAttribute('width',width);
+                selectedElement.setAttribute('height',height);
                 putHandler();
             }
         }
@@ -171,6 +184,15 @@
             if(selectedElement){
                 event.preventDefault();
                 event.stopPropagation();
+                var {x,y,width, height} = getRectOfSelectedElement();
+                var oldX = x;
+                var positionMouse = getMousePosition(event);
+                x = positionMouse.x;
+                height = positionMouse.y - Number(y);
+                width += oldX - x;
+                selectedElement.setAttribute('x',x);
+                selectedElement.setAttribute('width',width);
+                selectedElement.setAttribute('height',height);
                 putHandler();
             }
         }

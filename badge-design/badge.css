@@ -79,4 +79,5 @@ div#handle-bl{
 div#handle-ct{
     top: 50%;
     left: 50%;
+    pointer-events: none!important;
 }
