@@ -17,12 +17,12 @@
             <div id="svg-handler-container">
                 <div class="svg-container">
                     <svg id="artboard" viewBox="0 0 400 400">
-                        <svg class="element" viewBox="0 0 300 300" x="0" y="0" width="100" height="100">
+                        <svg class="element" viewBox="0 0 300 300" x="100" y="100" width="100" height="100">
                             <circle cx="150" cy="150" r="150" fill="red" />
                         </svg>
                     </svg>
                 </div>
-                <div id="handler">
+                <div id="handler" style="display: none;">
                     <div id="handle-tl"></div>
                     <div id="handle-tr"></div>
                     <div id="handle-br"></div>
@@ -37,6 +37,7 @@
         const artboard = document.querySelector("svg#artboard");
         const elements = artboard.querySelectorAll(".element");
         const handler = document.querySelector("#handler");
+        attachEventOnHandle();
         artboard.addEventListener('click', function(event) {
             if(!isDragging && event.currentTarget == event.target){
                 selectedElement = null;
@@ -50,6 +51,27 @@
             element.addEventListener("mousedown", dragStart);
             element.addEventListener("mouseup", dragEnd);
         }
+
+        function attachEventOnHandle(){
+            var handleTL = document.querySelector("#handle-tl");
+            var handleTR = document.querySelector("#handle-tr");
+            var handleBR = document.querySelector("#handle-br");
+            var handleBL = document.querySelector("#handle-bl");
+            var handleCT = document.querySelector("#handle-ct");
+
+            handleTL.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   artboard.removeEventListener('mousemove', scaleTL);}); artboard.addEventListener('mousemove', scaleTL);})
+            handleTR.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   artboard.removeEventListener('mousemove', scaleTR);}); artboard.addEventListener('mousemove', scaleTR);})
+            handleBR.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   artboard.removeEventListener('mousemove', scaleBR);}); artboard.addEventListener('mousemove', scaleBR);})
+            handleBL.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   artboard.removeEventListener('mousemove', scaleBL);}); artboard.addEventListener('mousemove', scaleBL);})
+            handleCT.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   artboard.removeEventListener('mousemove', scaleCT);}); artboard.addEventListener('mousemove', scaleCT);})
+
+            
+            
+            
+            
+            
+        }
+
         function dragStart(event) {
             event.preventDefault();
             event.stopPropagation();
@@ -98,14 +120,19 @@
             };
         }
 
+        function getRectOfSelectedElement(){
+            var x = selectedElement.getAttribute('x');
+            var y = selectedElement.getAttribute('y');
+            var width = selectedElement.getAttribute('width');
+            width = width ? parseFloat(width) : 0;
+            var height = selectedElement.getAttribute('height');
+            height = height ? parseFloat(height) : 0;
+            return {x,y,width, height};
+        }
+
         function putHandler(){
             if(selectedElement){
-                var x = selectedElement.getAttribute('x');
-                var y = selectedElement.getAttribute('y');
-                var width = selectedElement.getAttribute('width');
-                width = width ? parseFloat(width) : 0;
-                var height = selectedElement.getAttribute('height');
-                height = height ? parseFloat(height) : 0;
+                var {x,y,width, height} = getRectOfSelectedElement();
                 handler.style.left = x + "px";
                 handler.style.top = y + "px";
                 handler.style.width = width + "px";
@@ -113,6 +140,48 @@
                 handler.style.display = "block";
             }
         }
+        function scaleBR(event){
+            if(selectedElement){
+                event.preventDefault();
+                event.stopPropagation();
+                var {x,y,width, height} = getRectOfSelectedElement();
+                var positionMouse = getMousePosition(event);
+                width = positionMouse.x - Number(x);
+                height = positionMouse.y - Number(y);
+                selectedElement.setAttribute('width',width);
+                selectedElement.setAttribute('height',height);
+                putHandler();
+            }
+        }
+        function scaleTL(event){
+            if(selectedElement){
+                event.preventDefault();
+                event.stopPropagation();
+                putHandler();
+            }
+        }
+        function scaleTR(event){
+            if(selectedElement){
+                event.preventDefault();
+                event.stopPropagation();
+                putHandler();
+            }
+        }
+        function scaleBL(event){
+            if(selectedElement){
+                event.preventDefault();
+                event.stopPropagation();
+                putHandler();
+            }
+        }
+        function scaleCT(event){
+            if(selectedElement){
+                event.preventDefault();
+                event.stopPropagation();
+                putHandler();
+            }
+        }
+
     </script>
     
 </body>

@@ -54,22 +54,27 @@ body{
     position: absolute;
     box-shadow: 0 0 3px rgb(35 35 47 / 16%);
     margin: -7px;
+    pointer-events: all;
 }
 div#handle-tl{
     top: 0;
     left: 0;
+    cursor: nwse-resize;
 }
 div#handle-tr{
     top: 0;
     right: 0;
+    cursor: nesw-resize;
 }
 div#handle-br{
     bottom: 0;
     right: 0;
+    cursor: nwse-resize;
 }
 div#handle-bl{
     bottom: 0;
     left: 0;
+    cursor: nesw-resize;
 }
 div#handle-ct{
     top: 50%;
