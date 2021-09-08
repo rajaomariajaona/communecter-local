@@ -39,6 +39,11 @@
     </div>
 
     <script>
+        const artboard = document.querySelector("svg#artboard");
+        const handler = document.querySelector("#handler");
+    </script>
+
+    <script>
 
         var components = [
             'circle1c.svg',
@@ -52,23 +57,30 @@
         var controlPanel = document.querySelector("#control-panel");
         var elementContainer = controlPanel.querySelector("#element-container");
         for(const component of components){
-            fetch("./components/" + component).then((r)=>{r.text().then((d)=>{
-                const element = document.createElement("div");
-                element.setAttribute("class", "element");
-                element.innerHTML = d
-                elementContainer.appendChild(element);
-            })
+            fetch("./components/" + component).then((r)=>{
+                r.text().then((d)=>{
+                    const element = document.createElement("div");
+                    element.setAttribute("class", "element");
+                    element.innerHTML = d
+                    elementContainer.appendChild(element);
+                    element.addEventListener("click", function (event) {
+                        const svg = element.querySelector("svg").cloneNode(true);
+                        svg.setAttribute("class", "element");
+                        artboard.appendChild(svg);
+                        attachEventOnElements();
+                    });
+                })
             })
         }
 
     </script>
 
     <script>
-        const artboard = document.querySelector("svg#artboard");
-        const handler = document.querySelector("#handler");
+        
 
         attachEventOnElements();
         attachEventOnHandle();
+        attachKeyboardEvents();
 
         artboard.addEventListener('click', function(event) {
             if(!isDragging && event.currentTarget == event.target){
@@ -79,6 +91,16 @@
         var selectedElement = null;
         var offset = null;
         var isDragging = false;
+
+        function attachKeyboardEvents(){
+            document.addEventListener('keyup', function(event){
+                if(selectedElement){
+                    if(event.which == 46){
+                        remove();
+                    }
+                }
+            });
+        }
         
         function attachEventOnElements(){
             const elements = artboard.querySelectorAll("svg.element");
@@ -163,6 +185,14 @@
             width = width ? parseFloat(width) : 0;
             var height = selectedElement.getAttribute('height');
             height = height ? parseFloat(height) : 0;
+            if(width == 0 ){
+                width = 400;
+                selectedElement.setAttribute('width',width);
+            }
+            if(height == 0){
+                height = 400;
+                selectedElement.setAttribute('height',height);
+            }
             return {x,y,width, height};
         }
 
