@@ -11,7 +11,9 @@
 
     <div id="content">
         <div id="control-panel">
+            <div id="element-container">
 
+            </div>
         </div>
         <div id="main-content">
             <div id="svg-handler-container">
@@ -37,6 +39,31 @@
     </div>
 
     <script>
+
+        var components = [
+            'circle1c.svg',
+            'hex1.svg',
+            'shield1.svg',
+            'shield2.svg',
+            'shield1.svg',
+            'shield2.svg',
+        ]
+
+        var controlPanel = document.querySelector("#control-panel");
+        var elementContainer = controlPanel.querySelector("#element-container");
+        for(const component of components){
+            fetch("./components/" + component).then((r)=>{r.text().then((d)=>{
+                const element = document.createElement("div");
+                element.setAttribute("class", "element");
+                element.innerHTML = d
+                elementContainer.appendChild(element);
+            })
+            })
+        }
+
+    </script>
+
+    <script>
         const artboard = document.querySelector("svg#artboard");
         const handler = document.querySelector("#handler");
 
@@ -54,7 +81,7 @@
         var isDragging = false;
         
         function attachEventOnElements(){
-            const elements = artboard.querySelectorAll(".element");
+            const elements = artboard.querySelectorAll("svg.element");
             for(const element of elements){
                 attachEventOnElement(element);
             }
