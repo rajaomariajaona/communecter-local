@@ -65,18 +65,31 @@ class SvgUtils {
 
 
 class StackControl {
+
+    constructor(){
+        const btnUndo = document.querySelector("#btn-undo");
+        const btnRedo = document.querySelector("#btn-redo");
+        btnUndo.addEventListener('click', (event) => {
+            this.back();
+        });
+        btnRedo.addEventListener('click', (event) => {
+            this.forward();
+        });
+    }
     commands = [];
     deletedCommands = [];
     do(command){
         this.deletedCommands = [];
         this.commands.push(command);
         command.execute();
+        this.checkAndDisableBtn();
     }
     forward(){
         if(this.canForward()){
             const lastCommand = this.deletedCommands.pop();
             this.commands.push(lastCommand);
             lastCommand.execute();
+            this.checkAndDisableBtn();
         }
     }
     back(){
@@ -84,6 +97,7 @@ class StackControl {
             const lastCommand = this.commands.pop();
             this.deletedCommands.push(lastCommand);
             lastCommand.revert();
+            this.checkAndDisableBtn();
         }
     }
     canForward(){
@@ -91,6 +105,20 @@ class StackControl {
     }
     canBack(){
         return this.commands.length > 0;
+    }
+    checkAndDisableBtn(){
+        const btnUndo = document.querySelector("#btn-undo");
+        const btnRedo = document.querySelector("#btn-redo");
+        if(!this.canBack()){
+            btnUndo.setAttribute('disabled', "true");
+        }else{
+            btnUndo.removeAttribute('disabled');
+        }
+        if(!this.canForward()){
+            btnRedo.setAttribute('disabled', "true");
+        }else{
+            btnRedo.removeAttribute('disabled');
+        }
     }
 }
 
@@ -341,6 +369,10 @@ class LayerCommand extends Command{
 }
 window.LayerCommand = LayerCommand;
 
+class ResizeCommand extends Command{
+
+}
+window.ResizeCommand = ResizeCommand;
 
 class CurrentElement{
     static _selectedElement;

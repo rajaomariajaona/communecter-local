@@ -37,11 +37,10 @@ div.element:hover{
 }
 
 #main-content{
-    width: calc(100% - 300px);
-    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex: 1;
 }
 
 
@@ -99,4 +98,19 @@ div#handle-ct{
     top: 50%;
     left: 50%;
     pointer-events: none!important;
+}
+
+div#header-control{
+    height: 50px;
+    width: 100%;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 10%);
+    display: flex;
+    justify-content: space-between;
+    background-color: white;
+}
+div#main{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100vh;
 }
