@@ -38,9 +38,13 @@
         </div>
     </div>
 
+    <script src="index.js"></script>
+
     <script>
         const artboard = document.querySelector("svg#artboard");
-        const handler = document.querySelector("#handler");
+
+        const stackControl = new StackControl();
+
     </script>
 
     <script>
@@ -76,6 +80,9 @@
     </script>
 
     <script>
+        var offset = null;
+        var isDragging = false;
+        var startDragPoint = null;
         
 
         attachEventOnElements();
@@ -84,17 +91,15 @@
 
         artboard.addEventListener('click', function(event) {
             if(!isDragging && event.currentTarget == event.target){
-                selectedElement = null;
-                handler.style.display = "none";
+                CurrentElement.selectedElement = null;
+                Handler.hide();
             }
         })
-        var selectedElement = null;
-        var offset = null;
-        var isDragging = false;
+        
 
         function attachKeyboardEvents(){
             document.addEventListener('keyup', function(event){
-                if(selectedElement){
+                if(CurrentElement.selectedElement){
                     if(event.which == 46){
                         remove();
                     }
@@ -131,41 +136,45 @@
         function dragStart(event) {
             event.preventDefault();
             event.stopPropagation();
-            console.log("DRAGSTART");
-            isDragging = true;
             const target = event.currentTarget;
-            selectedElement = target;
+            CurrentElement.selectedElement = target;
             var x = target.getAttribute('x');
             x = x ? parseFloat(x) : 0;
             var y = target.getAttribute('y');
             y = y ? parseFloat(y) : 0;
+
+            startDragPoint = new Point(x,y);
+
             offset = getMousePosition(event);
             offset.x -= x;
             offset.y -= y;
             document.addEventListener("mouseup", dragEnd);
             document.addEventListener("mousemove", drag);
-            putHandler();
+            Handler.dispatchHandler(CurrentElement.selectedElement);
         }
         
         function dragEnd(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.removeEventListener("mouseup", dragEnd);
+            document.removeEventListener("mousemove", drag);
             if(isDragging){
-                event.preventDefault();
-                event.stopPropagation();
                 isDragging = false;
-                document.removeEventListener("mouseup", dragEnd);
-                document.removeEventListener("mousemove", drag);
+                const {x,y} = SvgUtils.getRectOfElement(CurrentElement.selectedElement).toObject();
+                stackControl.do(new DragCommand(CurrentElement.selectedElement, startDragPoint, new Point(x,y)));
                 console.log("DRAGEND");
             }
         }
         function drag(event){
+            if(!isDragging){
+                console.log("DRAGSTART");
+                isDragging = true;
+            }
             if(isDragging){
                 event.preventDefault();
                 event.stopPropagation();
-                const target = selectedElement;
                 var coord = getMousePosition(event);
-                target.setAttributeNS(null, 'x', coord.x - offset.x);
-                target.setAttributeNS(null, 'y', coord.y - offset.y);
-                putHandler();
+                SvgUtils.setPoint(CurrentElement.selectedElement, new Point(coord.x - offset.x, coord.y - offset.y));
             }
         }
         function getMousePosition(evt) {
@@ -176,54 +185,24 @@
             };
         }
 
-        function getRectOfSelectedElement(){
-            var x = selectedElement.getAttribute('x');
-            x = x ? parseFloat(x) : 0;
-            var y = selectedElement.getAttribute('y');
-            y = y ? parseFloat(y) : 0;
-            var width = selectedElement.getAttribute('width');
-            width = width ? parseFloat(width) : 0;
-            var height = selectedElement.getAttribute('height');
-            height = height ? parseFloat(height) : 0;
-            if(width == 0 ){
-                width = 400;
-                selectedElement.setAttribute('width',width);
-            }
-            if(height == 0){
-                height = 400;
-                selectedElement.setAttribute('height',height);
-            }
-            return {x,y,width, height};
-        }
-
-        function putHandler(){
-            if(selectedElement){
-                var {x,y,width, height} = getRectOfSelectedElement();
-                handler.style.left = x + "px";
-                handler.style.top = y + "px";
-                handler.style.width = width + "px";
-                handler.style.height = height + "px";
-                handler.style.display = "block";
-            }
-        }
         function scaleBR(event){
-            if(selectedElement){
+            if(CurrentElement.selectedElement){
                 event.preventDefault();
                 event.stopPropagation();
-                var {x,y,width, height} = getRectOfSelectedElement();
+                var {x,y,width, height} = SvgUtils.getRectOfElement(CurrentElement.selectedElement).toObject();
                 var positionMouse = getMousePosition(event);
                 width = positionMouse.x - Number(x);
                 height = positionMouse.y - Number(y);
-                selectedElement.setAttribute('width',width);
-                selectedElement.setAttribute('height',height);
-                putHandler();
+                CurrentElement.selectedElement.setAttribute('width',width);
+                CurrentElement.selectedElement.setAttribute('height',height);
+                ;
             }
         }
         function scaleTL(event){
-            if(selectedElement){
+            if(CurrentElement.selectedElement){
                 event.preventDefault();
                 event.stopPropagation();
-                var {x,y,width, height} = getRectOfSelectedElement();
+                var {x,y,width, height} = SvgUtils.getRectOfElement(CurrentElement.selectedElement).toObject();
                 var oldX = x;
                 var oldY = y;
                 var positionMouse = getMousePosition(event);
@@ -231,109 +210,102 @@
                 y = positionMouse.y;
                 width += oldX - x;
                 height += oldY - y;
-                selectedElement.setAttribute('x',x);
-                selectedElement.setAttribute('y',y);
-                selectedElement.setAttribute('width',width);
-                selectedElement.setAttribute('height',height);
-                putHandler();
+                CurrentElement.selectedElement.setAttribute('x',x);
+                CurrentElement.selectedElement.setAttribute('y',y);
+                CurrentElement.selectedElement.setAttribute('width',width);
+                CurrentElement.selectedElement.setAttribute('height',height);
+                
             }
         }
         function scaleTR(event){
-            if(selectedElement){
+            if(CurrentElement.selectedElement){
                 event.preventDefault();
                 event.stopPropagation();
-                var {x,y,width, height} = getRectOfSelectedElement();
+                var {x,y,width, height} = SvgUtils.getRectOfElement(CurrentElement.selectedElement).toObject();
                 var oldY = y;
                 var positionMouse = getMousePosition(event);
                 y = positionMouse.y;
                 width = positionMouse.x - Number(x);
                 height += oldY - y;
-                selectedElement.setAttribute('y',y);
-                selectedElement.setAttribute('width',width);
-                selectedElement.setAttribute('height',height);
-                putHandler();
+                CurrentElement.selectedElement.setAttribute('y',y);
+                CurrentElement.selectedElement.setAttribute('width',width);
+                CurrentElement.selectedElement.setAttribute('height',height);
+                
             }
         }
         function scaleBL(event){
-            if(selectedElement){
+            if(CurrentElement.selectedElement){
                 event.preventDefault();
                 event.stopPropagation();
-                var {x,y,width, height} = getRectOfSelectedElement();
+                var {x,y,width, height} = SvgUtils.getRectOfElement(CurrentElement.selectedElement).toObject();
                 var oldX = x;
                 var positionMouse = getMousePosition(event);
                 x = positionMouse.x;
                 height = positionMouse.y - Number(y);
                 width += oldX - x;
-                selectedElement.setAttribute('x',x);
-                selectedElement.setAttribute('width',width);
-                selectedElement.setAttribute('height',height);
-                putHandler();
+                CurrentElement.selectedElement.setAttribute('x',x);
+                CurrentElement.selectedElement.setAttribute('width',width);
+                CurrentElement.selectedElement.setAttribute('height',height);
+                
             }
         }
         function scaleCT(event){
-            if(selectedElement){
+            if(CurrentElement.selectedElement){
                 event.preventDefault();
                 event.stopPropagation();
-                putHandler();
+                
             }
         }
 
         function putDown(){
-            if(selectedElement){
+            if(CurrentElement.selectedElement){
                 if(isActiveDown()){
-                    var index = Array.from(artboard.children).indexOf(selectedElement);
+                    var index = Array.from(artboard.children).indexOf(CurrentElement.selectedElement);
                     artboard.insertBefore(artboard.children[index], artboard.children[index - 1])
                 }
             }
         }
         function putUp(){
-            if(selectedElement){
+            if(CurrentElement.selectedElement){
                 if(isActiveUp()){
-                    var index = Array.from(artboard.children).indexOf(selectedElement);
+                    var index = Array.from(artboard.children).indexOf(CurrentElement.selectedElement);
                     artboard.insertBefore(artboard.children[index + 1], artboard.children[index])
                 }
             }
         }
 
         function isActiveUp(){
-            if(selectedElement){
-                var index = Array.from(artboard.children).indexOf(selectedElement);
+            if(CurrentElement.selectedElement){
+                var index = Array.from(artboard.children).indexOf(CurrentElement.selectedElement);
                 return index + 1 < artboard.childElementCount;
             }
         }
 
         function isActiveDown(){
-            if(selectedElement){
-                var index = Array.from(artboard.children).indexOf(selectedElement);
+            if(CurrentElement.selectedElement){
+                var index = Array.from(artboard.children).indexOf(CurrentElement.selectedElement);
                 return index > 0 && index < artboard.childElementCount;
             }
         }
 
         function remove(){
-            if(selectedElement){
-                artboard.removeChild(selectedElement);
-                handler.style.display = "none";
+            if(CurrentElement.selectedElement){
+                artboard.removeChild(CurrentElement.selectedElement);
+                Handler.hide();
             }
         }
 
         function duplicate(){
-            if(selectedElement){
-                var index = Array.from(artboard.children).indexOf(selectedElement);
-                var newNode = selectedElement.cloneNode(true);
-                if(index != artboard.childElementCount - 1){
-                    artboard.insertBefore(newNode, artboard.children[index + 1]);
-                }else{
-                    artboard.appendChild(newNode);
-                }
-                selectedElement = newNode;
-                var {x,y} = getRectOfSelectedElement();
-                x += 10;
-                y += 10;
-                selectedElement.setAttribute('x', x);
-                selectedElement.setAttribute('y', y);
-                putHandler();
-                attachEventOnElements();
+            if(CurrentElement.selectedElement){
+                stackControl.do(new DuplicateCommand(CurrentElement.selectedElement, artboard));
             }
+        }
+
+        function undo(){
+            stackControl.back();
+        }
+        function redo(){
+            stackControl.forward();
         }
 
     </script>
