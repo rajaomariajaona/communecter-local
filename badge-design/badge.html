@@ -86,7 +86,6 @@
         
 
         attachEventOnElements();
-        attachEventOnHandle();
         attachKeyboardEvents();
 
         artboard.addEventListener('click', function(event) {
@@ -121,18 +120,6 @@
             element.addEventListener("mouseup", dragEnd);
         }
 
-        function attachEventOnHandle(){
-            var handleTL = document.querySelector("#handle-tl");
-            var handleTR = document.querySelector("#handle-tr");
-            var handleBR = document.querySelector("#handle-br");
-            var handleBL = document.querySelector("#handle-bl");
-
-            handleTL.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   artboard.removeEventListener('mousemove', scaleTL);}); artboard.addEventListener('mousemove', scaleTL);})
-            handleTR.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   artboard.removeEventListener('mousemove', scaleTR);}); artboard.addEventListener('mousemove', scaleTR);})
-            handleBR.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   artboard.removeEventListener('mousemove', scaleBR);}); artboard.addEventListener('mousemove', scaleBR);})
-            handleBL.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   artboard.removeEventListener('mousemove', scaleBL);}); artboard.addEventListener('mousemove', scaleBL);})
-        }
-
         function dragStart(event) {
             event.preventDefault();
             event.stopPropagation();
@@ -145,12 +132,11 @@
 
             startDragPoint = new Point(x,y);
 
-            offset = getMousePosition(event);
+            offset = SvgUtils.getMousePosition(event);
             offset.x -= x;
             offset.y -= y;
             document.addEventListener("mouseup", dragEnd);
             document.addEventListener("mousemove", drag);
-            Handler.dispatchHandler(CurrentElement.selectedElement);
         }
         
         function dragEnd(event) {
@@ -173,89 +159,11 @@
             if(isDragging){
                 event.preventDefault();
                 event.stopPropagation();
-                var coord = getMousePosition(event);
+                var coord = SvgUtils.getMousePosition(event);
                 SvgUtils.setPoint(CurrentElement.selectedElement, new Point(coord.x - offset.x, coord.y - offset.y));
             }
         }
-        function getMousePosition(evt) {
-            var CTM = artboard.getScreenCTM();
-            return {
-              x: (evt.clientX - CTM.e) / CTM.a,
-              y: (evt.clientY - CTM.f) / CTM.d
-            };
-        }
 
-        function scaleBR(event){
-            if(CurrentElement.selectedElement){
-                event.preventDefault();
-                event.stopPropagation();
-                var {x,y,width, height} = SvgUtils.getRectOfElement(CurrentElement.selectedElement).toObject();
-                var positionMouse = getMousePosition(event);
-                width = positionMouse.x - Number(x);
-                height = positionMouse.y - Number(y);
-                CurrentElement.selectedElement.setAttribute('width',width);
-                CurrentElement.selectedElement.setAttribute('height',height);
-                ;
-            }
-        }
-        function scaleTL(event){
-            if(CurrentElement.selectedElement){
-                event.preventDefault();
-                event.stopPropagation();
-                var {x,y,width, height} = SvgUtils.getRectOfElement(CurrentElement.selectedElement).toObject();
-                var oldX = x;
-                var oldY = y;
-                var positionMouse = getMousePosition(event);
-                x = positionMouse.x;
-                y = positionMouse.y;
-                width += oldX - x;
-                height += oldY - y;
-                CurrentElement.selectedElement.setAttribute('x',x);
-                CurrentElement.selectedElement.setAttribute('y',y);
-                CurrentElement.selectedElement.setAttribute('width',width);
-                CurrentElement.selectedElement.setAttribute('height',height);
-                
-            }
-        }
-        function scaleTR(event){
-            if(CurrentElement.selectedElement){
-                event.preventDefault();
-                event.stopPropagation();
-                var {x,y,width, height} = SvgUtils.getRectOfElement(CurrentElement.selectedElement).toObject();
-                var oldY = y;
-                var positionMouse = getMousePosition(event);
-                y = positionMouse.y;
-                width = positionMouse.x - Number(x);
-                height += oldY - y;
-                CurrentElement.selectedElement.setAttribute('y',y);
-                CurrentElement.selectedElement.setAttribute('width',width);
-                CurrentElement.selectedElement.setAttribute('height',height);
-                
-            }
-        }
-        function scaleBL(event){
-            if(CurrentElement.selectedElement){
-                event.preventDefault();
-                event.stopPropagation();
-                var {x,y,width, height} = SvgUtils.getRectOfElement(CurrentElement.selectedElement).toObject();
-                var oldX = x;
-                var positionMouse = getMousePosition(event);
-                x = positionMouse.x;
-                height = positionMouse.y - Number(y);
-                width += oldX - x;
-                CurrentElement.selectedElement.setAttribute('x',x);
-                CurrentElement.selectedElement.setAttribute('width',width);
-                CurrentElement.selectedElement.setAttribute('height',height);
-                
-            }
-        }
-        function scaleCT(event){
-            if(CurrentElement.selectedElement){
-                event.preventDefault();
-                event.stopPropagation();
-                
-            }
-        }
 
         function putDown(){
             if(CurrentElement.selectedElement){

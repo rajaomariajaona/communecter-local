@@ -6,7 +6,7 @@ class SvgUtils {
         element.setAttribute('x', point.x)
         element.setAttribute('y', point.y)
         if(fire){
-            Handler.dispatchHandler(element);
+            Handler.getInstance().dispatchHandler(element);
         }
     }
     static setRect(element, x,y,width,height){
@@ -16,7 +16,7 @@ class SvgUtils {
         SvgUtils.setPoint(element, rect.point, false);
         element.setAttribute('width', rect.width);
         element.setAttribute('height', rect.height);
-        Handler.dispatchHandler(element);
+        Handler.getInstance().dispatchHandler(element);
     }
     static getRectOfElement(element){
         var x = element.getAttribute('x');
@@ -39,9 +39,17 @@ class SvgUtils {
             change = true;
         }
         if(change){
-            Handler.dispatchHandler(element);
+            Handler.getInstance().dispatchHandler(element);
         }
         return Rectangle.fromXY(x,y,width, height);
+    }
+
+    static getMousePosition(event) {
+        var CTM = artboard.getScreenCTM();
+        return {
+          x: (event.clientX - CTM.e) / CTM.a,
+          y: (event.clientY - CTM.f) / CTM.d
+        };
     }
 }
 
@@ -175,10 +183,15 @@ class DuplicateCommand extends Command{
         CurrentElement.selectedElement = this._duplicatedElement;
     }
     revert(){
-
+        this._artboard.removeChild(this._duplicatedElement);
+        if(CurrentElement.selectedElement == this._duplicatedElement){
+            Handler.getInstance().hide();
+        }
     }
 }
 window.DuplicateCommand = DuplicateCommand;
+
+
 
 class CurrentElement{
     static _selectedElement;
@@ -187,11 +200,12 @@ class CurrentElement{
     }
     static set selectedElement(_selectedElement) {
         if(this._selectedElement){
-            this._selectedElement.removeEventListener('handler', Handler.put);
+            this._selectedElement.removeEventListener('handler', (event) => Handler.getInstance().put(event));
         }
         this._selectedElement = _selectedElement;
         if(this._selectedElement){
-            this._selectedElement.addEventListener('handler', Handler.put);
+            this._selectedElement.addEventListener('handler', (event) => Handler.getInstance().put(event));
+            Handler.getInstance().dispatchHandler(this._selectedElement)
         }
     }
 }
@@ -199,22 +213,100 @@ class CurrentElement{
 window.CurrentElement = CurrentElement;
 
 class Handler{
-    static dispatchHandler(element){
+    _instance = null;
+    _handler = null;
+    _handleTL;
+    _handleTR;
+    _handleBR;
+    _handleBL;
+    constructor(){
+        this._handler = document.querySelector("#handler");
+        this._handleTL = document.querySelector("#handle-tl");
+        this._handleTR = document.querySelector("#handle-tr");
+        this._handleBR = document.querySelector("#handle-br");
+        this._handleBL = document.querySelector("#handle-bl");
+    }
+    static getInstance(){
+        if(!this._instance){
+            this._instance = new Handler();
+            this._instance._init();
+        }
+        return this._instance;
+    }
+    _init(){
+        this._handleTL.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   artboard.removeEventListener('mousemove', Handler.getInstance().scaleTL);}); artboard.addEventListener('mousemove', Handler.getInstance().scaleTL);})
+        this._handleTR.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   artboard.removeEventListener('mousemove', Handler.getInstance().scaleTR);}); artboard.addEventListener('mousemove', Handler.getInstance().scaleTR);})
+        this._handleBR.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   artboard.removeEventListener('mousemove', Handler.getInstance().scaleBR);}); artboard.addEventListener('mousemove', Handler.getInstance().scaleBR);})
+        this._handleBL.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   artboard.removeEventListener('mousemove', Handler.getInstance().scaleBL);}); artboard.addEventListener('mousemove', Handler.getInstance().scaleBL);})
+    }
+    dispatchHandler(element){
         element.dispatchEvent(new CustomEvent('handler', {detail : {rectangle : SvgUtils.getRectOfElement(element)}}));
     }
-    static put(event){
-        const handler = document.querySelector("#handler");
+    put(event){
         var {x,y,width, height} = event.detail.rectangle.toObject();
-        handler.style.left = x + "px";
-        handler.style.top = y + "px";
-        handler.style.width = width + "px";
-        handler.style.height = height + "px";
-        handler.style.display = "block";
+        this._handler.style.left = x + "px";
+        this._handler.style.top = y + "px";
+        this._handler.style.width = width + "px";
+        this._handler.style.height = height + "px";
+        this._handler.style.display = "block";
     }
-    static hide(){
-        const handler = document.querySelector("#handler");
-        handler.style.display = "none";
+    hide(){
+        this._handler.style.display = "none";
     }
+
+    scaleBR(event){
+        if(CurrentElement.selectedElement){
+            event.preventDefault();
+            event.stopPropagation();
+            var {x,y,width, height} = SvgUtils.getRectOfElement(CurrentElement.selectedElement).toObject();
+            var positionMouse = SvgUtils.getMousePosition(event);
+            width = positionMouse.x - Number(x);
+            height = positionMouse.y - Number(y);
+            SvgUtils.setRect(CurrentElement.selectedElement, x,y,width,height);
+        }
+    }
+    scaleTL(event){
+        if(CurrentElement.selectedElement){
+            event.preventDefault();
+            event.stopPropagation();
+            var {x,y,width, height} = SvgUtils.getRectOfElement(CurrentElement.selectedElement).toObject();
+            var oldX = x;
+            var oldY = y;
+            var positionMouse = SvgUtils.getMousePosition(event);
+            x = positionMouse.x;
+            y = positionMouse.y;
+            width += oldX - x;
+            height += oldY - y;
+            SvgUtils.setRect(CurrentElement.selectedElement, x,y,width,height);
+        }
+    }
+    scaleTR(event){
+        if(CurrentElement.selectedElement){
+            event.preventDefault();
+            event.stopPropagation();
+            var {x,y,width, height} = SvgUtils.getRectOfElement(CurrentElement.selectedElement).toObject();
+            var oldY = y;
+            var positionMouse = SvgUtils.getMousePosition(event);
+            y = positionMouse.y;
+            width = positionMouse.x - Number(x);
+            height += oldY - y;
+            SvgUtils.setRect(CurrentElement.selectedElement, x,y,width,height);
+        }
+    }
+    scaleBL(event){
+        if(CurrentElement.selectedElement){
+            event.preventDefault();
+            event.stopPropagation();
+            var {x,y,width, height} = SvgUtils.getRectOfElement(CurrentElement.selectedElement).toObject();
+            var oldX = x;
+            var positionMouse = SvgUtils.getMousePosition(event);
+            x = positionMouse.x;
+            height = positionMouse.y - Number(y);
+            width += oldX - x;
+            SvgUtils.setRect(CurrentElement.selectedElement, x,y,width,height);
+        }
+    }
+
 }
 
 window.Handler = Handler;
