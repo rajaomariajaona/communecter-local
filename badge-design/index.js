@@ -85,6 +85,8 @@ class StackControl {
         this.checkAndDisableBtn();
     }
     forward(){
+        console.log(this.commands);
+        console.log(this.deletedCommands);
         if(this.canForward()){
             const lastCommand = this.deletedCommands.pop();
             this.commands.push(lastCommand);
@@ -93,6 +95,8 @@ class StackControl {
         }
     }
     back(){
+        console.log(this.commands);
+        console.log(this.deletedCommands);
         if(this.canBack()){
             const lastCommand = this.commands.pop();
             this.deletedCommands.push(lastCommand);
@@ -369,7 +373,21 @@ class LayerCommand extends Command{
 window.LayerCommand = LayerCommand;
 
 class ResizeCommand extends Command{
-
+    _startRect = null;
+    _targetRect = null;
+    _element;
+    constructor(element, startRect, targetRect){
+        super();
+        this._element = element;
+        this._startRect = startRect;
+        this._targetRect = targetRect;
+    }
+    execute(){
+        SvgUtils.setRectViaRectangle(this._element, this._targetRect);
+    }
+    revert(){
+        SvgUtils.setRectViaRectangle(this._element, this._startRect);
+    }
 }
 window.ResizeCommand = ResizeCommand;
 
@@ -426,6 +444,7 @@ class Handler{
     _handleTR;
     _handleBR;
     _handleBL;
+    _startRect = null;
     constructor(){
         this._handler = document.querySelector("#handler");
         this._handleTL = document.querySelector("#handle-tl");
@@ -441,11 +460,20 @@ class Handler{
         return this._instance;
     }
     _init(){
-        this._handleTL.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   Artboard.getInstance().artboard.removeEventListener('mousemove', Handler.getInstance().scaleTL);}); Artboard.getInstance().artboard.addEventListener('mousemove', Handler.getInstance().scaleTL);})
-        this._handleTR.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   Artboard.getInstance().artboard.removeEventListener('mousemove', Handler.getInstance().scaleTR);}); Artboard.getInstance().artboard.addEventListener('mousemove', Handler.getInstance().scaleTR);})
-        this._handleBR.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   Artboard.getInstance().artboard.removeEventListener('mousemove', Handler.getInstance().scaleBR);}); Artboard.getInstance().artboard.addEventListener('mousemove', Handler.getInstance().scaleBR);})
-        this._handleBL.addEventListener('mousedown', function(event) { document.addEventListener('mouseup', function(event) {   Artboard.getInstance().artboard.removeEventListener('mousemove', Handler.getInstance().scaleBL);}); Artboard.getInstance().artboard.addEventListener('mousemove', Handler.getInstance().scaleBL);})
+        const mouseupEventHandleTL = (event) => {  Artboard.getInstance().stackControl.do(new ResizeCommand(CurrentElement.selectedElement, this._startRect, SvgUtils.getRectOfElement(CurrentElement.selectedElement))); document.removeEventListener('mouseup', mouseupEventHandleTL);  Artboard.getInstance().artboard.removeEventListener('mousemove', Handler.getInstance().scaleTL);}
+        const mouseupEventHandleTR = (event) => {  Artboard.getInstance().stackControl.do(new ResizeCommand(CurrentElement.selectedElement, this._startRect, SvgUtils.getRectOfElement(CurrentElement.selectedElement))); document.removeEventListener('mouseup', mouseupEventHandleTR);  Artboard.getInstance().artboard.removeEventListener('mousemove', Handler.getInstance().scaleTR);}
+        const mouseupEventHandleBR = (event) => {  Artboard.getInstance().stackControl.do(new ResizeCommand(CurrentElement.selectedElement, this._startRect, SvgUtils.getRectOfElement(CurrentElement.selectedElement))); document.removeEventListener('mouseup', mouseupEventHandleBR);  Artboard.getInstance().artboard.removeEventListener('mousemove', Handler.getInstance().scaleBR);}
+        const mouseupEventHandleBL = (event) => {  Artboard.getInstance().stackControl.do(new ResizeCommand(CurrentElement.selectedElement, this._startRect, SvgUtils.getRectOfElement(CurrentElement.selectedElement))); document.removeEventListener('mouseup', mouseupEventHandleBL);  Artboard.getInstance().artboard.removeEventListener('mousemove', Handler.getInstance().scaleBL);}
+        const mousedownEventHandleTL = (event) => { if(!CurrentElement.selectedElement) return; this._startRect = SvgUtils.getRectOfElement(CurrentElement.selectedElement); document.addEventListener('mouseup', mouseupEventHandleTL); Artboard.getInstance().artboard.addEventListener('mousemove', Handler.getInstance().scaleTL);}
+        const mousedownEventHandleTR = (event) => { if(!CurrentElement.selectedElement) return; this._startRect = SvgUtils.getRectOfElement(CurrentElement.selectedElement); document.addEventListener('mouseup', mouseupEventHandleTR); Artboard.getInstance().artboard.addEventListener('mousemove', Handler.getInstance().scaleTR);}
+        const mousedownEventHandleBR = (event) => { if(!CurrentElement.selectedElement) return; this._startRect = SvgUtils.getRectOfElement(CurrentElement.selectedElement); document.addEventListener('mouseup', mouseupEventHandleBR); Artboard.getInstance().artboard.addEventListener('mousemove', Handler.getInstance().scaleBR);}
+        const mousedownEventHandleBL = (event) => { if(!CurrentElement.selectedElement) return; this._startRect = SvgUtils.getRectOfElement(CurrentElement.selectedElement); document.addEventListener('mouseup', mouseupEventHandleBL); Artboard.getInstance().artboard.addEventListener('mousemove', Handler.getInstance().scaleBL);}
+        this._handleTL.addEventListener('mousedown', mousedownEventHandleTL);
+        this._handleTR.addEventListener('mousedown', mousedownEventHandleTR);
+        this._handleBR.addEventListener('mousedown', mousedownEventHandleBR);
+        this._handleBL.addEventListener('mousedown', mousedownEventHandleBL);
     }
+    
     dispatchHandler(element){
         element.dispatchEvent(new CustomEvent('handler', {detail : {rectangle : SvgUtils.getRectOfElement(element)}}));
     }
@@ -550,6 +578,16 @@ class Artboard{
                 }
             }
         });
+        document.addEventListener('keydown', (event) => {
+            if(CurrentElement.selectedElement){
+                if(event.ctrlKey && event.key == 'z'){
+                    Artboard.getInstance().stackControl.back();
+                }
+                if(event.ctrlKey && event.key == 'y'){
+                    Artboard.getInstance().stackControl.forward();
+                }
+            }
+        })
     }
     _attachElementEvents(){
         const elements = this._artboard.querySelectorAll("svg.element");
