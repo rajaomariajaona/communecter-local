@@ -61,7 +61,7 @@ div.element:hover{
 #handler{
     position: absolute;
     pointer-events: none;
-    outline: 2px dashed black;
+    outline: 1px dashed rgba(0, 0, 0, 0.5);
 }
 
 #handler div[id^="handle-"]{
