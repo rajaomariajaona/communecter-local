@@ -58,7 +58,7 @@ class SvgUtils {
         }else if(index >= artboard.childElementCount){
             artboard.appendChild(element);
         }else{
-            artboard.insertBefore(artboard.children[index + 1], element);
+            artboard.insertBefore(element, artboard.children[index]);
         }
     }
 }
@@ -227,7 +227,7 @@ class DragCommand extends Command {
         if(CurrentElement.isDragging){
             CurrentElement.isDragging = false;
             const {x,y} = SvgUtils.getRectOfElement(CurrentElement.selectedElement).toObject();
-            stackControl.do(new DragCommand(CurrentElement.selectedElement, startDragPoint, new Point(x,y)));
+            Artboard.getInstance().stackControl.do(new DragCommand(CurrentElement.selectedElement, startDragPoint, new Point(x,y)));
             console.log("DRAGEND");
         }
     }
@@ -285,11 +285,10 @@ class DeleteCommand extends Command{
     }
     execute(){
         this._position = Array.from(Artboard.getInstance().artboard.children).indexOf(this._element);
-        if(this._position > 0){
+        if(this._position >= 0){
             Artboard.getInstance().artboard.removeChild(this._element);
-            if(CurrentElement.selectedElement == this._element){
-                CurrentElement.selectedElement = null;
-            }
+            console.log("remove");
+            CurrentElement.selectedElement = null;
         }
     }
     revert(){
@@ -523,6 +522,7 @@ window.Handler = Handler;
 class Artboard{
     _instance = null;
     _artboard = null;
+    _stackControl = null;
     static getInstance(){
         if(!this._instance){
             this._instance = new Artboard();
@@ -532,6 +532,7 @@ class Artboard{
     }
     
     _init(){
+        this._stackControl = new StackControl();
         this._artboard = document.querySelector("svg#artboard");
         this._artboard.addEventListener('click', function(event) {
             if(!CurrentElement.isDragging && event.currentTarget == event.target){
@@ -542,10 +543,10 @@ class Artboard{
         this._attachElementEvents();
     }
     _attachKeyboardEvents(){
-        document.addEventListener('keyup', function(event){
+        document.addEventListener('keyup', (event) => {
             if(CurrentElement.selectedElement){
                 if(event.which == 46){
-                    remove();
+                    this._stackControl.do(new DeleteCommand(CurrentElement.selectedElement));
                 }
             }
         });
@@ -560,5 +561,7 @@ class Artboard{
     get artboard () {
         return this._artboard;
     }
-
+    get stackControl () {
+        return this._stackControl;
+    }
 }

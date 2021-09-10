@@ -57,7 +57,7 @@
 
     <script>
         const art = Artboard.getInstance();
-        const stackControl = new StackControl();
+        
         var components = [
             'circle1c.svg',
             'hex1.svg',
@@ -88,7 +88,7 @@
 
         function duplicate(){
             if(CurrentElement.selectedElement){
-                stackControl.do(new DuplicateCommand(CurrentElement.selectedElement, artboard));
+                Artboard.getInstance().stackControl.do(new DuplicateCommand(CurrentElement.selectedElement));
             }
         }
 
