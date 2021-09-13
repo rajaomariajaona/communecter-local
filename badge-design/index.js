@@ -85,8 +85,6 @@ class StackControl {
         this.checkAndDisableBtn();
     }
     forward(){
-        console.log(this.commands);
-        console.log(this.deletedCommands);
         if(this.canForward()){
             const lastCommand = this.deletedCommands.pop();
             this.commands.push(lastCommand);
@@ -95,8 +93,6 @@ class StackControl {
         }
     }
     back(){
-        console.log(this.commands);
-        console.log(this.deletedCommands);
         if(this.canBack()){
             const lastCommand = this.commands.pop();
             this.deletedCommands.push(lastCommand);
@@ -579,13 +575,11 @@ class Artboard{
             }
         });
         document.addEventListener('keydown', (event) => {
-            if(CurrentElement.selectedElement){
-                if(event.ctrlKey && event.key == 'z'){
-                    Artboard.getInstance().stackControl.back();
-                }
-                if(event.ctrlKey && event.key == 'y'){
-                    Artboard.getInstance().stackControl.forward();
-                }
+            if(event.ctrlKey && event.key == 'z'){
+                Artboard.getInstance().stackControl.back();
+            }
+            if(event.ctrlKey && event.key == 'y'){
+                Artboard.getInstance().stackControl.forward();
             }
         })
     }

@@ -114,3 +114,15 @@ div#main{
     flex: 1;
     height: 100vh;
 }
+button.btn-navigation{
+    width: 35px;
+    height: 35px;
+}
+
+div#container-button-navigation{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 80px;
+    margin-right: 10px;
+}
