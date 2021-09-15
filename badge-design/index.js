@@ -61,6 +61,27 @@ class SvgUtils {
             artboard.insertBefore(element, artboard.children[index]);
         }
     }
+    static saveIntoPng(){
+        var svg = Artboard.getInstance().artboard;
+        var svgData = new XMLSerializer().serializeToString( svg );
+
+        var canvas = document.createElement( "canvas" );
+        var svgSize = svg.getBoundingClientRect();
+        canvas.width = svgSize.width;
+        canvas.height = svgSize.height;
+        var ctx = canvas.getContext( "2d" );
+
+        var img = document.createElement( "img" );
+        img.setAttribute( "src", "data:image/svg+xml;base64," + btoa( svgData ) );
+
+        img.onload = function() {
+            ctx.drawImage( img, 0, 0 );
+            var a = document.createElement("a");
+            a.setAttribute("href", canvas.toDataURL( "image/png" ));
+            a.setAttribute("download", "badge.png");
+            a.click();
+        };
+    }
 }
 
 
@@ -565,6 +586,7 @@ class Artboard{
         })
         this._attachKeyboardEvents();
         this._attachElementEvents();
+        this._attachDownloadEvents();
     }
     _attachKeyboardEvents(){
         document.addEventListener('keyup', (event) => {
@@ -588,6 +610,10 @@ class Artboard{
         for(const element of elements){
             CustomElement.init(element);
         }
+    }
+    _attachDownloadEvents(){
+        const png = document.querySelector("#btn-download-png");
+        png.addEventListener('click', SvgUtils.saveIntoPng);
     }
 
     get artboard () {

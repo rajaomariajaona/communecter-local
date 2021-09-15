@@ -123,6 +123,9 @@ div#container-button-navigation{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 80px;
     margin-right: 10px;
+}
+.mx-5px{
+    margin-left: 5px!important;
+    margin-right: 5px!important;
 }
