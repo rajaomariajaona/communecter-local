@@ -14,7 +14,7 @@ body{
 .svg-container{
     height: 400px;
     width: 400px;
-    background-image: url('bg.png');
+    background-image: url('../images/transparent.png');
     background-size: cover;
     box-shadow: 0 2px 4px 0 rgb(0 0 0 / 16%);
 }
@@ -128,4 +128,24 @@ div#container-button-navigation{
 .mx-5px{
     margin-left: 5px!important;
     margin-right: 5px!important;
+}
+#handler-other-controller{
+    position: absolute;
+    bottom: calc(100% + 5px);
+    right: 0px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: all;
+}
+#handler-other-controller > div{
+    border-radius: 50%;
+    background-color: #fafafa;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    box-shadow: 1px 2px 3px 2px rgb(0 0 0 / 10%);
+}
+#handler-other-controller > div > i{
+    vertical-align: bottom;
 }

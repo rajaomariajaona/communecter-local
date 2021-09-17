@@ -84,6 +84,7 @@ class SvgUtils {
     }
 }
 
+window.SvgUtils = SvgUtils;
 
 class StackControl {
 
@@ -283,8 +284,8 @@ class DuplicateCommand extends Command{
             Artboard.getInstance().artboard.appendChild(this._duplicatedElement);
         }
         var {x,y} = SvgUtils.getRectOfElement(this._element).toObject();
-        x += 100;
-        y += 100;
+        x += 20;
+        y += 20;
         SvgUtils.setPoint(this._duplicatedElement,new Point(x,y),false);
         CurrentElement.selectedElement = this._duplicatedElement;
     }
@@ -308,7 +309,6 @@ class DeleteCommand extends Command{
         this._position = Array.from(Artboard.getInstance().artboard.children).indexOf(this._element);
         if(this._position >= 0){
             Artboard.getInstance().artboard.removeChild(this._element);
-            console.log("remove");
             CurrentElement.selectedElement = null;
         }
     }
@@ -489,6 +489,18 @@ class Handler{
         this._handleTR.addEventListener('mousedown', mousedownEventHandleTR);
         this._handleBR.addEventListener('mousedown', mousedownEventHandleBR);
         this._handleBL.addEventListener('mousedown', mousedownEventHandleBL);
+        document.querySelector("#btn-up").addEventListener('click',  (event) => {
+            Artboard.getInstance().stackControl.do(new LayerCommand(CurrentElement.selectedElement, 'up'));
+        })
+        document.querySelector("#btn-down").addEventListener('click',  (event) => {
+            Artboard.getInstance().stackControl.do(new LayerCommand(CurrentElement.selectedElement, 'down'));
+        })
+        document.querySelector("#btn-clone").addEventListener('click', (event) => {
+            Artboard.getInstance().stackControl.do(new DuplicateCommand(CurrentElement.selectedElement));
+        })
+        document.querySelector("#btn-trash").addEventListener('click', (event) => {
+            Artboard.getInstance().stackControl.do(new DeleteCommand(CurrentElement.selectedElement));
+        } )
     }
     
     dispatchHandler(element){
@@ -623,3 +635,4 @@ class Artboard{
         return this._stackControl;
     }
 }
+window.Artboard = Artboard;

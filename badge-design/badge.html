@@ -49,6 +49,12 @@
                         <div id="handle-br"></div>
                         <div id="handle-bl"></div>
                         <div id="handle-ct"></div>
+                        <div id="handler-other-controller">
+                            <div id="btn-up"><i class="fa fa-arrow-up"></i></div>
+                            <div id="btn-down"><i class="fa fa-arrow-down"></i></div>
+                            <div id="btn-clone"><i class="fa fa-clone text-primary"></i></div>
+                            <div id="btn-trash"><i class="fa fa-trash text-danger"></i></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -87,19 +93,6 @@
             })
         }
         var startDragPoint = null;
-
-        function duplicate(){
-            if(CurrentElement.selectedElement){
-                Artboard.getInstance().stackControl.do(new DuplicateCommand(CurrentElement.selectedElement));
-            }
-        }
-
-        function undo(){
-            stackControl.back();
-        }
-        function redo(){
-            stackControl.forward();
-        }
 
     </script>
     
