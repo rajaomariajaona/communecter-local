@@ -85,9 +85,8 @@
                     element.innerHTML = d
                     elementContainer.appendChild(element);
                     element.addEventListener("click", function (event) {
-                        const svg = element.querySelector("svg").cloneNode(true);
-                        svg.setAttribute("class", "element");
-                        //artboard.appendChild(svg);
+                        const svg = element.querySelector("svg");
+                        Artboard.getInstance().stackControl.do(new ImportationCommand(svg));
                     });
                 })
             })

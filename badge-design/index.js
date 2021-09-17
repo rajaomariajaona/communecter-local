@@ -408,6 +408,23 @@ class ResizeCommand extends Command{
 }
 window.ResizeCommand = ResizeCommand;
 
+class ImportationCommand extends Command {
+    _element = null;
+    constructor(element){
+        super();
+        this._element = element.cloneNode(true);
+        this._element.setAttribute("class", "element");
+    }
+    execute(){
+        Artboard.getInstance().artboard.appendChild(this._element);
+        CustomElement.init(this._element);
+    }
+    revert(){
+        Artboard.getInstance().artboard.removeChild(this._element);
+    }
+
+}
+window.ImportationCommand = ImportationCommand;
 class CurrentElement{
     static _selectedElement;
     static _isDragging;
