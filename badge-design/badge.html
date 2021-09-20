@@ -99,9 +99,16 @@
         }
         var startDragPoint = null;
 
-        document.addEventListener('paste', (e) => {
+        document.addEventListener('paste', function(event){
             var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-            console.log(JSON.stringify(items)); 
+            console.log(JSON.stringify(items)); // will give you the mime types
+            for (index in items) {
+              var item = items[index];
+              if (item.kind === 'file') {
+                var file = item.getAsFile();
+                getBase64(file).then(importIntoArtboard);
+              }
+            }
         });
         Artboard.getInstance().artboard.addEventListener('contextmenu', (event) => {
             const menu = document.querySelector("#contextMenu");
@@ -121,7 +128,7 @@
                         image.onload = function () {
                             const width = image.width;
                             const height = image.height;
-                            resolve({base64, width, height});
+                            resolve({file, base64, width, height});
                         }
                         image.src = base64;
                     };
@@ -131,44 +138,46 @@
             })
         }
 
+        const importIntoArtboard = ({file, base64, width, height}) => {
+            if(file.type == 'image/svg+xml'){
+                const div = document.createElement('div');
+                const index = base64.indexOf("base64,")
+                const data = base64.substring(index + 7);
+                div.innerHTML = atob(data);
+                const svg = div.querySelector("svg");
+                if(svg.getAttribute("viewBox") == null){
+                    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+                }
+                if(width > 400){
+                    svg.setAttribute("width", 400);
+                }
+                if(height > 400){
+                    svg.setAttribute("height", 400);
+                }
+                Artboard.getInstance().stackControl.do(new ImportationCommand(svg));
+            }else{
+                const svg = document.createElementNS(NS, "svg");
+                svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+                if(width > 400){
+                    svg.setAttribute("width", 400);
+                }
+                if(height > 400){
+                    svg.setAttribute("height", 400);
+                }
+                const image = document.createElementNS(NS, "image");
+                image.setAttribute("href", base64);
+                svg.appendChild(image);
+                Artboard.getInstance().stackControl.do(new ImportationCommand(svg));
+            }
+        };
+
         const NS = 'http://www.w3.org/2000/svg';
         const input = document.querySelector("#fileUpload");
         input.addEventListener('change', (e2) => {
             if(input.files && input.files.length > 0){
                 const file = input.files[0];
                 console.log();
-                getBase64(file).then(({base64, width, height}) => {
-                    if(file.type == 'image/svg+xml'){
-                        const div = document.createElement('div');
-                        const index = base64.indexOf("base64,")
-                        const data = base64.substring(index + 7);
-                        div.innerHTML = atob(data);
-                        const svg = div.querySelector("svg");
-                        if(svg.getAttribute("viewBox") == null){
-                            svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-                        }
-                        if(width > 400){
-                            svg.setAttribute("width", 400);
-                        }
-                        if(height > 400){
-                            svg.setAttribute("height", 400);
-                        }
-                        Artboard.getInstance().stackControl.do(new ImportationCommand(svg));
-                    }else{
-                        const svg = document.createElementNS(NS, "svg");
-                        svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-                        if(width > 400){
-                            svg.setAttribute("width", 400);
-                        }
-                        if(height > 400){
-                            svg.setAttribute("height", 400);
-                        }
-                        const image = document.createElementNS(NS, "image");
-                        image.setAttribute("href", base64);
-                        svg.appendChild(image);
-                        Artboard.getInstance().stackControl.do(new ImportationCommand(svg));
-                    }
-                }).then((_) => {
+                getBase64(file).then(importIntoArtboard).then((_) => {
                     input.value = "";
                 })
             }
