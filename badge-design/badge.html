@@ -34,7 +34,7 @@
                 
                 <div id="svg-handler-container">
                     <div class="svg-container">
-                        <svg id="artboard" viewBox="0 0 400 400">
+                        <svg id="artboard" width="400" height="400" viewBox="0 0 400 400">
                             <svg class="element" viewBox="0 0 300 300" x="100" y="100" width="100" height="100">
                                 <circle cx="150" cy="150" r="50" fill="red" />
                                 <circle cx="10" cy="10" r="100" fill="red" />
@@ -110,12 +110,18 @@
               }
             }
         });
+        function hideContextualMenu(){
+            const menu = document.querySelector("#contextMenu");
+            menu.style.display = "none";
+            document.removeEventListener('click', hideContextualMenu);
+        }
         Artboard.getInstance().artboard.addEventListener('contextmenu', (event) => {
             const menu = document.querySelector("#contextMenu");
             menu.style.display = "block";
             menu.style.top = event.offsetY + "px";
             menu.style.left = event.offsetX + "px";
             menu.style.display = "block";
+            document.addEventListener('click', hideContextualMenu);
             event.preventDefault();
         }, false);
         function getBase64(file) {

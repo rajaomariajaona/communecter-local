@@ -73,11 +73,12 @@ class SvgUtils {
 
         var img = document.createElement( "img" );
         img.setAttribute( "src", "data:image/svg+xml;base64," + btoa( svgData ) );
-
         img.onload = function() {
             ctx.drawImage( img, 0, 0 );
             var a = document.createElement("a");
-            a.setAttribute("href", canvas.toDataURL( "image/png" ));
+            var href = canvas.toDataURL( "image/png" );
+            console.log(href);
+            a.setAttribute("href", href);
             a.setAttribute("download", "badge.png");
             a.click();
         };
@@ -466,6 +467,7 @@ class CustomElement{
         CustomElement._addFillAttributes(element);
         if(selectioned){
             Handler.getInstance().dispatchHandler(element);
+
         }
     }
     static _addFillAttributes(element){
@@ -489,6 +491,31 @@ class CustomElement{
 
 window.CustomElement = CustomElement;
 
+class ChangeAttributesCommand extends Command{
+    _oldValue;
+    _newValue;
+    _attribute;
+    _elements;
+    constructor(selector, attribute, value){
+        super();
+        this._elements = Artboard.getInstance().artboard.querySelectorAll(selector);
+        this._attribute = attribute;
+        this._newValue = value;
+    }
+    execute(){
+        this._oldValue = this._elements.children[0].getAttribute(this._attribute);
+        for(toChange of this._elements){
+            toChange.setAttribute(this._attribute, this._newValue);
+        }
+    }
+    revert(){
+        for(toChange of this._elements){
+            toChange.setAttribute(this._attribute, this._oldValue);
+        }
+    }
+}
+
+window.ChangeAttributesCommand = ChangeAttributesCommand;
 class Handler{
     _instance = null;
     _handler = null;
