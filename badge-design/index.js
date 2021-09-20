@@ -463,8 +463,26 @@ class CustomElement{
     static init(element, selectioned = false){
         element.addEventListener('handler', Handler.getInstance().put);
         DragCommand.attachDragEvent(element);
+        CustomElement._addFillAttributes(element);
         if(selectioned){
             Handler.getInstance().dispatchHandler(element);
+        }
+    }
+    static _addFillAttributes(element){
+        var existingColors = new Set();
+        const fillables = element.querySelectorAll("*[fill]");
+        for(const fillable of fillables){
+            const color = fillable.getAttribute("fill");
+            existingColors.add(color);
+        }
+        const tabExistingColors = Array.from(existingColors);
+        element.setAttribute("data-existing-colors", tabExistingColors.join(","))
+        for(var i = 0; i < tabExistingColors.length; i++){
+            const color = tabExistingColors[i];
+            const currentColored = element.querySelectorAll("*[fill='" + color + "']");
+            for(const current of currentColored){
+                current.setAttribute("fill-id", "" + i);
+            }
         }
     }
 }

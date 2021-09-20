@@ -36,10 +36,9 @@
                     <div class="svg-container">
                         <svg id="artboard" viewBox="0 0 400 400">
                             <svg class="element" viewBox="0 0 300 300" x="100" y="100" width="100" height="100">
-                                <circle cx="150" cy="150" r="150" fill="red" />
-                            </svg>
-                            <svg class="element" viewBox="0 0 300 300" x="300" y="100" width="100" height="100">
-                                <rect x="0" y="0" width="300" height="300" fill="green" />
+                                <circle cx="150" cy="150" r="50" fill="red" />
+                                <circle cx="10" cy="10" r="100" fill="red" />
+                                <rect x="200" y="200" width="30" height="30" fill="green" />
                             </svg>
                         </svg>
                     </div>
@@ -56,6 +55,13 @@
                             <div id="btn-trash"><i class="fa fa-trash text-danger"></i></div>
                         </div>
                     </div>
+                    <ul id="contextMenu" class="dropdown-menu" role="menu" style="display:none;" >
+                        <li><input id="fileUpload" type="file" accept="image/*" style="display: none;"><a tabindex="-1" href="#" id="btn-import-image">Importer une image</a></li>
+                        <li class="divider"></li>
+                        <li><a tabindex="-1" href="#">TO CHANGE</a></li>
+                        <li><a tabindex="-1" href="#">TO CHANGE</a></li>
+                        <li><a tabindex="-1" href="#">TO CHANGE</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -93,6 +99,87 @@
         }
         var startDragPoint = null;
 
+        document.addEventListener('paste', (e) => {
+            var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            console.log(JSON.stringify(items)); 
+        });
+        Artboard.getInstance().artboard.addEventListener('contextmenu', (event) => {
+            const menu = document.querySelector("#contextMenu");
+            menu.style.display = "block";
+            menu.style.top = event.offsetY + "px";
+            menu.style.left = event.offsetX + "px";
+            menu.style.display = "block";
+            event.preventDefault();
+        }, false);
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                    var reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = function () {
+                        const base64 = reader.result;
+                        const image = new Image();
+                        image.onload = function () {
+                            const width = image.width;
+                            const height = image.height;
+                            resolve({base64, width, height});
+                        }
+                        image.src = base64;
+                    };
+                reader.onerror = function (error) {
+                    reject('Error: ', error);
+                };
+            })
+        }
+
+        const NS = 'http://www.w3.org/2000/svg';
+        const input = document.querySelector("#fileUpload");
+        input.addEventListener('change', (e2) => {
+            if(input.files && input.files.length > 0){
+                const file = input.files[0];
+                console.log();
+                getBase64(file).then(({base64, width, height}) => {
+                    if(file.type == 'image/svg+xml'){
+                        const div = document.createElement('div');
+                        const index = base64.indexOf("base64,")
+                        const data = base64.substring(index + 7);
+                        div.innerHTML = atob(data);
+                        const svg = div.querySelector("svg");
+                        if(svg.getAttribute("viewBox") == null){
+                            svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+                        }
+                        if(width > 400){
+                            svg.setAttribute("width", 400);
+                        }
+                        if(height > 400){
+                            svg.setAttribute("height", 400);
+                        }
+                        Artboard.getInstance().stackControl.do(new ImportationCommand(svg));
+                    }else{
+                        const svg = document.createElementNS(NS, "svg");
+                        svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+                        if(width > 400){
+                            svg.setAttribute("width", 400);
+                        }
+                        if(height > 400){
+                            svg.setAttribute("height", 400);
+                        }
+                        const image = document.createElementNS(NS, "image");
+                        image.setAttribute("href", base64);
+                        svg.appendChild(image);
+                        Artboard.getInstance().stackControl.do(new ImportationCommand(svg));
+                    }
+                }).then((_) => {
+                    input.value = "";
+                })
+            }
+        });
+        
+        document.querySelector("#btn-import-image").addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelector("#contextMenu").style.display = "none";
+            const input = document.querySelector("#fileUpload");
+            input.click();
+        })
     </script>
     
 </body>
