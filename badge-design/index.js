@@ -696,8 +696,10 @@ class Artboard{
         this._stackControl = new StackControl();
         this._artboard = document.querySelector("svg#artboard");
         this._artboard.addEventListener('click', function(event) {
-            if(!CurrentElement.isDragging && event.currentTarget == event.target){
-                CurrentElement.selectedElement = null;
+            if(!ColorController.isShown){
+                if(!CurrentElement.isDragging && event.currentTarget == event.target){
+                    CurrentElement.selectedElement = null;
+                }
             }
         })
         this._attachKeyboardEvents();
@@ -788,6 +790,13 @@ window.OpacityController = OpacityController;
 class ColorController{
     _isChanged = false;
     _lastColor = null;
+    static _isShown = false;
+    static set isShown (value){
+        this._isShown = value;
+    }
+    static get isShown (){
+        return this._isShown;
+    }
     constructor(containerSelector, num, color){
         const div = document.createElement("div");
         div.innerHTML = 
@@ -801,6 +810,7 @@ class ColorController{
             color: color,
             show: (color) => {
                 this._lastColor = color;
+                ColorController.isShown = true;
             },
             change: (color) => {
                 this._isChanged = true;
@@ -819,6 +829,7 @@ class ColorController{
                 }
             },
             hide: (color) => {
+                ColorController.isShown = false;
                 if(this._isChanged){
                     this._isChanged = false;
                 }else{
