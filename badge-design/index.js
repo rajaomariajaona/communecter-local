@@ -506,7 +506,9 @@ class ChangeAttributesCommand extends Command{
     _attribute;
     _elements;
     _isStyle;
-    constructor(selector, attribute, value, isStyle = false){
+    _revertCallback;
+    _executeCallback;
+    constructor(selector, attribute, oldValue, newValue, isStyle = false){
         super();
         if(!selector){
             this._elements = [CurrentElement.selectedElement];
@@ -514,11 +516,12 @@ class ChangeAttributesCommand extends Command{
             this._elements = CurrentElement.selectedElement.querySelectorAll(selector);
         }
         this._attribute = attribute;
-        this._newValue = value;
+        this._newValue = newValue;
         this._isStyle = isStyle;
+        this._oldValue = oldValue;
     }
     execute(){
-        this._oldValue = !this._isStyle ? this._elements[0].getAttribute(this._attribute) : this._elements[0].style[this._attribute];
+        console.log(this._oldValue, this._newValue);
         if(!this._isStyle){
             for(const toChange of this._elements){
                 toChange.setAttribute(this._attribute, this._newValue);
@@ -527,6 +530,9 @@ class ChangeAttributesCommand extends Command{
             for(const toChange of this._elements){
                 toChange.style[this._attribute] = this._newValue;
             }
+        }
+        if(this._executeCallback && typeof this._executeCallback == "function"){
+            this._executeCallback();
         }
     }
     revert(){
@@ -539,7 +545,15 @@ class ChangeAttributesCommand extends Command{
                 toChange.style[this._attribute] = this._oldValue;
             }
         }
-        
+        if(this._revertCallback && typeof this._revertCallback == "function"){
+            this._revertCallback();
+        }
+    }
+    setRevertCallback(callback){
+        this._revertCallback = callback;
+    }
+    setExecuteCallback(callback){
+        this._executeCallback = callback;
     }
 }
 
@@ -730,11 +744,12 @@ window.Artboard = Artboard;
 class OpacityController {
     _inputElement;
     _valueElement;
+    _lastOpacity;
     constructor(containerSelector){
         const div = document.createElement("div");
         div.innerHTML = 
         `
-            <div class="btn-group">
+            <div id="btn-group-opacity" class="btn-group">
               <button id="btn-opacity" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="fa fa-adjust" style="font-size: 20px;"></i>
               </button>
@@ -753,23 +768,26 @@ class OpacityController {
         this._inputElement = document.querySelector("#opacity-input");
         this._valueElement = document.querySelector("#opacity-value");
         this._inputElement.addEventListener('change', (event) => {
-            Artboard.getInstance().stackControl.do(new ChangeAttributesCommand(null, "opacity", Number(event.currentTarget.value) / 100, true));
+            Artboard.getInstance().stackControl.do(new ChangeAttributesCommand(null, "opacity", this._lastOpacity, Number(event.currentTarget.value) / 100, true));
         })
         this._inputElement.addEventListener('input', (event) => {
             this._valueElement.innerHTML = event.currentTarget.value +"%";
             CurrentElement.selectedElement.style.opacity = Number(event.currentTarget.value) / 100;
         })
-        var currentOpacity = CurrentElement.selectedElement.style["opacity"];
-        if(currentOpacity){
-            currentOpacity = Math.round(currentOpacity * 100);
+            
+        $('#btn-group-opacity').on('show.bs.dropdown', () => {
+            this._lastOpacity = CurrentElement.selectedElement.style["opacity"] ? CurrentElement.selectedElement.style["opacity"] : 1;
+            var currentOpacity = Math.round(this._lastOpacity * 100);
             this._valueElement.innerHTML = currentOpacity +"%";
             this._inputElement.value = currentOpacity;
-        }
+        })
     }
 }
 window.OpacityController = OpacityController;
 
 class ColorController{
+    _isChanged = false;
+    _lastColor = null;
     constructor(containerSelector, num, color){
         const div = document.createElement("div");
         div.innerHTML = 
@@ -777,12 +795,39 @@ class ColorController{
         <input type="text" id="color-${num}" class="form-control color-input">
         `;
         document.querySelector(containerSelector).appendChild(div);
+        const itemToColor = CurrentElement.selectedElement.querySelectorAll(`*[fill-id="${num}"]`);
         $(`#color-${num}`).spectrum({
             type: "color",
             color: color,
+            show: (color) => {
+                this._lastColor = color;
+            },
             change: (color) => {
-                Artboard.getInstance().stackControl.do(new ChangeAttributesCommand(`*[fill-id="${num}"]`, "fill", color.toRgbString()));
+                this._isChanged = true;
+                var colorChanger = new ChangeAttributesCommand(`*[fill-id="${num}"]`, "fill", this._lastColor.toRgbString(), color.toRgbString());
+                colorChanger.setRevertCallback(() => {
+                    $(`#color-${num}`).spectrum("set", this._lastColor.toRgbString());
+                })
+                colorChanger.setExecuteCallback(() => {
+                    $(`#color-${num}`).spectrum("set", color.toRgbString());
+                })
+                Artboard.getInstance().stackControl.do(colorChanger);
+            },
+            move: (color) => {
+                for(const toChange of itemToColor){
+                    toChange.setAttribute("fill", color.toRgbString());
+                }
+            },
+            hide: (color) => {
+                if(this._isChanged){
+                    this._isChanged = false;
+                }else{
+                    for(const toChange of itemToColor){
+                        toChange.setAttribute("fill", this._lastColor.toRgbString());
+                    }
+                }
             }
+
         })
     }
 }
