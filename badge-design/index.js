@@ -434,12 +434,22 @@ class CurrentElement{
         return this._selectedElement;
     }
     static set selectedElement(_selectedElement) {
+        const attributes = document.querySelector("#attributes");
+        attributes.innerHTML = "";
         if(this._selectedElement){
             this._selectedElement.removeEventListener('handler', Handler.getInstance().put);
+            this._selectedElement.classList.remove("selected");
         }
         this._selectedElement = _selectedElement;
         if(this._selectedElement){
             CustomElement.init(this._selectedElement, true);
+            this._selectedElement.classList.add("selected");
+            new OpacityController("#attributes");
+            var count = this._selectedElement.getAttribute("data-colors-count");
+            count = Number(count);
+            for(var i = 0; i < count; i++){
+                new ColorController("#attributes", i, this._selectedElement.querySelector(`*[fill-id="${i}"`).getAttribute("fill"));
+            }
         }else{
             Handler.getInstance().hide();
         }
@@ -467,7 +477,6 @@ class CustomElement{
         CustomElement._addFillAttributes(element);
         if(selectioned){
             Handler.getInstance().dispatchHandler(element);
-
         }
     }
     static _addFillAttributes(element){
@@ -478,7 +487,7 @@ class CustomElement{
             existingColors.add(color);
         }
         const tabExistingColors = Array.from(existingColors);
-        element.setAttribute("data-existing-colors", tabExistingColors.join(","))
+        element.setAttribute("data-colors-count", tabExistingColors.length);
         for(var i = 0; i < tabExistingColors.length; i++){
             const color = tabExistingColors[i];
             const currentColored = element.querySelectorAll("*[fill='" + color + "']");
@@ -496,22 +505,41 @@ class ChangeAttributesCommand extends Command{
     _newValue;
     _attribute;
     _elements;
-    constructor(selector, attribute, value){
+    _isStyle;
+    constructor(selector, attribute, value, isStyle = false){
         super();
-        this._elements = Artboard.getInstance().artboard.querySelectorAll(selector);
+        if(!selector){
+            this._elements = [CurrentElement.selectedElement];
+        }else{
+            this._elements = CurrentElement.selectedElement.querySelectorAll(selector);
+        }
         this._attribute = attribute;
         this._newValue = value;
+        this._isStyle = isStyle;
     }
     execute(){
-        this._oldValue = this._elements.children[0].getAttribute(this._attribute);
-        for(toChange of this._elements){
-            toChange.setAttribute(this._attribute, this._newValue);
+        this._oldValue = !this._isStyle ? this._elements[0].getAttribute(this._attribute) : this._elements[0].style[this._attribute];
+        if(!this._isStyle){
+            for(const toChange of this._elements){
+                toChange.setAttribute(this._attribute, this._newValue);
+            }
+        }else{
+            for(const toChange of this._elements){
+                toChange.style[this._attribute] = this._newValue;
+            }
         }
     }
     revert(){
-        for(toChange of this._elements){
-            toChange.setAttribute(this._attribute, this._oldValue);
+        if(!this._isStyle){
+            for(const toChange of this._elements){
+                toChange.setAttribute(this._attribute, this._oldValue);
+            }
+        }else{
+            for(const toChange of this._elements){
+                toChange.style[this._attribute] = this._oldValue;
+            }
         }
+        
     }
 }
 
@@ -698,3 +726,65 @@ class Artboard{
     }
 }
 window.Artboard = Artboard;
+
+class OpacityController {
+    _inputElement;
+    _valueElement;
+    constructor(containerSelector){
+        const div = document.createElement("div");
+        div.innerHTML = 
+        `
+            <div class="btn-group">
+              <button id="btn-opacity" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-adjust" style="font-size: 20px;"></i>
+              </button>
+              <ul class="dropdown-menu">
+                <li id="opacity-container">
+                    <div>
+                        <div>Opacity </div>
+                        <div><input id="opacity-input" type="range" value="100"></div>
+                        <div id="opacity-value">100%</div>
+                    </div>
+                </li>
+              </ul>
+            </div>
+        `;
+        document.querySelector(containerSelector).appendChild(div);
+        this._inputElement = document.querySelector("#opacity-input");
+        this._valueElement = document.querySelector("#opacity-value");
+        this._inputElement.addEventListener('change', (event) => {
+            Artboard.getInstance().stackControl.do(new ChangeAttributesCommand(null, "opacity", Number(event.currentTarget.value) / 100, true));
+        })
+        this._inputElement.addEventListener('input', (event) => {
+            this._valueElement.innerHTML = event.currentTarget.value +"%";
+            CurrentElement.selectedElement.style.opacity = Number(event.currentTarget.value) / 100;
+        })
+        var currentOpacity = CurrentElement.selectedElement.style["opacity"];
+        if(currentOpacity){
+            currentOpacity = Math.round(currentOpacity * 100);
+            this._valueElement.innerHTML = currentOpacity +"%";
+            this._inputElement.value = currentOpacity;
+        }
+    }
+}
+window.OpacityController = OpacityController;
+
+class ColorController{
+    constructor(containerSelector, num, color){
+        const div = document.createElement("div");
+        div.innerHTML = 
+        `
+        <input type="text" id="color-${num}" class="form-control color-input">
+        `;
+        document.querySelector(containerSelector).appendChild(div);
+        $(`#color-${num}`).spectrum({
+            type: "color",
+            color: color,
+            change: (color) => {
+                Artboard.getInstance().stackControl.do(new ChangeAttributesCommand(`*[fill-id="${num}"]`, "fill", color.toRgbString()));
+            }
+        })
+    }
+}
+
+window.ColorController = ColorController;

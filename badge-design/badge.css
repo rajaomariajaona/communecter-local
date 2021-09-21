@@ -149,3 +149,41 @@ div#container-button-navigation{
 #handler-other-controller > div > i{
     vertical-align: bottom;
 }
+
+#attributes{
+    display: flex;
+    align-items: center;
+}
+#attributes > div{
+    padding: 5px;
+}
+
+.sp-replacer{
+    height: 30px!important;
+    width: 30px!important;
+}
+.sp-dd{
+    display: none;
+}
+#opacity-container > div{
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+#opacity-container{
+    height: 30px;
+    width: 250px;
+}
+#btn-opacity{
+    height: 30px!important;
+    width: 30px!important;
+    padding: 0;
+    cursor: pointer;
+    display: inline-block;
+    border-radius: 3px;
+    border: 1px solid #aaa;
+}
