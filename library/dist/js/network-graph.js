@@ -148,22 +148,27 @@ class NetworkGraph extends Graph {
         this._isEmpty = !(res.links.length > 0);
         if(!this._isEmpty){
             this._simulation = d3
-            .forceSimulation()
-            .nodes(res.nodes)
+            .forceSimulation(res.nodes)
             .force("charge_force", d3.forceManyBody().strength(d => {
                 if(d.data.id == "tags" && d.data.type == "group" && d.data.group == "group"){
                     return -10000
                 }
-                return -120
+                return -50
             }))
-            .force("center_force", d3.forceCenter(this._width, this._width))
-            .force("collide", d3.forceCollide(50))
+            .force("center_force", d3.forceCenter(this._width / 2, this._width / 2).strength(0.095))
+            .force("collide", d3.forceCollide(50).iterations(10).strength(0.2))
             .force(
                 "links",
                 d3
                 .forceLink(res.links)
                 .id((d) => d.data.id + "." + this._funcGroup(d))
-                .strength((d) => 0.095)
+                .strength((d) => 1)
+                .distance((d) => {
+                    if(d.source.data.type == "root"){
+                        return 200;
+                    }
+                    return 50;
+                })
                 ).stop();
             }
         return res;
@@ -241,18 +246,19 @@ class NetworkGraph extends Graph {
                         .on("mouseout", (e,d) => {
                             d3.select(e.currentTarget).select("text").text(d => GraphUtils.truncate(this._labelFunc(d), 20))
                         })
-                        .call(
-                            d3
-                                .drag()
-                                .on("start", (e, d) => this._dragStart(e, d))
-                                .on("drag", (e, d) => this._dragDrag(e, d))
-                                .on("end", (e, d) => this._dragEnd(e, d))
-                                );
+                        
                         this._circlesNode = this._nodes
                             .select("g")
                             .append("circle")
                             .attr("r", (d,i,n) => this._circleSize(d,i,n))
-                            .attr("fill", (d, i, n) => this._color(d, i, n));
+                            .attr("fill", (d, i, n) => this._color(d, i, n))
+                            .call(
+                                d3
+                                    .drag()
+                                    .on("start", (e, d) => this._dragStart(e, d))
+                                    .on("drag", (e, d) => this._dragDrag(e, d))
+                                    .on("end", (e, d) => this._dragEnd(e, d))
+                            );
                         this._colored.push(this._circlesNode)
 
                     const foreign = this._nodes
@@ -261,7 +267,14 @@ class NetworkGraph extends Graph {
                         .attr("x", (d) => d.innerSquare.x)
                         .attr("y", (d) => d.innerSquare.y)
                         .attr("width", (d) => d.innerSquare.width)
-                        .attr("height", (d) => d.innerSquare.height);
+                        .attr("height", (d) => d.innerSquare.height)
+                        .call(
+                            d3
+                                .drag()
+                                .on("start", (e, d) => this._dragStart(e, d))
+                                .on("drag", (e, d) => this._dragDrag(e, d))
+                                .on("end", (e, d) => this._dragEnd(e, d))
+                                );
                     const group = foreign
                         .filter((d) => d.data.type == "group" || this._funcGroup(d) == "root")
                         .append("xhtml:div")
@@ -296,10 +309,11 @@ class NetworkGraph extends Graph {
             this._leaves.push(nodes);
         }
     }
-        _dragStart(event, d) {
-            if (!event.active) this._simulation.alphaTarget(0.3).restart();
-            d.fx = d.x;
-            d.fy = d.y;
+    _dragStart(event, d) {
+        event.sourceEvent.stopPropagation();
+        if (!event.active) this._simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
     }
     
     _dragDrag(event, d) {
@@ -332,33 +346,29 @@ class NetworkGraph extends Graph {
                 return d.target.y;
             });
     }
-    initZoom = () => {
+    initZoom = () => { 
+        if(!this._rootSvg) return;
         const currentZoom = d3.zoomTransform(this._rootSvg.node());
 
         this._rootSvg.call(this._zoom.transform, d3.zoomIdentity);
         const bound = this._rootG.node().getBoundingClientRect();
         this._rootSvg.call(this._zoom.transform, currentZoom);
-
+        
         const containerBound = this._rootSvg.node().getBoundingClientRect();
+        
         const k1 = isFinite(containerBound.width / bound.width) ? ((containerBound.width - 50) / bound.width): 1;
         const k2 = isFinite(containerBound.height / bound.height) ? ((containerBound.height - 50) / bound.height): 1;
         const k = (k1 > k2 ? k2 : k1);
         
         const currentViewBox = this._rootSvg.node().viewBox.baseVal;
-        this._rootSvg.attr("viewBox", [0,0,5000,3500])
-        
-        console.log(containerBound.x - bound.x);
 
-        //ADAPT TRANSFORMATION INTO VIEWBOX SCOPE
         const wRatio = currentViewBox.width / containerBound.width;
         const hRatio = currentViewBox.height / containerBound.height;
-        let tx = (containerBound.width / 2) - (bound.width / 2) * k;
+        let tx = (containerBound.width / 2) - (bound.width / 2) * k + Math.abs(containerBound.x - bound.x) * k ;
         let ty = (containerBound.height / 2) - (bound.height / 2) * k + Math.abs(containerBound.y - bound.y) * k ;
         tx *= wRatio;
         ty *= hRatio;
-        tx -= (bound.x * k);
-        tx = containerBound.x - bound.x;
-        ty = 0;
-        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty))
+
+        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(k,k))
     }
 }

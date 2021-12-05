@@ -170,7 +170,7 @@ class RelationGraph extends Graph {
             .attr("viewBox", [0, 0,this._width,this._height]);
     }
 
-    updateData(rawData) {
+    updateData(rawData, draw = true) {
         const {
             data,
             links,
@@ -179,7 +179,9 @@ class RelationGraph extends Graph {
         this._links = links;
         this._data = data;
         this._groups = groups;
-        this._update();
+        if(draw){
+            this._update();
+        }
     }
     _update(data) {
         this._beforeDraw();
@@ -538,7 +540,8 @@ class RelationGraph extends Graph {
         this._groupsNode.on("mouseout", (e, d) => this._groupMouseOut(e));
         this._groupsNode.on("click", (e, d) => this._focusOnGroup(e, d));
     }
-    initZoom = () => {
+    initZoom = () => { 
+        if(!this._rootSvg) return;
         const currentZoom = d3.zoomTransform(this._rootSvg.node());
 
         this._rootSvg.call(this._zoom.transform, d3.zoomIdentity)

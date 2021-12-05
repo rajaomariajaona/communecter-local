@@ -237,7 +237,8 @@ class MindmapGraph extends Graph {
             .attr("viewBox", [0,0,w,h])
     }
 
-    initZoom = () => {
+    initZoom = () => { 
+        if(!this._rootSvg) return;
         const currentZoom = d3.zoomTransform(this._rootSvg.node());
 
         this._rootSvg.call(this._zoom.transform, d3.zoomIdentity);
@@ -274,7 +275,7 @@ class MindmapGraph extends Graph {
             }
         }
     }
-    updateData(data) {
+    updateData(data, draw = true) {
         this._nodes
         this._data = this._preprocessData(data);
         const tmp = this._duration;
@@ -282,7 +283,9 @@ class MindmapGraph extends Graph {
         if(this._depth != null && this._depth >= 0){
             this.collapseAll(this._data, this._depth);
         }
-        this._update(this._data)
+        if(draw){
+            this._update(this._data)
+        }
         this._duration = tmp;
     }
     _update(data) {

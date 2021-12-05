@@ -73,10 +73,12 @@ class Graph {
     _color = (d, i, n) => {
         return this._defaultColor(i);
     };
-    updateData(data) {
+    updateData(data, draw = true) {
         this._rawData = data;
         this._data = this._preprocessData(data);
-        this._update(this._data);
+        if(draw){
+            this._update(this._data);
+        }
     }
     _update(data) {}
     setOnZoom(callback) {
@@ -177,7 +179,8 @@ class Graph {
             this.setOnMouseoverNode(this._onMouseoverNode)
         };
     }
-    initZoom = () => {
+    initZoom = () => { 
+        if(!this._rootSvg) return;
         console.log("INIT ZOOM");
         this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.translate(0,0).scale(1))
     }

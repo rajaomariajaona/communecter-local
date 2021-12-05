@@ -52,6 +52,7 @@ class CircleGraph extends Graph {
         return res
     }
     initZoom = () => {
+        if(!this._rootSvg) return;
         const currentZoom = d3.zoomTransform(this._rootSvg.node());
 
         this._rootSvg.call(this._zoom.transform, d3.zoomIdentity)
@@ -260,6 +261,9 @@ class CircleGraph extends Graph {
         if (k > 2.5) {
             k = 2.5;
         }
+        if(k < 1){
+            k = 1;
+        }
         const parentTexts = this._rootSvg.selectAll("textPath.parent-text");
         parentTexts.style("font-size", `${30 * k}px`);
     }
@@ -277,7 +281,7 @@ class CircleGraph extends Graph {
         const filter_ombre = this._rootSvg
             .append("defs")
             .append("filter")
-            .attr("id", "ombre")
+            .attr("id", "ombre" + this._id)
             .append("feDropShadow")
             .attr("flood-opacity", 0.3)
             .attr("dx", 0)
@@ -335,7 +339,7 @@ class CircleGraph extends Graph {
                     .attr("r", (d) => d.r - this._circlePadding)
                     .attr("stroke", "none")
                     .attr("fill", (d, i) => this._color(d, i))
-                    .attr("filter", "url(#ombre)");
+                    .attr("filter", "url(#ombre" + this._id + ")");
                 this._colored.push(circle_parent);
                 const leaf_svg = parent_g
                     .append("g")

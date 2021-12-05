@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badge</title>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+</head>
+<style>
+    .badge-list{
+        display: flex;
+    }
+    .badge-list .badge-item{
+        max-width: 150px;
+        margin: 30px;
+    }
+    .badge-list .badge-item h5{
+        text-align: center;
+        font-weight: bold;
+    }
+</style>
+<body>
+    <div class="badge-list">
+        <div data-show="' . (isset($value["show"]) && $value["show"] == "true" ? "true" : "false"). '" style="display: '. (isset($value["show"]) && $value["show"] == "true" ? "inline-block" : "none") .'" class="lbh ' . (isset($value['attenteRecepteur']) ? 'confirmation' : '') . '"  title="' . $value["name"] . '" data-hash="#page.type.badges.id.' . $key . '" data-id="'. $key .'" class="badge-item"></div><input class="show-badge-checkbox" type="checkbox" style="display:none;" onclick="stopPropagation(event)" ' . (isset($value["show"]) && $value["show"] == "true" ? "checked" : "") . '/> 
+            <img class="img-responsive" src='. (!(isset($value["byReference"]) && $value["byReference"] == true) ? ('"/upload/communecter/badges/'. $key .'/assertions/'. (string) $element["_id"] .'.png"') : '"'. PHDB::findOneById(Badge::COLLECTION, $key, ["assertion"])['assertion']["image"] .'"') . '/>' . $value["name"] . (isset($value['attenteRecepteur']) ? '
+            <h5>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</h5>
+            <div class="btn-confirmations">
+                <button class="btn btn-success">Confirmer</button><button class="btn btn-danger"><i class="fa fa-times"></i></button>
+            </div>
+        </div>
+    </div>
+    '<div data-show="' . (isset($value["show"]) && $value["show"] == "true" ? "true" : "false"). '" style="display: '. (isset($value["show"]) && $value["show"] == "true" ? "inline-block" : "none") .'" class="lbh ' . (isset($value['attenteRecepteur']) ? 'confirmation' : '') . '"  title="' . $value["name"] . '" data-hash="#page.type.badges.id.' . $key . '" data-id="'. $key .'"><input class="show-badge-checkbox" type="checkbox" style="display:none;" onclick="stopPropagation(event)" ' . (isset($value["show"]) && $value["show"] == "true" ? "checked" : "") . '/><img class="badge-image" src='. (!(isset($value["byReference"]) && $value["byReference"] == true) ? ('"/upload/communecter/badges/'. $key .'/assertions/'. (string) $element["_id"] .'.png"') : '"'. PHDB::findOneById(Badge::COLLECTION, $key, ["assertion"])['assertion']["image"] .'"') . '/>' . $value["name"] . (isset($value['attenteRecepteur']) ? '<div class="btn-confirmations"><button data-confirm="false" data-id="' . $key . '" class="btn btn-danger btn-confirm"><i class="fa fa-times"></i> </button><button data-confirm="true" data-id="' . $key . '" class="btn btn-success btn-confirm"><i class="fa fa-check"></i> </button></div> ' : '') . '</div>'
+</body>
+</html>

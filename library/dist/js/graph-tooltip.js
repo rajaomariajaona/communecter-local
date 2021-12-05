@@ -108,6 +108,8 @@ class GraphTooltip {
         var collection = 'organizations';
         if(data.collection){
             collection = data.collection;
+        }else if(d.collection){
+            collection = d.collection;
         }
         this._anchor.attr("href", `#page.type.${collection}.id.${d.id}`)
         this._last = data;
