@@ -331,7 +331,7 @@ class RelationContainerGraph extends Graph {
                     .attr("r", d => d.r - this._circlePadding + this._externalCircleMargin)
                     .attr("fill", "none")
                     .attr("stroke-width", 4)
-                    .attr("stroke-dasharray", "6 12")
+                    .attr("stroke-dasharray", "10 14")
                     .style("stroke", "white")
                 });
         this._rootG.selectAll("g.links")
@@ -368,6 +368,7 @@ class RelationContainerGraph extends Graph {
                         
                     const foreign = leaf_svg_g
                     .append("foreignObject")
+                    .classed("nodes-container", true)
                     .style("overflow", "visible")
                     .attr("width", (d) => d.width)
                     .attr("height", (d) => d.height)
@@ -423,8 +424,10 @@ class RelationContainerGraph extends Graph {
                     .force("link",d3.forceLink(this._links).id((d) => d.data[0]).strength(0))
                     .on('tick', () => {
                         this._rootG.selectAll("circle")
-                        .attr("cx", d=> d.x)
-                        .attr("cy", d=> d.y);
+                            .attr("cx", d=> d.x)
+                            .attr("cy", d=> d.y);
+                        this._rootG.selectAll("g.leaf-svg")
+                            .attr("transform", d => `translate(${d.x - d.r + d.dr}, ${d.y - d.r + d.dr})`)
                         //update link positions
                         this._rootG.selectAll(".links-line")
                         .attr("x1", function(d) {
