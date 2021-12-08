@@ -15,6 +15,7 @@ class RelationContainerGraph extends Graph {
         {source: "finance", target: "ess"},
         {source: "recherche", target: "ess"},
     ];
+    _draggable = null;
     _color = () => "white";
     _relationSimulation = null;
     /**
@@ -22,11 +23,12 @@ class RelationContainerGraph extends Graph {
      * @param {*} data array of obj {img?: url, text?: string, id: string | number}
      * @param {*} funcGroup function to indicate which obj key to group
      */
-    constructor(data, funcGroup, authorizedTags = []) {
+    constructor(data, funcGroup, authorizedTags = [], draggable = true) {
         super();
         this._authorizedTags = authorizedTags;
         this._funcGroup = funcGroup;
         this._data = this._preprocessData(data);
+        this._draggable = draggable;
     }
     preprocessResults(results){
         super.preprocessResults(results);
@@ -316,7 +318,20 @@ class RelationContainerGraph extends Graph {
                     .attr("r", (d) => d.r - this._circlePadding)
                     .attr("stroke", "none")
                     .attr("fill", (d, i) => this._color(d, i))
-                    .attr("filter", "url(#ombre" + this._id + ")");
+                    .attr("filter", "url(#ombre" + this._id + ")")
+                if(this._draggable)
+                    circle_parent.call(d3.drag()
+                        .on("start", (e, d) => {
+                            if(!e.active) this._relationSimulation.alphaTarget(0.3).restart();
+                        })
+                        .on("drag", (e, d) => {
+                            d.x = e.x;
+                            d.y = e.y
+                        })
+                        .on("end", (e, d) => {
+                            if(!e.active) this._relationSimulation.alphaTarget(0);
+                        })
+                    )
                 this._colored.push(circle_parent);
                 const leaf_svg = parent_g
                     .append("g")

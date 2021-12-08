@@ -38,7 +38,7 @@
             }
             return Array.from(resSet)
         }
-        var relationContainerGraph = new RelationContainerGraph([],d => GraphUtils.slugify(d.group), ["Recherche", "ESS", "Finance"])
+        var relationContainerGraph = new RelationContainerGraph([],d => GraphUtils.slugify(d.group), ["Recherche", "ESS", "Finance"], false)
         relationContainerGraph.draw("#graph-container")
         relationContainerGraph.updateData(relationContainerGraph.preprocessResults((circleData)))
         relationContainerGraph.initZoom();
