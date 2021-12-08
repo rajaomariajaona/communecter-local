@@ -297,4 +297,19 @@ class GraphUtils {
     static hasImage(d){
         return d.data.img != undefined && d.data.img.trim() != "";
     }
+    static filterLinks(links){
+        const res = []
+        const set = new Set();
+        for(var i = 0; i < links.length; i++){
+            const normal = links[i].source + "|||" + links[i].target; 
+            const inverted = links[i].target + "|||" + links[i].source;
+            if(set.has(normal) || set.has(inverted)){
+                continue;
+            }
+            set.add(normal);
+            set.add(inverted);
+            res.push(links[i]);
+        }
+        return res;
+    }
 }

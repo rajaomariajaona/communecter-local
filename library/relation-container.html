@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="dist/css/graph.css">
+    <link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
+    <title>CIRCLE</title>
+</head>
+<style>
+    #graph-container{
+        height: 100vh;
+        width: 100vw;
+        background-color: #050813!important;
+    }
+</style>
+
+<body>
+    <div id="graph-container">
+
+    </div>
+    <script src="data/relation-container-data.js"></script>
+    <script src="../d3.v6.min.js"></script>
+    <script src="../jquery-2.1.1.min.js"></script>
+    <script src="dist/js/graph-utils.js"></script>
+    <script src="dist/js/graph.js"></script>
+    <script src="dist/js/relation-container-graph.js"></script>
+    <script>
+        function randomizeData(data) {
+            const rawLen = data.length;
+            let len = Math.floor(rawLen / 2);
+            let resSet = new Set();
+            for (let i = 0; i < len; i++) {
+                resSet.add(data[Math.floor(Math.random() * rawLen)])
+            }
+            return Array.from(resSet)
+        }
+        var relationContainerGraph = new RelationContainerGraph([],d => GraphUtils.slugify(d.group), ["Recherche", "ESS", "Finance"])
+        relationContainerGraph.draw("#graph-container")
+        relationContainerGraph.updateData(relationContainerGraph.preprocessResults((circleData)))
+        relationContainerGraph.initZoom();
+        var cont = false
+        var last = true;
+        function change(l = null) {
+            if(last){
+                relationContainerGraph.updateData(relationContainerGraph.preprocessResults((circleData2)));
+            }else{
+                relationContainerGraph.updateData(relationContainerGraph.preprocessResults((circleData)));
+            }
+            last = !last;
+            console.log("CHANGED")
+            if (cont)
+                setTimeout(change, 2000)
+        }
+    </script>
+</body>
+
+</html>
