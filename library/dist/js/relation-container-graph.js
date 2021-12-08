@@ -11,7 +11,9 @@ class RelationContainerGraph extends Graph {
     _funcGroup = null;
     _externalCircleMargin = 30;
     _links = [
-        // {source: "finance", target: "recherche"}
+        {source: "finance", target: "recherche"},
+        {source: "finance", target: "ess"},
+        {source: "recherche", target: "ess"},
     ];
     _color = () => "white";
     _relationSimulation = null;
@@ -330,7 +332,7 @@ class RelationContainerGraph extends Graph {
                     .attr("cy", d => d.y)
                     .attr("r", d => d.r - this._circlePadding + this._externalCircleMargin)
                     .attr("fill", "none")
-                    .attr("stroke-width", 4)
+                    .attr("stroke-width", 10)
                     .attr("stroke-dasharray", "10 14")
                     .style("stroke", "white")
                 });
@@ -341,8 +343,8 @@ class RelationContainerGraph extends Graph {
                     .classed("links", true)
                     .append("line")
                     .classed("links-line", true)
-                    .attr("stroke-width", 1)
-                    .attr("stroke-dasharray", 2)
+                    .attr("stroke-width", 4)
+                    .attr("stroke-dasharray", "10 14")
                     .style("stroke", "white");
             })
 
@@ -430,34 +432,34 @@ class RelationContainerGraph extends Graph {
                             .attr("transform", d => `translate(${d.x - d.r + d.dr}, ${d.y - d.r + d.dr})`)
                         //update link positions
                         this._rootG.selectAll(".links-line")
-                        .attr("x1", function(d) {
-                            var res = d.source.x
-                            var h = GraphUtils.eucludianDistance(d.source.x, d.source.y, d.target.x, d.target.y);
-                            const dx = ((d.source.x - d.target.x) * (d.source.radius + margin + 3) ) / h;
-                            res -= dx;
-                            return res;
-                        })
-                        .attr("y1", function(d) {
-                            var res = d.source.y
-                            var h = GraphUtils.eucludianDistance(d.source.x, d.source.y, d.target.x, d.target.y);
-                            const dx = ((d.source.y - d.target.y) * (d.source.radius + margin + 3) ) / h;
-                            res -= dx;
-                            return res;
-                        })
-                        .attr("x2", function(d) {
-                            var res = d.target.x
-                            var h = GraphUtils.eucludianDistance(d.source.x, d.source.y, d.target.x, d.target.y);
-                            const dx = ((d.source.x - d.target.x) * (d.target.radius + margin + 3) ) / h;
-                            res += dx;
-                            return res;
-                        })
-                        .attr("y2", function(d) {
-                            var res = d.target.y
-                            var h = GraphUtils.eucludianDistance(d.source.x, d.source.y, d.target.x, d.target.y);
-                            const dx = ((d.source.y - d.target.y) * (d.target.radius + margin + 3) ) / h;
-                            res += dx;
-                            return res;
-                        });
+                            .attr("x1", (d) => {
+                                var res = d.source.x
+                                var h = GraphUtils.eucludianDistance(d.source.x, d.source.y, d.target.x, d.target.y);
+                                const dx = ((d.source.x - d.target.x) * (d.source.r + this._externalCircleMargin - this._circlePadding + 15) ) / h;
+                                res -= dx;
+                                return res;
+                            })
+                            .attr("y1", (d) => {
+                                var res = d.source.y
+                                var h = GraphUtils.eucludianDistance(d.source.x, d.source.y, d.target.x, d.target.y);
+                                const dx = ((d.source.y - d.target.y) * (d.source.r + this._externalCircleMargin - this._circlePadding + 15) ) / h;
+                                res -= dx;
+                                return res;
+                            })
+                            .attr("x2", (d) => {
+                                var res = d.target.x
+                                var h = GraphUtils.eucludianDistance(d.source.x, d.source.y, d.target.x, d.target.y);
+                                const dx = ((d.source.x - d.target.x) * (d.target.r + this._externalCircleMargin - this._circlePadding + 15) ) / h;
+                                res += dx;
+                                return res;
+                            })
+                            .attr("y2", (d) => {
+                                var res = d.target.y
+                                var h = GraphUtils.eucludianDistance(d.source.x, d.source.y, d.target.x, d.target.y);
+                                const dx = ((d.source.y - d.target.y) * (d.target.r + this._externalCircleMargin - this._circlePadding + 15) ) / h;
+                                res += dx;
+                                return res;
+                            });
                     })
                 }
                 this._afterUpdate();
