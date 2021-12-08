@@ -9,7 +9,7 @@ class RelationContainerGraph extends Graph {
     _nodes = [];
     _size = null;
     _funcGroup = null;
-    _externalCircleMargin = 10;
+    _externalCircleMargin = 30;
     _links = [
         // {source: "finance", target: "recherche"}
     ];
@@ -330,8 +330,8 @@ class RelationContainerGraph extends Graph {
                     .attr("cy", d => d.y)
                     .attr("r", d => d.r - this._circlePadding + this._externalCircleMargin)
                     .attr("fill", "none")
-                    .attr("stroke-width", 2)
-                    .attr("stroke-dasharray", 3)
+                    .attr("stroke-width", 4)
+                    .attr("stroke-dasharray", "6 12")
                     .style("stroke", "white")
                 });
         this._rootG.selectAll("g.links")
