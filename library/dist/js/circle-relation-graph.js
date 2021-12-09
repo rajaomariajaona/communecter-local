@@ -11,11 +11,7 @@ class CircleRelationGraph extends Graph {
   _size = null;
   _funcGroup = null;
   _externalCircleMargin = 30;
-  _links = [
-    { source: "finance", target: "recherche" },
-    { source: "finance", target: "ess" },
-    { source: "recherche", target: "ess" },
-  ];
+  _links = [];
   _draggable = null;
   _color = () => "white";
   _relationSimulation = null;
@@ -24,12 +20,13 @@ class CircleRelationGraph extends Graph {
    * @param {*} data array of obj {img?: url, text?: string, id: string | number}
    * @param {*} funcGroup function to indicate which obj key to group
    */
-  constructor(data, funcGroup, authorizedTags = [], draggable = true) {
+  constructor(data, funcGroup, authorizedTags = [],links = [], draggable = true) {
     super();
     this._authorizedTags = authorizedTags;
     this._funcGroup = funcGroup;
     this._data = this._preprocessData(data);
     this._draggable = draggable;
+    this._links = links;
   }
   preprocessResults(results) {
     super.preprocessResults(results);
@@ -484,6 +481,7 @@ class CircleRelationGraph extends Graph {
       });
     this._correctTextParentSize();
     if (!this._isDataEmpty(data)) {
+      // this._links = GraphUtils.filterLinks(this._links, data.map((v) => v.data[0].toLowerCase()))
       this._relationSimulation = d3
         .forceSimulation(data)
         .force(
@@ -494,7 +492,7 @@ class CircleRelationGraph extends Graph {
           "link",
           d3
             .forceLink(this._links)
-            .id((d) => d.data[0])
+            .id((d) => d.data[0].toLowerCase())
             .strength(0)
         )
         .on("tick", () => {

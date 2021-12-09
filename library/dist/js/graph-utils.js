@@ -297,10 +297,13 @@ class GraphUtils {
     static hasImage(d){
         return d.data.img != undefined && d.data.img.trim() != "";
     }
-    static filterLinks(links){
+    static filterLinks(links, existingsTags = null){
         const res = []
         const set = new Set();
         for(var i = 0; i < links.length; i++){
+            if(existingsTags && existingsTags.includes(links[i].source) && existingsTags.includes(links[i].target)){
+                continue;
+            }
             const normal = links[i].source + "|||" + links[i].target; 
             const inverted = links[i].target + "|||" + links[i].source;
             if(set.has(normal) || set.has(inverted)){
