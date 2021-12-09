@@ -1,4 +1,4 @@
-class RelationContainerGraph extends Graph {
+class CircleRelationGraph extends Graph {
     _id = Math.random()*1000;
     _textColored = [];
     _circlePadding = 30;

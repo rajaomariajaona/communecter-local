@@ -27,7 +27,7 @@
     <script src="../jquery-2.1.1.min.js"></script>
     <script src="dist/js/graph-utils.js"></script>
     <script src="dist/js/graph.js"></script>
-    <script src="dist/js/relation-container-graph.js"></script>
+    <script src="dist/js/circle-relation-graph.js"></script>
     <script>
         function randomizeData(data) {
             const rawLen = data.length;
@@ -38,17 +38,17 @@
             }
             return Array.from(resSet)
         }
-        var relationContainerGraph = new RelationContainerGraph([],d => GraphUtils.slugify(d.group), ["Recherche", "ESS", "Finance"], false)
-        relationContainerGraph.draw("#graph-container")
-        relationContainerGraph.updateData(relationContainerGraph.preprocessResults((circleData)))
-        relationContainerGraph.initZoom();
+        var circleRelationGraph = new CircleRelationGraph([],d => GraphUtils.slugify(d.group), ["Recherche", "ESS", "Finance"], false)
+        circleRelationGraph.draw("#graph-container")
+        circleRelationGraph.updateData(circleRelationGraph.preprocessResults((circleData)))
+        circleRelationGraph.initZoom();
         var cont = false
         var last = true;
         function change(l = null) {
             if(last){
-                relationContainerGraph.updateData(relationContainerGraph.preprocessResults((circleData2)));
+                circleRelationGraph.updateData(circleRelationGraph.preprocessResults((circleData2)));
             }else{
-                relationContainerGraph.updateData(relationContainerGraph.preprocessResults((circleData)));
+                circleRelationGraph.updateData(circleRelationGraph.preprocessResults((circleData)));
             }
             last = !last;
             console.log("CHANGED")
