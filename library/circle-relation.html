@@ -38,7 +38,7 @@
             }
             return Array.from(resSet)
         }
-        var circleRelationGraph = new CircleRelationGraph([],d => GraphUtils.slugify(d.group), ["Recherche", "ESS", "Finance"], false)
+        var circleRelationGraph = new CircleRelationGraph([],d => GraphUtils.slugify(d.group), ["Recherche", "ESS", "Finance"], true)
         circleRelationGraph.draw("#graph-container")
         circleRelationGraph.updateData(circleRelationGraph.preprocessResults((circleData)))
         circleRelationGraph.initZoom();
