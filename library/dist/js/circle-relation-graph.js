@@ -351,8 +351,8 @@ class CircleRelationGraph extends Graph {
           .style("font-size", "25px")
           .style("font-size", "25px")
           .style("max-width", d => d.r + "px")
-          .text((d) => "Recherche et developpement durable");
-        //   d.data[0]
+          .text((d) =>  d.data[0]);
+        //  
         const circle_parent = parent_g
           .append("circle")
           .attr("cx", (d) => d.x)
