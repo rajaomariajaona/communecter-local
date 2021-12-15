@@ -15,6 +15,10 @@ class CircleRelationGraph extends Graph {
   _draggable = null;
   _color = () => "white";
   _relationSimulation = null;
+  _onTickEnd = () => {};
+  _onDragEnd = () => {};
+  _beforeDrag = () => {};
+  _initPosition = null;
   /**
    *
    * @param {*} data array of obj {img?: url, text?: string, id: string | number}
@@ -358,20 +362,28 @@ class CircleRelationGraph extends Graph {
           .attr("stroke", "none")
           .attr("fill", (d, i) => this._color(d, i))
           .attr("filter", "url(#ombre" + this._id + ")");
-        if (this._draggable)
           circle_parent.call(
             d3
               .drag()
               .on("start", (e, d) => {
-                if (!e.active)
-                  this._relationSimulation.alphaTarget(0.3).restart();
+                this._beforeDrag();
+                if(this._draggable){
+                  if (!e.active){
+                    this._relationSimulation.alphaTarget(0.9).restart();
+                  }
+                }
               })
               .on("drag", (e, d) => {
-                d.x = e.x;
-                d.y = e.y;
+                if(this._draggable){
+                  d.x = e.x;
+                  d.y = e.y;
+                }
               })
               .on("end", (e, d) => {
-                if (!e.active) this._relationSimulation.alphaTarget(0);
+                if(this._draggable){
+                  if (!e.active) this._relationSimulation.alphaTarget(0);
+                  this._onDragEnd()
+                }
               })
           );
         this._colored.push(circle_parent);
@@ -481,7 +493,15 @@ class CircleRelationGraph extends Graph {
       });
     this._correctTextParentSize();
     if (!this._isDataEmpty(data)) {
-      // this._links = GraphUtils.filterLinks(this._links, data.map((v) => v.data[0].toLowerCase()))
+      this._links = GraphUtils.filterLinks(this._links, data.map((v) => v.data[0]))
+      if(this._initPosition){
+        this._rootG.selectAll("g.divide").each((d) => {
+          if(this._initPosition[d.data[0]]){
+            d.x = this._initPosition[d.data[0]].x
+            d.y = this._initPosition[d.data[0]].y
+          }
+        })
+      }
       this._relationSimulation = d3
         .forceSimulation(data)
         .force(
@@ -511,81 +531,91 @@ class CircleRelationGraph extends Graph {
               (d) => `translate(${d.x - d.r + d.dr}, ${d.y - d.r + d.dr})`
             );
           //update link positions
-          this._rootG
+          const lines = this._rootG
             .selectAll(".links-line")
-            .attr("x1", (d) => {
-              var res = d.source.x;
-              var h = GraphUtils.eucludianDistance(
-                d.source.x,
-                d.source.y,
-                d.target.x,
-                d.target.y
-              );
-              const dx =
+          lines.each((data, i, nodes) => {
+
+            if(isNaN(Number(data.source.x))){
+              d3.select(nodes[i]).remove();
+            }else{
+              d3.select(nodes[i]).attr("x1", (d) => {
+                var res = Number(d.source.x);
+                var h = GraphUtils.eucludianDistance(
+                  d.source.x,
+                  d.source.y,
+                  d.target.x,
+                  d.target.y
+                );
+                const dx =
+                  ((d.source.x - d.target.x) *
+                    (d.source.r +
+                      this._externalCircleMargin -
+                      this._circlePadding +
+                      15)) /
+                  h;
+                res -= dx;
+                return res;
+              })
+              .attr("y1", (d) => {
+                var res = Number(d.source.y);
+                var h = GraphUtils.eucludianDistance(
+                  d.source.x,
+                  d.source.y,
+                  d.target.x,
+                  d.target.y
+                );
+                const dx =
+                  ((d.source.y - d.target.y) *
+                    (d.source.r +
+                      this._externalCircleMargin -
+                      this._circlePadding +
+                      15)) /
+                  h;
+                res -= dx;
+                return res;
+              })
+              .attr("x2", (d) => {
+                var res = Number(d.target.x);
+                var h = GraphUtils.eucludianDistance(
+                  d.source.x,
+                  d.source.y,
+                  d.target.x,
+                  d.target.y
+                );
+                const dx =
                 ((d.source.x - d.target.x) *
-                  (d.source.r +
-                    this._externalCircleMargin -
-                    this._circlePadding +
-                    15)) /
-                h;
-              res -= dx;
-              return res;
-            })
-            .attr("y1", (d) => {
-              var res = d.source.y;
-              var h = GraphUtils.eucludianDistance(
-                d.source.x,
-                d.source.y,
-                d.target.x,
-                d.target.y
-              );
-              const dx =
-                ((d.source.y - d.target.y) *
-                  (d.source.r +
-                    this._externalCircleMargin -
-                    this._circlePadding +
-                    15)) /
-                h;
-              res -= dx;
-              return res;
-            })
-            .attr("x2", (d) => {
-              var res = d.target.x;
-              var h = GraphUtils.eucludianDistance(
-                d.source.x,
-                d.source.y,
-                d.target.x,
-                d.target.y
-              );
-              const dx =
-                ((d.source.x - d.target.x) *
-                  (d.target.r +
-                    this._externalCircleMargin -
-                    this._circlePadding +
-                    15)) /
-                h;
-              res += dx;
-              return res;
-            })
-            .attr("y2", (d) => {
-              var res = d.target.y;
-              var h = GraphUtils.eucludianDistance(
-                d.source.x,
-                d.source.y,
-                d.target.x,
-                d.target.y
-              );
-              const dx =
-                ((d.source.y - d.target.y) *
-                  (d.target.r +
-                    this._externalCircleMargin -
-                    this._circlePadding +
-                    15)) /
-                h;
-              res += dx;
-              return res;
-            });
-        });
+                (d.target.r +
+                  this._externalCircleMargin -
+                  this._circlePadding +
+                  15)) /
+                  h;
+                  res += dx;
+                return res;
+              })
+              .attr("y2", (d) => {
+                var res = Number(d.target.y);
+                var h = GraphUtils.eucludianDistance(
+                  d.source.x,
+                  d.source.y,
+                  d.target.x,
+                  d.target.y
+                );
+                const dx =
+                  ((d.source.y - d.target.y) *
+                    (d.target.r +
+                      this._externalCircleMargin -
+                      this._circlePadding +
+                      15)) /
+                  h;
+                res += dx;
+                return res;
+              });
+            }
+          });
+        })
+        .on("end", () => {
+          this._onTickEnd();
+        })
     }
     this._afterUpdate();
   }
@@ -596,5 +626,20 @@ class CircleRelationGraph extends Graph {
         GraphUtils.colorLuminance(this._color(d, i), -0.2)
       );
     }
+  }
+  setOnTickEnd(callback){
+    this._onTickEnd = callback;
+  }
+  setOnDragEnd(callback){
+    this._onDragEnd = callback;
+  }
+  setBeforeDrag(callback){
+    this._beforeDrag = callback;
+  }
+  setDraggable(value){
+    this._draggable = !!value;
+  }
+  setInitPosition(value){
+    this._initPosition = value;
   }
 }

@@ -301,8 +301,11 @@ class GraphUtils {
         const res = []
         const set = new Set();
         for(var i = 0; i < links.length; i++){
-            if(existingsTags && existingsTags.includes(links[i].source) && existingsTags.includes(links[i].target)){
-                continue;
+            if(existingsTags){
+                existingsTags = existingsTags.map((v) => v.toLowerCase())
+                if(!existingsTags.includes(links[i].source) || !existingsTags.includes(links[i].target)){
+                    continue;
+                }
             }
             const normal = links[i].source + "|||" + links[i].target; 
             const inverted = links[i].target + "|||" + links[i].source;
