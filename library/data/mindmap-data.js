@@ -20,10 +20,11 @@ var mindData = {
         children: [{
             id: "tech2",
             label: "Top Management",
-
+            locked: true
         }, {
             id: "tech1",
             label: "Junior Level",
+            locked: false
         }, {
             id: "tech0",
             label: "Middle Management",

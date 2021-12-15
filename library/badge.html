@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="dist/css/graph.css">
+    <link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css">
+    <title>Badge</title>
+
+    <script>
+        var costum = {
+            lists : {
+                
+            }
+        }
+        costum.lists.theme = JSON.parse("{\"Agriculture | Alimentation\":{\"agricultural production\":\"Production agricole\",\"GAS\":\"GAS\",\"Shops of the world\":\"Boutiques du monde\",\"CSA\":\"CSA\",\"Urban gardens\":\"Jardins urbains\",\"Farmers markets\":\"Marchés agricoles\",\"Catering and administration\":\"Restauration et administration\"},\"Économie\":{\"Carpenters\":\"Charpentiers\",\"Social tailors\":\"Tailleurs sociaux\",\"Fair trade\":\"Commerce équitable\"},\"Éducation\":{\"Cultural activities\":\"Activités culturelles\",\"GAS\":\"GAS\",\"Education and training\":\"Éducation et formation\",\"Research\":\"Recherche\",\"Information\":\"Informations\"},\"Construction\":{\"Sustainable living\":\"Mode de vie durable\",\"Territory care\":\"Soins du territoire\",\"Ciclofficine\":\"Ciclofficine\",\"Other forms of sustainable mobility\":\"Autres formes de mobilité durable\",\"Building\":\"Imeuble\"},\"Épargne et finances\":{\"Social coins\":\"Pièces sociales\",\"MAG\":\"MAG\",\"Shops of the world\":\"Boutiques du monde\"},\"Santé\":{\"Sport\":\"Sport\",\"Health and care\":\"Santé et soins\",\"Counters for psychological listening\":\"Compteurs pour l'écoute psychologique\",\"Mutual aid benches\":\"Bancs d'entraide\"},\"Energie et nouvelles technologies\":{\"Energy supplies\":\"Approvisionnements en énergie\",\"Energy production\":\"Production d'énergie\",\"Wireless Networks\":\"Réseaux sans fil\",\"Repair café\":\"Repair café\",\"Fablab\":\"Fablab\"},\"Citoyenneté\":{\"Legal branches\":\"Branches juridiques\",\"Advocacy and local policies\":\"Plaidoyer et politiques locales\",\"Neighborhood committees\":\"Comités de quartier\"},\"Voyage et hospitalité\":{\"Travel and hospitality\":\"Voyage et hospitalité\"}}")
+
+    </script>
+
+</head>
+
+<body>
+    <div id="graph-container">
+
+    </div>
+    <script src="data/mindmap-data.js"></script>
+    <script src="../d3.v6.min.js"></script>
+    <script src="../jquery-2.1.1.min.js"></script>
+    <script src="dist/js/graph-utils.js"></script>
+    <script src="dist/js/graph.js"></script>
+    <script src="dist/js/badge-graph.js"></script>
+    <script>
+        var badgeGraph = new BadgeGraph(mindData,-1, null, true);
+        badgeGraph.setTheme(costum.lists.theme)
+        badgeGraph.draw("#graph-container")
+        var cont = false
+        function change(l = null) {
+            console.log("CHANGED")
+            const data = badgeGraph.preprocessResults(badgeResults)
+            badgeGraph.updateData(data);
+            if (cont)
+                setTimeout(change, 2000)
+        }
+    </script>
+</body>
+
+</html>
