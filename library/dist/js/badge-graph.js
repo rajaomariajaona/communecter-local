@@ -29,6 +29,7 @@ class BadgeGraph extends Graph {
     _treemap = null;
 
     _depth = null;
+    _onDeleteClicked = () => {};
 
     constructor(data, depthToCollapse = null, rootObj = null , modeAdd = false) {
         super()
@@ -335,7 +336,8 @@ class BadgeGraph extends Graph {
                     .append("xhtml:img")
                     .attr("src", d => d.data.profilMediumImageUrl)
                     .style("height", "90%")
-                    .style("width", "90%");
+                    .style("width", "90%")
+                    .style("pointer-events", "none")
                 div.filter(d => d.data.locked)
                     .append("xhtml:div")
                     .style("height", "90%")
@@ -351,6 +353,37 @@ class BadgeGraph extends Graph {
                     .append("xhtml:i")
                     .attr("class", "fa fa-2x fa-lock")
                     .style("color", "white")
+                const divNode = div.filter(d => d.data.id != "plus")
+                    
+                const divNodeButtons = divNode.append("xhtml:button")
+                    .attr("class","button-delete-badge-parcours btn btn-danger")
+                    .style("position", "absolute")
+                    .style("top", "-10px")
+                    .style("display", "none")
+                    .style("height", "30px")
+                    .style("width", "30px")
+                    .style("padding", "3px 5px")
+                    .on('click', (event, d) => {
+                        event.stopPropagation();
+                        this._onDeleteClicked(event, d);
+                    })
+                    
+                divNodeButtons.append("xhtml:i")
+                    .attr("class", "fa fa-trash")
+
+                divNode.on("mouseover", (event, d) => {
+                        if(this._modeAdd){
+                            divNodeButtons.style("display", "none")
+                            d3.select(event.target)
+                                .select("button")
+                                .style("display", "inline")
+                        }
+                    })
+                divNode.on("mouseout", (event, d) => {
+                        if(this._modeAdd){
+                            divNodeButtons.style("display", "none")
+                        }
+                    })
                 this._colored.push(div)
                 this._leaves.push(node_g);
             },
