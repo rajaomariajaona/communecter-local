@@ -370,10 +370,10 @@ class BadgeGraph extends Graph {
                     
                 divNodeButtons.append("xhtml:i")
                     .attr("class", "fa fa-trash")
+                    .style("pointer-events", "none")
 
                 divNode.on("mouseover", (event, d) => {
                         if(this._modeAdd){
-                            divNodeButtons.style("display", "none")
                             d3.select(event.target)
                                 .select("button")
                                 .style("display", "inline")
