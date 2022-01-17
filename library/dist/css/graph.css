@@ -47,7 +47,13 @@
 
 .svg-blur,
 .svg-blur * {
-    filter: grayscale(100%) opacity(20%);
+    filter: grayscale(100%) opacity(40%);
+}
+#loader-graph{
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 .fullscreen{
     height: 100vh!important;
