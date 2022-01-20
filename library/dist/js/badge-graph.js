@@ -366,7 +366,9 @@ class BadgeGraph extends Graph {
                     .style("color", "white")
                 
                     
-                const divNodeButtons = divNode.append("xhtml:button")
+                const divNodeButtons = divNode
+                    .filter(d => d.parent)
+                    .append("xhtml:button")
                     .attr("class","button-delete-badge-parcours btn btn-danger")
                     .style("position", "absolute")
                     .style("top", "-10px")
