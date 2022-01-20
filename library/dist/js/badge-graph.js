@@ -343,7 +343,12 @@ class BadgeGraph extends Graph {
                     .style("pointer-events", "none")
                 const textNode = divNode.filter(d => !d.data.profilMediumImageUrl)
                     .append("xhtml:div")
-                    .text(d => d.data.name);
+                    .style("max-height", "90%")
+                    .style("max-width", "90%")
+                    .style("overflow-wrap", "break-word")
+                    .style("overflow", "hidden")
+                    .style("text-align", "center")
+                    .text(d => d.data.name ? d.data.name : "Badge");
                 div.filter(d => d.data.locked)
                     .append("xhtml:div")
                     .style("height", "90%")
