@@ -44,6 +44,9 @@ class BadgeGraph extends Graph {
     setTheme(value){
         this._theme = value;
     }
+    setOnDeleteClicked(callback) {
+        this._onDeleteClicked = callback;
+    }
 
     _preprocessResultsByTheme(results){
         let countTag = 0;
@@ -331,13 +334,16 @@ class BadgeGraph extends Graph {
                     .style("position", "relative")
                 div.filter(d => d.data.id == "plus")
                     .text(d => d.data.label)
-                const img = div
-                    .filter(d => d.data.id != "plus")
+                const divNode = div.filter(d => d.data.id != "plus")
+                const imageNode = divNode.filter(d => d.data.profilMediumImageUrl)
                     .append("xhtml:img")
                     .attr("src", d => d.data.profilMediumImageUrl)
                     .style("height", "90%")
                     .style("width", "90%")
                     .style("pointer-events", "none")
+                const textNode = divNode.filter(d => !d.data.profilMediumImageUrl)
+                    .append("xhtml:div")
+                    .text(d => d.data.name);
                 div.filter(d => d.data.locked)
                     .append("xhtml:div")
                     .style("height", "90%")
@@ -353,7 +359,7 @@ class BadgeGraph extends Graph {
                     .append("xhtml:i")
                     .attr("class", "fa fa-2x fa-lock")
                     .style("color", "white")
-                const divNode = div.filter(d => d.data.id != "plus")
+                
                     
                 const divNodeButtons = divNode.append("xhtml:button")
                     .attr("class","button-delete-badge-parcours btn btn-danger")
