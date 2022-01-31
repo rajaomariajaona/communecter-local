@@ -86,7 +86,7 @@ class CircleRelationGraph extends Graph {
     //ADAPT TRANSFORMATION INTO VIEWBOX SCOPE
     const wRatio = currentViewBox.width / containerBound.width;
     const hRatio = currentViewBox.height / containerBound.height;
-    let tx = containerBound.width / 2 - (bound.width / 2) * k;
+    let tx = containerBound.width / 2 - (bound.width / 2) * k + Math.abs(containerBound.x - bound.x) * k;
     let ty =
       containerBound.height / 2 -
       (bound.height / 2) * k +
