@@ -613,7 +613,7 @@ class CircleRelationGraph extends Graph {
               });
             }
           });
-          if(i % 50 == 0){
+          if(i == 20){
             this.initZoom();
           }
         })
