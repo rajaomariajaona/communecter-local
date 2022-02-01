@@ -18,6 +18,9 @@ class Graph {
     _zoomOutK = 0.8;
     _navigationNode = null;
     _adaptInsideContainer = false;
+    _resizeObserver = null;
+    _timeoutResize = null;
+    _canResize = false;
     tags = [];
     _labelFunc = (d,i,n) => d.data.label;
     _beforeDraw = () => {
@@ -25,6 +28,8 @@ class Graph {
     };
     _afterDraw = () => {
         this.initZoom();
+        const container = document.querySelector(this._containerId);
+        this.adaptViewBoxByRatio(container.clientWidth / container.clientHeight);
         console.log("AFTER DRAW")
         this._isDrawed = true;
     };
@@ -164,6 +169,7 @@ class Graph {
             .attr("id", "graph");
         this._rootG = this._rootSvg.append("g");
         this.adaptViewBoxByRatio()
+        this.adaptInsideContainer()
         this.drawNavigation(containerId);
     }
     adaptViewBoxByRatio(ratio = 16/7){
@@ -172,7 +178,21 @@ class Graph {
             .attr("viewBox", [0, 0, this._width, this._height]);
     }
     adaptInsideContainer(){
-        
+        if(!this._resizeObserver){
+            this._resizeObserver = new ResizeObserver(entries => {
+                if(this._canResize){
+                    for (const entry of entries) {
+                        this.adaptViewBoxByRatio(entry.contentRect.width / entry.contentRect.height);
+                    }
+                    this._canResize = false;
+                    this._timeoutResize = setTimeout(() => {
+                        this._timeoutResize = null;
+                        this._canResize = true;
+                    },300)
+                }
+            }) 
+            this._resizeObserver.observe(document.querySelector(this._containerId))
+        }
     }
     setAfterDraw(callback) {
         this._afterDraw = () => {
