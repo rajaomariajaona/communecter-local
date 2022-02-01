@@ -17,6 +17,7 @@ class Graph {
     _zoomInK = 1.2;
     _zoomOutK = 0.8;
     _navigationNode = null;
+    _adaptInsideContainer = false;
     tags = [];
     _labelFunc = (d,i,n) => d.data.label;
     _beforeDraw = () => {
@@ -169,6 +170,9 @@ class Graph {
         this._height = GraphUtils.heightByViewportRatio(this._width, ratio);
         this._rootSvg
             .attr("viewBox", [0, 0, this._width, this._height]);
+    }
+    adaptInsideContainer(){
+        
     }
     setAfterDraw(callback) {
         this._afterDraw = () => {

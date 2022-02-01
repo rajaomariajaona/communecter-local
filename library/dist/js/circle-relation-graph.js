@@ -68,7 +68,6 @@ class CircleRelationGraph extends Graph {
 
     this._rootSvg.call(this._zoom.transform, d3.zoomIdentity);
     const bound = this._rootG.node().getBoundingClientRect();
-    console.log(bound);
     this._rootSvg.call(this._zoom.transform, currentZoom);
 
     const containerBound = this._rootSvg.node().getBoundingClientRect();
@@ -502,6 +501,7 @@ class CircleRelationGraph extends Graph {
           }
         })
       }
+      var i = 0;
       this._relationSimulation = d3
         .forceSimulation(data)
         .force(
@@ -515,7 +515,8 @@ class CircleRelationGraph extends Graph {
             .id((d) => d.data[0].toLowerCase())
             .strength(0)
         )
-        .on("tick", () => {
+        .on("tick", (e,f,g) => {
+          i++;
           this._rootG
             .selectAll("circle")
             .attr("cx", (d) => d.x)
@@ -612,9 +613,13 @@ class CircleRelationGraph extends Graph {
               });
             }
           });
+          if(i % 50 == 0){
+            this.initZoom();
+          }
         })
         .on("end", () => {
           this._onTickEnd();
+          i = 0;
         })
     }
     this._afterUpdate();
