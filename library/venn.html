@@ -29,30 +29,39 @@
     <script>    
         var _containerId = "#graph-container"
         // draw the initial set
-        var sets = [ {sets: ['A'], size: 24}, 
+        var sets = [ 
+             {sets: ['A'], size: 24}, 
              {sets: ['B'], size: 12},
-             {sets: ['A','B'], size: 2}];
+             {sets: ['C'], size: 8},
+             {sets: ['A','B'], size: 10},
+             {sets: ['B','C'], size: 4},
+             {sets: ['A','B','C'], size: 5},
+             ];
         const data = venn.layout(sets);
+        
         const g = d3
             .select(_containerId)
             .append("svg")
-            .attr("viewBox", [0,0,800,350])
+            .attr("viewBox", [0,0,800,500])
             .selectAll('g')
             .data(data)
             .join((enter) => {
-                const g = enter.append('g');
-                    g.append('title');
+                    const g = enter.append('g');
                     g.append('path');
-                    g.append('text');
+                    g.append('circle');
                 return g;
             });
-        g.select('title').text((d) => d.data.sets.toString());
-        g.select('text')
-            .text((d) => d.data.sets.toString())
-            .attr('x', (d) => d.text.x)
-            .attr('y', (d) => d.text.y);
+        g.select('circle')
+            .attr("fill", "none")
+            .attr("stroke", "black")
+            .attr('r', d => {
+                console.log(d)
+                return d.innerCircle.innerRadius
+            })
+            .attr('cx',(d) => d.innerCircle.x)
+            .attr('cy',(d) => d.innerCircle.y);
         g.select('path')
-            .attr('d', (d) => d.path)
+            .attr('d', (d) => d.distinctPath)
             .style('fill', (d, i) => (d3.schemeCategory10[i]));
     </script>
     

@@ -1943,6 +1943,7 @@
          set.d = pathTween(set);
          set.center = centres[k];
          set.innerRadius = computeDistanceToCircles(set);
+         console.log("SET",set);
          // packingStragegy(set, valueFunction, circles);
        });
 
@@ -1955,6 +1956,7 @@
            k, circle, dist, isInside, isOverlapp,
            candidate = Infinity;
          // if(sets.length ==1)  {
+        console.log("CIRC", circles)
          for (k in circles) {
            circle = circles[k];
            isInside = sets.indexOf(k) > -1;
