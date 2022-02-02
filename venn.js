@@ -2452,16 +2452,54 @@
 
     const circles = scaleSolution(solution, width, height, padding, scaleToFit);
     const textCentres = computeTextCentres(circles, data, symmetricalTextCentre);
+    console.log(textCentres, circles)
     const circleLookup = new Map(Object.keys(circles).map(set => [set, {
       set,
       x: circles[set].x,
       y: circles[set].y,
       radius: circles[set].radius
     }]));
+    function computeDistanceToCircles(set) {
+      var sets = set.sets,
+        center = textCentres[sets.join(",")],
+        // hasOneSet = set.length ==1,
+        k, circle, dist, isInside, isOverlapp,
+        candidate = Infinity;
+        console.log("CIRC",circles);
+      // if(sets.length ==1)  {
+      for (k in circles) {
+        circle = circles[k];
+        isInside = sets.indexOf(k) > -1;
+        isOverlapp = sets.indexOf(k) < -1 && checkOverlapp(sets, circle);
+        dist = distance(center, circle);
+        dist = isInside ? circle.radius - dist : isOverlapp ? dist - circle.radius : dist + circle.radius;
+        if (dist < candidate) {
+          candidate = dist;
+        }
+
+      }
+      textCentres[sets.join(",")]["innerRadius"] = candidate;
+      return candidate;
+    }
+
+    function checkOverlapp(sets, circle) {
+      var i = 0,
+        l = sets.length,
+        c;
+      console.log("CIRC",circles);
+      for (i; i < l; i++) {
+        c = circles[sets[i]];
+        if (distance(c, circle) < c.radius) {
+          return true;
+        }
+      }
+      return false;
+    }
     const helpers = data.map(area => {
       const circles = area.sets.map(s => circleLookup.get(s));
       const arcs = intersectionAreaArcs(circles);
       const path = arcsToPath(arcs, round);
+      computeDistanceToCircles(area);
       return {
         circles,
         arcs,
@@ -2491,7 +2529,7 @@
     }) => {
       return {
         data: area,
-        text: textCentres[area.sets],
+        innerCircle: textCentres[area.sets],
         circles,
         arcs,
         path,
