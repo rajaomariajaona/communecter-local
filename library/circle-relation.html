@@ -41,6 +41,8 @@
         var circleRelationGraph = new CircleRelationGraph([],d => GraphUtils.slugify(d.group), ["Recherche", "ESS", "Finance"], [{source: "a", target: "b"},{source: "ess", target: "finance"}])
         circleRelationGraph.setInitPosition({ess: {
             x: 100, y: 100
+        }, recherche: {
+            x: 100, y: 100
         }})
         circleRelationGraph.draw("#graph-container")
         circleRelationGraph.updateData(circleRelationGraph.preprocessResults((circleData)))

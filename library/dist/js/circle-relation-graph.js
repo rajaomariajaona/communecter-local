@@ -68,6 +68,7 @@ class CircleRelationGraph extends Graph {
 
     this._rootSvg.call(this._zoom.transform, d3.zoomIdentity);
     const bound = this._rootG.node().getBoundingClientRect();
+    console.log(bound);
     this._rootSvg.call(this._zoom.transform, currentZoom);
 
     const containerBound = this._rootSvg.node().getBoundingClientRect();
@@ -86,10 +87,7 @@ class CircleRelationGraph extends Graph {
     const wRatio = currentViewBox.width / containerBound.width;
     const hRatio = currentViewBox.height / containerBound.height;
     let tx = containerBound.width / 2 - (bound.width / 2) * k + Math.abs(containerBound.x - bound.x) * k;
-    let ty =
-      containerBound.height / 2 -
-      (bound.height / 2) * k +
-      Math.abs(containerBound.y - bound.y) * k;
+    let ty = containerBound.height / 2 - (bound.height / 2) * k + Math.abs(containerBound.y - bound.y) * k;
     tx *= wRatio;
     ty *= hRatio;
     this._rootSvg
@@ -330,8 +328,8 @@ class CircleRelationGraph extends Graph {
           .style("overflow", "visible")
           .attr("width", 1000)
           .attr("height", 30)
-          .attr("x", (d) => d.x)
-          .attr("y", (d) => d.y - d.r - this._titleMarginBottom)
+          .attr("x", (d) => Number(d.x))
+          .attr("y", (d) => Number(d.y) - Number(d.r) - Number(this._titleMarginBottom))
           .style("transform-box", "fill-box")
           .style("transform", "translate(-50%, -50%)");
         foreign
@@ -447,10 +445,10 @@ class CircleRelationGraph extends Graph {
           .append("foreignObject")
           .classed("nodes-container", true)
           .style("overflow", "visible")
-          .attr("width", (d) => d.width)
-          .attr("height", (d) => d.height)
-          .attr("x", (d) => d.x)
-          .attr("y", (d) => d.y)
+          .attr("width", (d) => Number(d.width))
+          .attr("height", (d) => Number(d.height))
+          .attr("x", (d) => Number(d.x))
+          .attr("y", (d) => Number(d.y))
           .style("transform-box", "fill-box")
           .style("transform", "translate(-50%, -50%)");
 
@@ -496,8 +494,14 @@ class CircleRelationGraph extends Graph {
       if(this._initPosition){
         this._rootG.selectAll("g.divide").each((d) => {
           if(this._initPosition[d.data[0]]){
-            d.x = this._initPosition[d.data[0]].x
-            d.y = this._initPosition[d.data[0]].y
+            d.x = Number(this._initPosition[d.data[0]].x)
+            if(isNaN(d.x)){
+              d.x = 0;
+            }
+            d.y = Number(this._initPosition[d.data[0]].y)
+            if(isNaN(d.y)){
+              d.y = 0;
+            }
           }
         })
       }
@@ -515,7 +519,7 @@ class CircleRelationGraph extends Graph {
             .id((d) => d.data[0].toLowerCase())
             .strength(0)
         )
-        .on("tick", (e,f,g) => {
+        .on("tick", () => {
           i++;
           this._rootG
             .selectAll("circle")

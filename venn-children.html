@@ -63,7 +63,7 @@
     <div style="clear: both;"></div>
 
 </body>
-<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="d3.v6.min.js"></script>
 <script src="venn.js"></script>
 <script>
     function getSetIntersections() {
@@ -96,7 +96,7 @@
         d3.select("svg").selectAll(".point")
             .attr("cx", d => d.x)
             .attr("cy", d => d.y)
-            .style("fill", d => d.highlight ? "black" : getColour(d.parent.data))
+            .style("fill", "black")
             .style("fill-opacity", d => d.highlight ? 1 : 0.6);
     }
 
@@ -164,11 +164,6 @@
     d3.selectAll("#venn .venn-circle").selectAll("text")
         .style("font-size", "32px")
         .style("font-weight", "100");
-
-    function getColour(d) {
-        return "#" + (d.sets.indexOf("A") >= 0 ? "FF" : "00") + (d.sets.indexOf("B") >= 0 ? "FF" : "00") + (d.sets.indexOf("C") >= 0 ? "FF" : "00");
-    }
-
 
     function update() {
         d3.selectAll("#venn .venn-area")
