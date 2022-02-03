@@ -26,43 +26,11 @@
     <script src="dist/js/graph.js"></script>
     <script src="dist/js/graph-utils.js"></script>
     <script src="dist/js/venn-graph.js"></script>
-    <script>    
-        var _containerId = "#graph-container"
-        // draw the initial set
-        var sets = [ 
-             {sets: ['A'], size: 24}, 
-             {sets: ['B'], size: 12},
-             {sets: ['C'], size: 8},
-             {sets: ['A','B'], size: 10},
-             {sets: ['B','C'], size: 4},
-             {sets: ['A','B','C'], size: 5},
-             ];
-        const data = venn.layout(sets);
-        
-        const g = d3
-            .select(_containerId)
-            .append("svg")
-            .attr("viewBox", [0,0,800,500])
-            .selectAll('g')
-            .data(data)
-            .join((enter) => {
-                    const g = enter.append('g');
-                    g.append('path');
-                    g.append('circle');
-                return g;
-            });
-        g.select('circle')
-            .attr("fill", "none")
-            .attr("stroke", "black")
-            .attr('r', d => {
-                console.log(d)
-                return d.innerCircle.innerRadius
-            })
-            .attr('cx',(d) => d.innerCircle.x)
-            .attr('cy',(d) => d.innerCircle.y);
-        g.select('path')
-            .attr('d', (d) => d.distinctPath)
-            .style('fill', (d, i) => (d3.schemeCategory10[i]));
+    <script>
+        const vennGraph =  new VennGraph([], ["Patrimoine","Environnement","Recherche","Facilitateur","développement","ESS","recherche"]);
+        var res = vennGraph.preprocessResults(circleData);
+        vennGraph.draw("#graph-container")
+        vennGraph.updateData(res);
     </script>
     
 </body>

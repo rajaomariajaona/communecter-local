@@ -2302,6 +2302,8 @@
       ret[area] = centre;
 
       if (centre.disjoint && areas[i].size > 0) {
+        const event = new CustomEvent('area-not-represented', {area});
+        window.dispatchEvent(event);
         console.log('WARNING: area ' + area + ' not represented on screen');
       }
     }
@@ -2452,7 +2454,6 @@
 
     const circles = scaleSolution(solution, width, height, padding, scaleToFit);
     const textCentres = computeTextCentres(circles, data, symmetricalTextCentre);
-    console.log(textCentres, circles)
     const circleLookup = new Map(Object.keys(circles).map(set => [set, {
       set,
       x: circles[set].x,
@@ -2465,7 +2466,6 @@
         // hasOneSet = set.length ==1,
         k, circle, dist, isInside, isOverlapp,
         candidate = Infinity;
-        console.log("CIRC",circles);
       // if(sets.length ==1)  {
       for (k in circles) {
         circle = circles[k];
@@ -2486,7 +2486,6 @@
       var i = 0,
         l = sets.length,
         c;
-      console.log("CIRC",circles);
       for (i; i < l; i++) {
         c = circles[sets[i]];
         if (distance(c, circle) < c.radius) {
