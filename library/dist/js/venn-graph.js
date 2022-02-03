@@ -127,8 +127,8 @@ class VennGraph extends Graph {
                 return g;
             });
         g.select('circle')
-            .attr("fill", "none")
-            .attr("stroke", "black")
+            .style("fill", "#cdc8c848")
+            .style("stroke", "#cdc8c848")
             .attr('r', d => {
                 const r = d.innerCircle.innerRadius;
                 if(r < 0){
@@ -140,7 +140,7 @@ class VennGraph extends Graph {
             .attr('cy',(d) => d.innerCircle.y);
         g.select('path')
             .attr('d', (d) => d.distinctPath)
-            .style('fill', (d, i) => (d3.schemeCategory10[Math.floor(Math.random() * 10)]));
+            .style('fill', this._color);
         this._afterDraw();
     }
     initZoom = () => {
