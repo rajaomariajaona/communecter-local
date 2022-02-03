@@ -127,12 +127,15 @@ class VennGraph extends Graph {
                 return g;
             });
         g.select('circle')
-            .style("fill", "#cdc8c848")
-            .style("stroke", "#cdc8c848")
+            .style("fill", "#cdc8c868")
+            .style("stroke", "#cdc8c868")
             .attr('r', d => {
-                const r = d.innerCircle.innerRadius;
+                let r = d.innerCircle.innerRadius;
                 if(r < 0){
                     return 0
+                }
+                if(r > 30){
+                    r -= 5
                 }
                 return r
             })
