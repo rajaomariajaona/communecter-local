@@ -265,8 +265,17 @@ class VennGraph extends Graph {
             });
         this._rootSvg.selectAll("g.groups")
             .selectAll("g.nodes-group")
-            .each(d => console.log(d))
-            .attr("transform", d => `translate(${d.innerCircle.x}, ${d.innerCircle.y}) scale(0.25)`)
+            .each((d, i, n) => {
+                const bound = n[i].getBoundingClientRect();
+                const max = bound.width > bound.height ? bound.width : bound.height;
+                const k = (d.innerCircle.radius * 2) / max
+                if(!isFinite(k) || k < 0){
+                    d.scale = 1
+                }else{
+                    d.scale = k
+                }
+            })
+            .attr("transform", d => `translate(${d.innerCircle.x}, ${d.innerCircle.y}) scale(${d.scale})`)
         this._afterDraw();
     }
     initZoom = () => {
