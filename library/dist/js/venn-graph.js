@@ -1,6 +1,6 @@
 class VennGraph extends Graph {
     _sets = {}
-
+    _splitRegex = /(?=[A-Z][a-z])|\s+/g;
     constructor(rawData,authorizedTags = []) {
         super();
         if(Array.isArray(rawData) && rawData.length > 0){
@@ -81,9 +81,69 @@ class VennGraph extends Graph {
                 data[k] = {}
                 data[k].data = []
                 data[k].sets = [k]
-                data[k].size = allSets[k] * 2
+                data[k].size = allSets[k]
             }else{
-                data[k].size = allSets[k] * 2
+                data[k].size = allSets[k]
+                for (let i = 0; i < data[k].data.length; i++) {
+                    data[k].data[i]["x"] = Math.random() * 100 - 50;
+                    data[k].data[i]["y"] = Math.random() * 100 - 50;
+                    if (data[k].data[i]["data"].img) {
+                        data[k].data[i]["width"] = 60;
+                        data[k].data[i]["bw"] = data[k].data[i]["width"];
+                        data[k].data[i]["height"] = 60;
+                        data[k].data[i]["bh"] = data[k].data[i]["height"];
+                    } else {
+                        if (!data[k].data[i]["textParts"]) {
+                            const textParts = data[k].data[i]["data"].label.split(
+                                this._splitRegex
+                            );
+                            let maxWLen = -Infinity;
+                            for (const parts of textParts) {
+                                if (maxWLen < parts.length) {
+                                    maxWLen = parts.length;
+                                }
+                            }
+                            maxWLen *= 14;
+                            const len = textParts.length;
+                            data[k].data[i]["textParts"] = textParts;
+                            data[k].data[i]["maxWidthText"] = maxWLen;
+                        }
+                        const container = document.createElement("div");
+                        const div = document.createElement("div");
+                        container.appendChild(div)
+                        div.innerHTML = data[k].data[i]["data"].label;
+                        div.setAttribute("style", `width: ${data[k].data[i]["maxWidthText"]}px; padding: 20px;`)
+                        const {width, height} = GraphUtils.computeBoundVirtualNode(container);
+        
+                        data[k].data[i]["width"] = width;
+                        data[k].data[i]["bw"] = width;
+                        data[k].data[i]["height"] = height;
+                        data[k].data[i]["bh"] = height;
+                    }
+                    if(data[k].data.length <= 2){
+                        data[k].data[i]["x"] = - data[k].data[i]["width"] / 2;
+                        data[k].data[i]["y"] = - data[k].data[i]["height"] / 2;
+                    }
+                }
+                const simulation = d3
+                    .forceSimulation()
+                    .force("center", d3.forceCenter(0, 0))
+                    .force("charge", d3.forceManyBody())
+                    .force(
+                        "collide",
+                        GraphUtils.rectCollide().size((d) => {
+                            return [d.bw, d.bh];
+                        })
+                    )
+                    .nodes(data[k].data)
+                    .stop();
+                const n = Math.ceil(
+                    Math.log(simulation.alphaMin()) /
+                    Math.log(1 - simulation.alphaDecay())
+                );
+                for (var i = 0; i < n; ++i) {
+                    simulation.tick();
+                }
             }
         }
         return Object.values(data);
@@ -116,12 +176,11 @@ class VennGraph extends Graph {
     }
     _update(data) {
         this._beforeDraw();
-        console.log(this._data)
         const g = this._rootG
-            .selectAll('g')
+            .selectAll('g.groups')
             .data(this._data)
             .join((enter) => {
-                    const g = enter.append('g');
+                    const g = enter.append('g').classed("groups", true);
                     g.append('path');
                     g.append('circle');
                 return g;
@@ -130,7 +189,7 @@ class VennGraph extends Graph {
             .style("fill", "#cdc8c868")
             .style("stroke", "#cdc8c868")
             .attr('r', d => {
-                let r = d.innerCircle.innerRadius;
+                let r = d.innerCircle.radius;
                 if(r < 0){
                     return 0
                 }
@@ -144,6 +203,70 @@ class VennGraph extends Graph {
         g.select('path')
             .attr('d', (d) => d.distinctPath)
             .style('fill', this._color);
+        this._rootSvg.selectAll("g.groups")
+            .append("g")
+            .classed("nodes-group", true)
+            .selectAll("g.nodes")
+            .data(
+                (d) => d.data.data,
+                (d) => {
+                    return JSON.stringify(d.data);
+                }
+            )
+            .join(
+                (enter) => {
+                    const leaf_svg_g = enter
+                        .append("g")
+                        .style("cursor", "pointer")
+                        .classed("nodes", true)
+                        // .on("click", this._onClickNode);
+
+                    this._leaves.push(leaf_svg_g);    
+                    const foreign = leaf_svg_g
+                    .append("foreignObject")
+                    .style("overflow", "visible")
+                    .attr("width", (d) => d.width)
+                    .attr("height", (d) => d.height)
+                    .attr("x", (d) => d.x)
+                    .attr("y", (d) => d.y)
+                    .style("transform-box", "fill-box")
+                    .style("transform", "translate(-50%, -50%)")
+                    
+                    foreign.filter((d) => !d.data.img)
+                        .append("xhtml:div")
+                        .style("overflow", "hidden")
+                        .style("text-align", "center")
+                        .style("padding", "10px")
+                        .style("display", "flex")
+                        .style("justify-content", "center")
+                        .style("align-items", "center")
+                        .style("background-color", "transparent")
+                        .style("color", "#455a64")
+                        .style("border", "2px solid rgba(69, 90, 100, 0.5)")
+                        .style("border-radius", "5px")
+                        .text(d => d.data.label)
+                        .on("click", this._onClickNode)
+                        
+                    foreign
+                        .filter((d) => d.data.img)
+                        .append("xhtml:div")
+                        .style("overflow", "hidden")
+                        .style("max-width", "100%")
+                        .style("max-height", "100%")
+                        .style("font-size", "6px")
+                        .append("xhtml:img")
+                        .attr("src", (d) => d.data.img)
+                        .attr("alt", (d) => d.data.label)
+                        .style("width", "100%")
+                        .style("height", "auto")
+
+                    this._leaves.push(foreign);
+
+            });
+        this._rootSvg.selectAll("g.groups")
+            .selectAll("g.nodes-group")
+            .each(d => console.log(d))
+            .attr("transform", d => `translate(${d.innerCircle.x}, ${d.innerCircle.y}) scale(0.25)`)
         this._afterDraw();
     }
     initZoom = () => {

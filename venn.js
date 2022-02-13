@@ -2478,7 +2478,7 @@
         }
 
       }
-      textCentres[sets.join(",")]["innerRadius"] = candidate;
+      textCentres[sets.join(",")]["radius"] = candidate;
       return candidate;
     }
 
