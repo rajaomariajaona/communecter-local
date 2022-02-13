@@ -181,8 +181,9 @@ class VennGraph extends Graph {
             .data(this._data)
             .join((enter) => {
                     const g = enter.append('g').classed("groups", true);
-                    g.append('path');
+                    g.append("path").classed("paths", true);
                     g.append('circle');
+                    g.append("g").classed("nodes-group", true)
                 return g;
             });
         g.select('circle')
@@ -200,19 +201,18 @@ class VennGraph extends Graph {
             })
             .attr('cx',(d) => d.innerCircle.x)
             .attr('cy',(d) => d.innerCircle.y);
-        g.select('path')
+        const paths = g.select('path')
             .attr('d', (d) => d.distinctPath)
             .style('fill', this._color);
-        this._rootSvg.selectAll("g.groups")
-            .append("g")
-            .classed("nodes-group", true)
+        if(!this._colored){
+            this._colored = []
+        }
+        this._colored.push(this._rootG.selectAll("path.paths"))
+        this._rootG.selectAll("g.nodes-group")
             .selectAll("g.nodes")
-            .data(
-                (d) => d.data.data,
-                (d) => {
-                    return JSON.stringify(d.data);
-                }
-            )
+            .data((d) => d.data.data,(d) => {
+                return JSON.stringify(d);
+            })
             .join(
                 (enter) => {
                     const leaf_svg_g = enter
@@ -263,22 +263,32 @@ class VennGraph extends Graph {
                     this._leaves.push(foreign);
 
             });
-        this._rootSvg.selectAll("g.groups")
-            .selectAll("g.nodes-group")
-            .each((d, i, n) => {
-                const bound = n[i].getBoundingClientRect();
-                const max = bound.width > bound.height ? bound.width : bound.height;
-                const k = (d.innerCircle.radius * 2) / max
-                if(!isFinite(k) || k < 0){
-                    d.scale = 1
-                }else{
-                    d.scale = k
-                }
-            })
-            .attr("transform", d => `translate(${d.innerCircle.x}, ${d.innerCircle.y}) scale(${d.scale})`)
+            this._rootG
+                .selectAll("g.nodes-group")
+                .attr("transform", d => `translate(${d.innerCircle.x}, ${d.innerCircle.y}) scale(1)`)
+                .each((d, i, n) => {
+                    const bound = n[i].getBoundingClientRect();
+                    const max = bound.width > bound.height ? bound.width : bound.height;
+                    const k = (d.innerCircle.radius * 2) / max
+                    if(!isFinite(k) || k < 0){
+                        d.scale = 1
+                    }else{
+                        d.scale = k
+                    }
+                    console.log(d.scale);
+                })
+                .attr("transform", d => `translate(${d.innerCircle.x}, ${d.innerCircle.y}) scale(${d.scale})`)
         this._afterDraw();
+        
     }
-    initZoom = () => {
-
+    setColorMap(map){
+        var colorFunction = (d, i, n) => {
+            const key = d.data.sets.join(",")
+            if(Object.keys(map).includes(key)){
+                return map[key]
+            }
+            return this._defaultColor(i);
+        };
+        this.setColor(colorFunction)
     }
 }

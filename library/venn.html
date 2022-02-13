@@ -31,6 +31,13 @@
         var res = vennGraph.preprocessResults(circleData);
         vennGraph.draw("#graph-container")
         vennGraph.updateData(res);
+        vennGraph.setColorMap({
+            "Environnement,Patrimoine" : "red",
+            "Recherche" : "yellow"
+        });
+        setTimeout(() => {
+            vennGraph.updateData(res);
+        },1000)
     </script>
     
 </body>

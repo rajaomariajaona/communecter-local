@@ -131,13 +131,23 @@ class Graph {
     setColor(callback) {
         this._color = callback;
         if (this._isDrawed) {
+            var setColorByType = (current) => {
+                if (current.node() instanceof SVGElement) {
+                    current.attr("fill", (d, i, n) => this._color(d, i, n));
+                    current.style("fill", (d, i, n) => this._color(d, i, n));
+                } else if (current.node() instanceof HTMLElement) {
+                    current.style("background-color", (d, i, n) => this._color(d, i, n));
+                }
+            }
             for (const color of this._colored) {
                 if (color.node()) {
-                    if (color.node() instanceof SVGElement) {
-                        color.attr("fill", (d, i, n) => this._color(d, i, n));
-                    } else if (color.node() instanceof HTMLElement) {
-                        color.style("background-color", (d, i, n) => this._color(d, i, n));
-                    }
+                    setColorByType(color);
+                }else if(color.nodes()){
+                    console.log(color)
+                    color.each(function(d) {
+                        console.log(d3.select(this))
+                        setColorByType(d3.select(this))
+                    })
                 }
             }
         }
