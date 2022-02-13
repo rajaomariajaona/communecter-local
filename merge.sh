@@ -1,3 +1,4 @@
+cp venn.js /home/snowden/dev/communecter/modules/graph/assets/js/venn.js
 cd library/dist/js
 python3 merge.py
 cp all.js /home/snowden/dev/communecter/modules/graph/assets/js/graph.js
