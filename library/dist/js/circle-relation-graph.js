@@ -1,4 +1,4 @@
-class CircleRelationGraph extends Graph {
+class CircleRelationGraph extends SwipableGraph {
   _id = Math.random() * 1000;
   _textColored = [];
   _circlePadding = 30;
@@ -331,7 +331,7 @@ class CircleRelationGraph extends Graph {
           .attr("x", (d) => Number(d.x))
           .attr("y", (d) => Number(d.y) - Number(d.r) - Number(this._titleMarginBottom))
           .style("transform-box", "fill-box")
-          .style("transform", "translate(-50%, -50%)");
+          .style("transform", "translate(-50%, -30%)");
         foreign
           .append("xhtml:div")
           .style("display", "flex")
@@ -343,11 +343,11 @@ class CircleRelationGraph extends Graph {
           .style("padding", "10px")
           
           .style("background-color", "transparent")
-          .style("color", "white")
+          .style("color", (d, i) => this._color(d, i))
           .style("text-transform", "capitalize")
           .style("border-radius", "5px")
-          .style("font-size", "25px")
-          .style("font-size", "25px")
+          .style("font-size", "25pt")
+          .style("font-weight", "bolder")
           .style("max-width", d => d.r + "px")
           .text((d) =>  d.data[0]);
         //  
@@ -407,7 +407,7 @@ class CircleRelationGraph extends Graph {
           .attr("fill", "none")
           .attr("stroke-width", 10)
           .attr("stroke-dasharray", "10 14")
-          .style("stroke", "white");
+          .style("stroke", (d, i) => this._color(d, i));
       });
     this._rootG
       .selectAll("g.links")

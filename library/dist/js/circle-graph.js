@@ -1,4 +1,4 @@
-class CircleGraph extends Graph {
+class CircleGraph extends SwipableGraph {
     _id = Math.random()*1000;
     _textColored = [];
     _circlePadding = 30;
