@@ -48,6 +48,9 @@
         circleRelationGraph.draw("#graph-container")
         circleRelationGraph.updateData(circleRelationGraph.preprocessResults((circleData)))
         circleRelationGraph.initZoom();
+        setTimeout(()=> {
+            circleRelationGraph.setModeMobile(true);
+        }, 600)
         var cont = false
         var last = true;
         function change(l = null) {

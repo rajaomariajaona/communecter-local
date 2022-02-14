@@ -21,6 +21,7 @@ class Graph {
     _resizeObserver = null;
     _timeoutResize = null;
     _canResize = false;
+    _containerId = null;
     tags = [];
     _labelFunc = (d,i,n) => d.data.label;
     _beforeDraw = () => {

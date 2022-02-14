@@ -12,6 +12,7 @@ class CircleRelationGraph extends SwipableGraph {
   _funcGroup = null;
   _externalCircleMargin = 30;
   _links = [];
+  _savedLinks = [];
   _draggable = null;
   _color = () => "white";
   _relationSimulation = null;
@@ -31,6 +32,15 @@ class CircleRelationGraph extends SwipableGraph {
     this._data = this._preprocessData(data);
     this._draggable = draggable;
     this._links = links;
+    this._savedLinks = links;
+  }
+  setModeMobile(value){
+    if(value){
+      this._links = [];
+    }else{
+      this._links = this._savedLinks;
+    }
+    super.setModeMobile(value);
   }
   preprocessResults(results) {
     super.preprocessResults(results);
@@ -539,7 +549,7 @@ class CircleRelationGraph extends SwipableGraph {
           const lines = this._rootG
             .selectAll(".links-line")
           lines.each((data, i, nodes) => {
-
+            console.log(data);
             if(isNaN(Number(data.source.x))){
               d3.select(nodes[i]).remove();
             }else{
