@@ -1,4 +1,4 @@
-class CircleRelationGraph extends SwipableGraph {
+class CircleRelationGraph extends Graph {
   _id = Math.random() * 1000;
   _textColored = [];
   _circlePadding = 30;
@@ -14,6 +14,7 @@ class CircleRelationGraph extends SwipableGraph {
   _links = [];
   _savedLinks = [];
   _draggable = null;
+  _mobileSection = null;
   _color = () => "white";
   _relationSimulation = null;
   _onTickEnd = () => {};
@@ -175,7 +176,6 @@ class CircleRelationGraph extends SwipableGraph {
   }
 
   _dfs(parent) {
-    console.log(parent);
     if (parent.children) {
       if (parent.children[0].children) {
         // not leaf
@@ -302,6 +302,7 @@ class CircleRelationGraph extends SwipableGraph {
 
   draw(containerId) {
     super.draw(containerId);
+    d3.select(containerId).attr("data-graph", "circle-relation")
     this._rootG.attr("id", "circle-root");
     this._zoom = d3.zoom().on("zoom", (e) => {
       this._rootG.attr("transform", e.transform);
@@ -317,6 +318,11 @@ class CircleRelationGraph extends SwipableGraph {
       .attr("flood-opacity", 0.3)
       .attr("dx", 0)
       .attr("dy", 1);
+    this._mobileSection = d3.select(containerId)
+      
+    this._mobileSection.append("xhtml:div")
+      .attr("class", "list-group list-group-root well")
+      .attr("id","mobile-section")
     this._update(this._data);
     this._afterDraw();
     this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.translate(0, 50));
@@ -327,6 +333,45 @@ class CircleRelationGraph extends SwipableGraph {
     this._leaves = [];
     this._colored = [];
     this._textColored = [];
+    this._mobileSection
+      .select("div.list-group.list-group-root.well")
+      .selectAll("a.list-group-item")
+      .data(data, (d) => JSON.stringify(d.data))
+      .join((enter) => {
+        const childrens = enter
+          .append("xhtml:a")
+          .attr("href", d=> "#" + d.data[0] )
+          .attr("class", "list-group-item")
+          .attr("data-toggle", "collapse")
+          .html(d => `<i class="fa fa-chevron-right icon"></i>${d.data[1][0].group}`)
+          .on('click', function() {
+              const icon = d3.select(this)
+                .select("i.icon")
+              const contains = icon.node().classList.contains("fa-chevron-right");
+              if(contains){
+                icon.classed("fa-chevron-down", true)
+                icon.classed("fa-chevron-right", false)
+              }else{
+                icon.classed("fa-chevron-down", false)
+                icon.classed("fa-chevron-right", true)
+              }
+          })
+
+        enter.each(function(d) {
+          d3.select(this)
+            .insert("xhtml:div", `a[href="#${d.data[0]}"] + *`)
+            .attr("class","list-group collapse")
+            .attr("id",d => d.data[0])
+            .selectAll("a.list-group-item")
+            .data(d => d.children)
+            .join(node => {
+              node.append("xhmtl:a")
+                .classed("list-group-item", true)
+                .text(d => d.data.label)
+            })
+        })
+      })
+      
     this._rootG
       .selectAll("g")
       .data(data, (d) => JSON.stringify(d.data) + d.x + d.y + d.r)
@@ -517,7 +562,6 @@ class CircleRelationGraph extends SwipableGraph {
         })
       }
       var i = 0;
-      console.log("BEFORE", data);
       this._relationSimulation = d3
         .forceSimulation(data)
         .force(
@@ -551,7 +595,6 @@ class CircleRelationGraph extends SwipableGraph {
           const lines = this._rootG
             .selectAll(".links-line")
           lines.each((data, i, nodes) => {
-            console.log(data.source.x, data.source.y);
             if(isNaN(Number(data.source.x))){
               d3.select(nodes[i]).remove();
             }else{

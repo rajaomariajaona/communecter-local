@@ -261,7 +261,7 @@ class Graph {
             .style("flex-direction", "column")
             .style("align-items", "center")
             .style("justify-content", "space-around")
-
+            .classed("navigation", true)
         const zoomIn = this._navigationNode
             .append("xhtml:button")
             .style("width", "100%")

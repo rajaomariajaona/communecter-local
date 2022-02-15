@@ -62,3 +62,20 @@
 button.button-delete-badge-parcours:hover{
     display: inline!important;
 }
+[data-graph="circle-relation"] div.list-group.list-group-root.well{
+    display: none;
+}
+[data-graph="circle-relation"] div.navigation{
+    display: flex;
+} 
+[data-graph="circle-relation"] svg{
+    display: initial;
+}
+@media(max-width:767px){
+    [data-graph="circle-relation"] div.list-group.list-group-root.well{
+        display: block;
+    }
+    [data-graph="circle-relation"] div.navigation, [data-graph="circle-relation"] svg{
+        display: none!important;
+    }
+}

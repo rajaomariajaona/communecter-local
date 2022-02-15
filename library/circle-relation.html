@@ -16,6 +16,31 @@
         width: 100vw;
         background-color: #050813!important;
     }
+    
+    .list-group.list-group-root {
+        padding: 0;
+        overflow: hidden;
+    }
+    
+    .list-group.list-group-root .list-group {
+        margin-bottom: 0;
+    }
+    
+    .list-group.list-group-root .list-group-item {
+        border-radius: 0;
+        border-width: 1px 0 0 0;
+    }
+    
+    .list-group.list-group-root > .list-group-item:first-child {
+        border-top-width: 0;
+    }
+    
+    .list-group.list-group-root > .list-group > .list-group-item {
+        padding-left: 30px;
+    }
+    .list-group-item i.icon{
+        padding-right: 7px;
+    }
 </style>
 
 <body>
@@ -25,9 +50,9 @@
     <script src="data/relation-container-data.js"></script>
     <script src="../d3.v6.min.js"></script>
     <script src="../jquery-2.1.1.min.js"></script>
+    <script src="../bootstrap/js/bootstrap.min.js"></script>
     <script src="dist/js/graph-utils.js"></script>
     <script src="dist/js/graph.js"></script>
-    <script src="dist/js/swipable-graph.js"></script>
     <script src="dist/js/circle-relation-graph.js"></script>
     <script>
         function randomizeData(data) {
@@ -48,12 +73,6 @@
         circleRelationGraph.draw("#graph-container")
         circleRelationGraph.updateData(circleRelationGraph.preprocessResults((circleData)))
         circleRelationGraph.initZoom();
-        setTimeout(()=> {
-            circleRelationGraph.setModeMobile(true);
-        }, 600)
-        setTimeout(()=> {
-            circleRelationGraph.setModeMobile(false);
-        }, 700)
         var cont = false
         var last = true;
         function change(l = null) {

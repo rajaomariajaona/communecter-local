@@ -1,4 +1,4 @@
-class CircleGraph extends SwipableGraph {
+class CircleGraph extends Graph {
     _id = Math.random()*1000;
     _textColored = [];
     _circlePadding = 30;
@@ -20,10 +20,10 @@ class CircleGraph extends SwipableGraph {
         this._funcGroup = funcGroup;
         this._data = this._preprocessData(data);
     }
-    setModeMobile(value){
-        super.setModeMobile(value);
-        this.initZoom();
-    }
+    // setModeMobile(value){
+    //     super.setModeMobile(value);
+    //     this.initZoom();
+    // }
     preprocessResults(results){
         super.preprocessResults(results);
         const res = []
