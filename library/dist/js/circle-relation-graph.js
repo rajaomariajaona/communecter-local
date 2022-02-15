@@ -322,6 +322,7 @@ class CircleRelationGraph extends SwipableGraph {
     this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.translate(0, 50));
   }
 
+
   _update(data) {
     this._leaves = [];
     this._colored = [];
@@ -376,7 +377,7 @@ class CircleRelationGraph extends SwipableGraph {
                 this._beforeDrag();
                 if(this._draggable){
                   if (!e.active){
-                    this._relationSimulation.alphaTarget(0.9).restart();
+                    this._restartSimulation()
                   }
                 }
               })
@@ -516,6 +517,7 @@ class CircleRelationGraph extends SwipableGraph {
         })
       }
       var i = 0;
+      console.log("BEFORE", data);
       this._relationSimulation = d3
         .forceSimulation(data)
         .force(
@@ -549,7 +551,7 @@ class CircleRelationGraph extends SwipableGraph {
           const lines = this._rootG
             .selectAll(".links-line")
           lines.each((data, i, nodes) => {
-            console.log(data);
+            console.log(data.source.x, data.source.y);
             if(isNaN(Number(data.source.x))){
               d3.select(nodes[i]).remove();
             }else{
@@ -637,6 +639,9 @@ class CircleRelationGraph extends SwipableGraph {
         })
     }
     this._afterUpdate();
+  }
+  _restartSimulation(){
+    this._relationSimulation.alphaTarget(0.3).restart();
   }
   setColor(callback) {
     super.setColor(callback);
