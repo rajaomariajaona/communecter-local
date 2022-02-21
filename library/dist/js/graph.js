@@ -172,6 +172,8 @@ class Graph {
     draw(containerId) {
         this._containerId = containerId;
         d3.select(containerId)
+            .attr("data-graph", this.constructor.name)
+            .style("overflow", "hidden")
             .selectAll("svg.graph")
             .remove();
         this._rootSvg = d3
@@ -185,6 +187,9 @@ class Graph {
     }
     adaptViewBoxByRatio(ratio = 16/7){
         this._height = GraphUtils.heightByViewportRatio(this._width, ratio);
+        if(this._height < 350){
+            this._height = 350;
+        }
         this._rootSvg
             .attr("viewBox", [0, 0, this._width, this._height]);
     }

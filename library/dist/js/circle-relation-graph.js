@@ -302,7 +302,7 @@ class CircleRelationGraph extends Graph {
 
   draw(containerId) {
     super.draw(containerId);
-    d3.select(containerId).attr("data-graph", "circle-relation")
+    // d3.select(containerId).attr("data-graph", "circle-relation")
     this._rootG.attr("id", "circle-root");
     this._zoom = d3.zoom().on("zoom", (e) => {
       this._rootG.attr("transform", e.transform);

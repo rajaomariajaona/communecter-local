@@ -62,20 +62,52 @@
 button.button-delete-badge-parcours:hover{
     display: inline!important;
 }
-[data-graph="circle-relation"] div.list-group.list-group-root.well{
-    display: none;
+[data-graph="CircleRelationGraph"] div.list-group.list-group-root.well{
+    z-index: -1000!important;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
-[data-graph="circle-relation"] div.navigation{
-    display: flex;
+[data-graph="CircleRelationGraph"] div.navigation{
+    z-index: 20000!important;
 } 
-[data-graph="circle-relation"] svg{
-    display: initial;
+[data-graph="CircleRelationGraph"] svg{
+    z-index: 0;
+}
+    
+.list-group.list-group-root {
+    padding: 0;
+    overflow: hidden;
+}
+
+.list-group.list-group-root .list-group {
+    margin-bottom: 0;
+}
+
+.list-group.list-group-root .list-group-item {
+    border-radius: 0;
+    border-width: 1px 0 0 0;
+}
+
+.list-group.list-group-root > .list-group-item:first-child {
+    border-top-width: 0;
+}
+
+.list-group.list-group-root > .list-group > .list-group-item {
+    padding-left: 30px;
+}
+.list-group-item i.icon{
+    padding-right: 7px;
 }
 @media(max-width:767px){
-    [data-graph="circle-relation"] div.list-group.list-group-root.well{
-        display: block;
+    [data-graph="CircleRelationGraph"] div.list-group.list-group-root.well{
+        z-index: 0;
+        position: initial;
     }
-    [data-graph="circle-relation"] div.navigation, [data-graph="circle-relation"] svg{
-        display: none!important;
+    [data-graph="CircleRelationGraph"] div.navigation, [data-graph="CircleRelationGraph"] svg{
+        z-index: -1000!important;
+        position: absolute;
+        top: 0;
+        left: 0;
     }
 }
