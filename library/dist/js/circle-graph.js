@@ -314,10 +314,10 @@ class CircleGraph extends Graph {
                         "d",
                         (d) =>
                         `M ${d.x} ${d.y + d.r - this._padding} A 1 1 0 1 1 ${d.x} ${
-                d.y - d.r + this._padding
-              } M ${d.x} ${d.y - d.r + this._padding} A 1 1 0 1 1 ${d.x} ${
-                d.y + d.r - this._padding
-              } `
+                            d.y - d.r + this._padding
+                        } M ${d.x} ${d.y - d.r + this._padding} A 1 1 0 1 1 ${d.x} ${
+                            d.y + d.r - this._padding
+                        } `
                     );
                 const text = parent_g
                     .append("text")

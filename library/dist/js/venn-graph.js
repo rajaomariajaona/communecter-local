@@ -4,6 +4,7 @@ class VennGraph extends Graph {
     _maxCanDraw = 10;
     _canDraw = true;
     _splitRegex = /(?=[A-Z][a-z])|\s+/g;
+    _padding = -10;
     constructor(rawData,authorizedTags = []) {
         super();
         if(Array.isArray(rawData) && rawData.length > 0){
@@ -174,6 +175,7 @@ class VennGraph extends Graph {
         this._rootG.append("g").attr("id", "venn-group");
         this._zoom = d3.zoom().on("zoom", (e) => {
             this._rootG.attr("transform", e.transform);
+            this._correctTextParentSize();
             this._onZoom(e);
         });
         this._rootSvg.call(this._zoom);
@@ -200,10 +202,42 @@ class VennGraph extends Graph {
             .selectAll('g.groups')
             .data(this._data)
             .join((enter) => {
-                    const g = enter.append('g').classed("groups", true);
+                    const g = enter.filter(d => d.distinctPath.length > 6).append('g').classed("groups", true)
                     g.append("path").classed("paths", true);
                     g.append('circle');
                     g.append("g").classed("nodes-group", true)
+                    const main_group = g.filter(d => d.circles.length == 1)
+                    main_group
+                        .append("path")
+                        .attr("stroke", "none")
+                        .attr("fill", "none")
+                        .attr("id", (d) => `path-${GraphUtils.slugify(d.circles[0].set)}-${this._id}`)
+                        .each(d => console.log(d))
+                        .attr(
+                            "d",
+                            (d) =>
+                            `M ${d.circles[0].x} ${d.circles[0].y + d.circles[0].radius - this._padding} A 1 1 0 1 1 ${d.circles[0].x} ${
+                                d.circles[0].y - d.circles[0].radius + this._padding
+                            } M ${d.circles[0].x} ${d.circles[0].y - d.circles[0].radius + this._padding} A 1 1 0 1 1 ${d.circles[0].x} ${
+                                d.circles[0].y + d.circles[0].radius - this._padding
+                            } `
+                        );
+                    const text = main_group
+                        .append("text")
+                        .append("textPath")
+                        .style("font-size", "30px")
+                        .classed("svg-text", true)
+                        .classed("parent-text", true)
+                        .attr(
+                            "xlink:href",
+                            (d) => `#path-${GraphUtils.slugify(d.circles[0].set)}-${this._id}`
+                        )
+                        .text((d) => d.circles[0].set)
+                        .attr("fill", (d, i) =>
+                            GraphUtils.colorLuminance(this._color(d, i), -0.2)
+                        )
+                        .attr("text-anchor", "middle")
+                        .attr("startOffset", "50%");
                 return g;
             });
         g.select('circle')
@@ -298,6 +332,7 @@ class VennGraph extends Graph {
                     console.log(d.scale);
                 })
                 .attr("transform", d => `translate(${d.innerCircle.x}, ${d.innerCircle.y}) scale(${d.scale})`)
+        this._correctTextParentSize();
         this._afterDraw();
         
     }
@@ -310,5 +345,19 @@ class VennGraph extends Graph {
             return this._defaultColor(i);
         };
         this.setColor(colorFunction)
+    }
+    _correctTextParentSize() {
+        const svg = this._rootG;
+        const [x, y, w, h] = this._rootSvg.attr("viewBox").split(",");
+        const dimension = svg.node().getBoundingClientRect();
+        let k = Math.max(w, h) / Math.max(dimension.width, dimension.height);
+        if (k > 2.5) {
+            k = 2.5;
+        }
+        if(k < 1){
+            k = 1;
+        }
+        const parentTexts = this._rootSvg.selectAll("textPath.parent-text");
+        parentTexts.style("font-size", `${20 * k}px`);
     }
 }
