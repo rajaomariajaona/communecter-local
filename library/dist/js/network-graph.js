@@ -13,7 +13,7 @@ class NetworkGraph extends Graph {
     _groupIcons = () => {
         return this._defaultIcon;
     }
-
+    _first = true;
     setGroupIcon(callback){
         this._groupIcons = callback;
         if(this._groupNode){
@@ -169,7 +169,13 @@ class NetworkGraph extends Graph {
                     }
                     return 50;
                 })
-                ).stop();
+            ).on("end", () => {
+                if(this._first){
+                    this._first = false;
+                    this.initZoom();
+                }
+            })
+            .stop();
             }
         return res;
     }

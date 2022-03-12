@@ -99,6 +99,11 @@ button.button-delete-badge-parcours:hover{
 .list-group-item i.icon{
     padding-right: 7px;
 }
+.list-group-item > img{
+    max-height: 30px;
+    width: auto;
+    margin-right: 10px;
+}
 @media(max-width:767px){
     [data-graph="CircleRelationGraph"] div.list-group.list-group-root.well{
         z-index: 0;
