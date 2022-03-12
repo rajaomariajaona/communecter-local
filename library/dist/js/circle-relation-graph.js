@@ -11,6 +11,7 @@ class CircleRelationGraph extends Graph {
   _size = null;
   _funcGroup = null;
   _externalCircleMargin = 30;
+  _textPathPadding = this._externalCircleMargin - 50;
   _links = [];
   _savedLinks = [];
   _draggable = null;
@@ -21,6 +22,12 @@ class CircleRelationGraph extends Graph {
   _onDragEnd = () => {};
   _beforeDrag = () => {};
   _initPosition = null;
+  _pathGenerator = (d) =>
+  `M ${d.x} ${d.y + d.r - this._textPathPadding} A 1 1 0 1 1 ${d.x} ${
+      d.y - d.r + this._textPathPadding
+  } M ${d.x} ${d.y - d.r + this._textPathPadding} A 1 1 0 1 1 ${d.x} ${
+      d.y + d.r - this._textPathPadding
+  } `;
   /**
    *
    * @param {*} data array of obj {img?: url, text?: string, id: string | number}
@@ -383,35 +390,6 @@ class CircleRelationGraph extends Graph {
       .join((enter) => {
         const parent_g = enter.append("g");
         parent_g.classed("divide", true);
-        const foreign = parent_g
-          .append("foreignObject")
-          .classed("parent-title", true)
-          .style("overflow", "visible")
-          .attr("width", 1000)
-          .attr("height", 30)
-          .attr("x", (d) => Number(d.x))
-          .attr("y", (d) => Number(d.y) - Number(d.r) - Number(this._titleMarginBottom))
-          .style("transform-box", "fill-box")
-          .style("transform", "translate(-50%, -30%)");
-        foreign
-          .append("xhtml:div")
-          .style("display", "flex")
-          .style("justify-content", "center")
-          .style("align-items", "center")
-          .append("xhtml:div")
-          .style("overflow", "visible")
-          .style("text-align", "center")
-          .style("padding", "10px")
-          
-          .style("background-color", "transparent")
-          .style("color", (d, i) => this._color(d, i))
-          .style("text-transform", "capitalize")
-          .style("border-radius", "5px")
-          .style("font-size", "25pt")
-          .style("font-weight", "bolder")
-          .style("max-width", d => d.r + "px")
-          .text((d) =>  d.data[0]);
-        //  
         const circle_parent = parent_g
           .append("circle")
           .attr("cx", (d) => d.x)
@@ -469,6 +447,27 @@ class CircleRelationGraph extends Graph {
           .attr("stroke-width", 10)
           .attr("stroke-dasharray", "10 14")
           .style("stroke", (d, i) => this._color(d, i));
+        parent_g
+          .append("path")
+          .classed("text-path", true)
+          .attr("stroke", "none")
+          .attr("fill", "none")
+          .attr("id", (d) => `path-${GraphUtils.slugify(d["data"][0])}-${this._id}`)
+          .attr("d",this._pathGenerator);
+        const text = parent_g
+          .append("text")
+          .append("textPath")
+          .style("font-size", "30px")
+          .classed("svg-text", true)
+          .classed("parent-text", true)
+          .attr(
+              "xlink:href",
+              (d) => `#path-${GraphUtils.slugify(d["data"][0])}-${this._id}`
+          )
+          .text((d) => d.children[0].data.group)
+          .attr("fill", this._color)
+          .attr("text-anchor", "middle")
+          .attr("startOffset", "50%");
       });
     this._rootG
       .selectAll("g.links")
@@ -587,9 +586,8 @@ class CircleRelationGraph extends Graph {
             .attr("cx", (d) => d.x)
             .attr("cy", (d) => d.y);
           this._rootG
-            .selectAll("foreignObject.parent-title")
-            .attr("x", (d) => d.x)
-            .attr("y", (d) => d.y - d.r - this._titleMarginBottom);
+            .selectAll("path.text-path")
+            .attr("d",this._pathGenerator);
           this._rootG
             .selectAll("g.leaf-svg")
             .attr(
