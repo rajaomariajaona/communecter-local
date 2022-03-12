@@ -1,7 +1,7 @@
 class VennGraph extends Graph {
     _sets = {}
-    _minLeaf = 5;
-    _maxCanDraw = 10;
+    _minLeaf = 3;
+    _maxCanDraw = 6;
     _canDraw = true;
     _splitRegex = /(?=[A-Z][a-z])|\s+/g;
     _padding = -10;
@@ -81,38 +81,62 @@ class VennGraph extends Graph {
             existingMix.add(mix);
         }
         let cleanedAllSets = {}
-        let setCounter = 0;
-        for(const [k,v] of Object.entries(allSets)) {
-            if(v >= this._minLeaf){
-                cleanedAllSets[k] = v;
-                if(k.split(",").length == 1){
-                    setCounter++;
+        if(!this.authorizedTags){
+            let setCounter = 0;
+            for(const [k,v] of Object.entries(allSets)) {
+                if(v >= this._minLeaf){
+                    if(k.split(",").length == 1){
+                        cleanedAllSets[k] = v;
+                        setCounter++;
+                    }
+                }
+            }
+            function check(items, sets) {
+                if(items.length > sets.length){
+                    return false;
+                }else{
+                    for (const item of items) {
+                        if(!sets.includes(item)){
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+            const sets = Object.keys(cleanedAllSets);
+            //SETS misy anle atome
+            for(const [k,v] of Object.entries(data)){
+                const items = k.split(",");
+                if(items.length > 1){
+                    if(check(items, sets)){
+                        console.log("HERE")
+                        cleanedAllSets[k] = allSets[k];
+                    }
                 }
             }
         }
-        if(setCounter > this._maxCanDraw){
-            this._canDraw = false;
-        }
+        const result = {};
         if(this._canDraw){
-            for (const [k,v] of Object.entries(allSets)) {
+            for (const [k,v] of Object.entries(cleanedAllSets)) {
                 if(!Object.keys(data).includes(k)){
-                    data[k] = {}
-                    data[k].data = []
-                    data[k].sets = [k]
-                    data[k].size = allSets[k]
+                    result[k] = {}
+                    result[k].data = []
+                    result[k].sets = [k]
+                    result[k].size = cleanedAllSets[k]
                 }else{
-                    data[k].size = allSets[k]
-                    for (let i = 0; i < data[k].data.length; i++) {
-                        data[k].data[i]["x"] = Math.random() * 100 - 50;
-                        data[k].data[i]["y"] = Math.random() * 100 - 50;
-                        if (data[k].data[i]["data"].img) {
-                            data[k].data[i]["width"] = 60;
-                            data[k].data[i]["bw"] = data[k].data[i]["width"];
-                            data[k].data[i]["height"] = 60;
-                            data[k].data[i]["bh"] = data[k].data[i]["height"];
+                    result[k] = data[k];
+                    result[k].size = cleanedAllSets[k]
+                    for (let i = 0; i < result[k].data.length; i++) {
+                        result[k].data[i]["x"] = Math.random() * 100 - 50;
+                        result[k].data[i]["y"] = Math.random() * 100 - 50;
+                        if (result[k].data[i]["data"].img) {
+                            result[k].data[i]["width"] = 60;
+                            result[k].data[i]["bw"] = result[k].data[i]["width"];
+                            result[k].data[i]["height"] = 60;
+                            result[k].data[i]["bh"] = result[k].data[i]["height"];
                         } else {
-                            if (!data[k].data[i]["textParts"]) {
-                                const textParts = data[k].data[i]["data"].label.split(
+                            if (!result[k].data[i]["textParts"]) {
+                                const textParts = result[k].data[i]["data"].label.split(
                                     this._splitRegex
                                     );
                                     let maxWLen = -Infinity;
@@ -123,24 +147,24 @@ class VennGraph extends Graph {
                                 }
                                 maxWLen *= 14;
                                 const len = textParts.length;
-                                data[k].data[i]["textParts"] = textParts;
-                                data[k].data[i]["maxWidthText"] = maxWLen;
+                                result[k].data[i]["textParts"] = textParts;
+                                result[k].data[i]["maxWidthText"] = maxWLen;
                             }
                             const container = document.createElement("div");
                             const div = document.createElement("div");
                             container.appendChild(div)
-                            div.innerHTML = data[k].data[i]["data"].label;
-                            div.setAttribute("style", `width: ${data[k].data[i]["maxWidthText"]}px; padding: 20px;`)
+                            div.innerHTML = result[k].data[i]["data"].label;
+                            div.setAttribute("style", `width: ${result[k].data[i]["maxWidthText"]}px; padding: 20px;`)
                             const {width, height} = GraphUtils.computeBoundVirtualNode(container);
                             
-                            data[k].data[i]["width"] = width;
-                            data[k].data[i]["bw"] = width;
-                            data[k].data[i]["height"] = height;
-                            data[k].data[i]["bh"] = height;
+                            result[k].data[i]["width"] = width;
+                            result[k].data[i]["bw"] = width;
+                            result[k].data[i]["height"] = height;
+                            result[k].data[i]["bh"] = height;
                         }
-                        if(data[k].data.length <= 2){
-                            data[k].data[i]["x"] = - data[k].data[i]["width"] / 2;
-                            data[k].data[i]["y"] = - data[k].data[i]["height"] / 2;
+                        if(result[k].data.length <= 2){
+                            result[k].data[i]["x"] = - result[k].data[i]["width"] / 2;
+                            result[k].data[i]["y"] = - result[k].data[i]["height"] / 2;
                         }
                     }
                     const simulation = d3
@@ -153,7 +177,7 @@ class VennGraph extends Graph {
                             return [d.bw, d.bh];
                         })
                         )
-                        .nodes(data[k].data)
+                        .nodes(result[k].data)
                         .stop();
                         const n = Math.ceil(
                             Math.log(simulation.alphaMin()) /
@@ -167,7 +191,8 @@ class VennGraph extends Graph {
         }else{
             throw "CANNOT DRAW TOO MUCH DATA"
         }
-        return Object.values(data);
+        console.log("RES", result);
+        return Object.values(result);
     }
 
     draw(containerId) {
@@ -358,6 +383,6 @@ class VennGraph extends Graph {
             k = 1;
         }
         const parentTexts = this._rootSvg.selectAll("textPath.parent-text");
-        parentTexts.style("font-size", `${20 * k}px`);
+        parentTexts.style("font-size", `${12 * k}px`);
     }
 }

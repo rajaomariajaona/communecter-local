@@ -27,7 +27,7 @@
     <script src="dist/js/graph-utils.js"></script>
     <script src="dist/js/venn-graph.js"></script>
     <script>
-        const vennGraph =  new VennGraph([], ["Patrimoine","Environnement","recherche","Facilitateur","développement","ESS"]);
+        const vennGraph =  new VennGraph([], []);
         var res = vennGraph.preprocessResults(circleData);
         vennGraph.draw("#graph-container")
         vennGraph.updateData(res);
