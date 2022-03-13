@@ -175,20 +175,18 @@ class VennSquareGraph extends Graph {
             angle = Math.round(Math.round(angle * 180 / Math.PI) / 10) * 10;
             if(this._nodesByGroupByAngle[link.target.data.id][angle]){
                 const currentAngle = this._nodesByGroupByAngle[link.target.data.id][angle];
-                if(Math.abs(dx) > Math.abs(currentAngle.dx) || Math.abs(dy) > Math.abs(currentAngle.dy)){
+                if(hyp >= currentAngle.d){
                     this._nodesByGroupByAngle[link.target.data.id][angle] = {
                         x: link.source.x,
                         y: link.source.y,
-                        dx: dx,
-                        dy: dy,
+                        d: hyp
                     }
                 }
             }else{
                 this._nodesByGroupByAngle[link.target.data.id][angle] = {
                     x: link.source.x,
                     y: link.source.y,
-                    dx: dx,
-                    dy: dy,
+                    d: hyp
                 }
             }
         }
@@ -364,8 +362,8 @@ class VennSquareGraph extends Graph {
                 let pathD = '';
                 console.log("======")
                 for (const key of keys) {
+                    console.log(key);
                     const tr = groupAngle[key]; 
-                    console.log(key, tr.dx, tr.dy)
                     if(!first){
                         pathD += `M ${tr.x} ${tr.y}`;
                         first = tr;
@@ -378,7 +376,7 @@ class VennSquareGraph extends Graph {
                     .classed("big-path", true)
                     .attr("d", pathD)
                     .style("stroke", "red")
-                    .style("fill", "none");
+                    .style("fill", "#ff00003f");
                     
             }
             // this._rootG
