@@ -126,9 +126,6 @@ class VennSquareGraph extends Graph {
                 .forceLink(links)
                 .id((d) => d.data.id)
                 .distance(d => {
-                    if(d.source.data.groups.length > 1){
-                        return 500;
-                    }
                     return 20;
                 })
                 .strength(1)
@@ -162,10 +159,23 @@ class VennSquareGraph extends Graph {
             //CALCUL ANGLE and store
             const dx = link.target.x - link.source.x;
             const dy = link.target.y - link.source.y;
-            const angle = Math.round(Math.atan(dy/dx) * 18 / Math.PI) * 10;
+            const hyp = GraphUtils.eucludianDistance(link.target.x, link.target.y, link.source.x, link.source.y)
+            const cos = Math.acos(dx/hyp);
+            const sin = Math.asin(dy/hyp);
+            let angle = sin;
+            if(dy > 0 && dx > 0){
+                angle = sin;
+            }else if(dy > 0 && dx < 0){
+                angle = cos;
+            }else if(dx < 0 && dy < 0){
+                angle = -cos;
+            }else if(dx < 0){
+                angle = cos;
+            }
+            angle = Math.round(Math.round(angle * 180 / Math.PI) / 10) * 10;
             if(this._nodesByGroupByAngle[link.target.data.id][angle]){
                 const currentAngle = this._nodesByGroupByAngle[link.target.data.id][angle];
-                if(Math.abs(dx) > Math.abs(dx) || Math.abs(dy) > Math.abs(dy)){
+                if(Math.abs(dx) > Math.abs(currentAngle.dx) || Math.abs(dy) > Math.abs(currentAngle.dy)){
                     this._nodesByGroupByAngle[link.target.data.id][angle] = {
                         x: link.source.x,
                         y: link.source.y,
@@ -191,10 +201,6 @@ class VennSquareGraph extends Graph {
 
     draw(containerId) {
         super.draw(containerId);
-        this._rootG.append("path")
-            .classed("big-path", true)
-            .style("stroke", "red")
-            .style("fill", "yellow");
         this._update();
         this._afterDraw()
     }
@@ -324,13 +330,13 @@ class VennSquareGraph extends Graph {
                 .style("justify-content", "center")
                 .style("align-items", "center")
                 div
-                    .filter((d) => d.data.img)
+                    .filter((d) => /**d.data.img */ false)
                     .append("xhtml:img")
                     .attr("src", (d) => d.data.img)
                     .style("width", "100%")
                     .style("height", "auto")
                 const texts = div
-                    .filter((d) => !d.data.img)
+                    // .filter((d) => !d.data.img)
 
                 texts.append("xhtml:span")
                     .style("text-align", "center")
@@ -349,31 +355,48 @@ class VennSquareGraph extends Graph {
             const wRatio = currentViewBox.width / containerBound.width;
             const hRatio = currentViewBox.height / containerBound.height;
             //construct big path d
-            let pathD = '';
-            for (const groupAngle of this._nodesByGroupByAngle) {
-                const keys = Object.keys(groupAngle).map(d => Number(d)).sort();
+            this._rootG.selectAll("path.big-path")
+                .remove()
+            
+            for (const groupAngle of Object.values(this._nodesByGroupByAngle)) {
+                const keys = Object.keys(groupAngle).map(d => Number(d)).sort((a,b) =>a -b)
+                let first = false;
+                let pathD = '';
+                console.log("======")
                 for (const key of keys) {
-                    
-                }
-            }
-            this._rootG
-                .selectAll("g.leaf")
-                .each((d, i, node) => {
-                    console.log(node[i].getBoundingClientRect());
-                    const bound = node[i].getBoundingClientRect();
-                    const tl = {x: bound.x * wRatio, y: bound.y * hRatio};
-                    const tr = {x: (bound.x + bound.width) * wRatio, y: bound.y * hRatio};
-                    const bl = {x: bound.x * wRatio, y: (bound.y + bound.height) * hRatio};
-                    const br = {x: (bound.x + bound.width) * wRatio, y: (bound.y + bound.height) * hRatio};
-
-                    if(i == 0){
-                        pathD += `M ${tl.x} ${tl.y} L ${tr.x} ${tr.y} L ${br.x} ${br.y} L ${bl.x} ${bl.y}`;
+                    const tr = groupAngle[key]; 
+                    console.log(key, tr.dx, tr.dy)
+                    if(!first){
+                        pathD += `M ${tr.x} ${tr.y}`;
+                        first = tr;
                     }else{
-                        pathD += `L ${tl.x} ${tl.y} L ${tr.x} ${tr.y} L ${br.x} ${br.y} L ${bl.x} ${bl.y}`;
+                        pathD += ` L ${tr.x} ${tr.y}`;
                     }
-                })
-            this._rootG.select("path.big-path")
-                .attr("d", pathD);
+                }
+                pathD += ` L ${first.x} ${first.y}`;
+                this._rootG.append("path")
+                    .classed("big-path", true)
+                    .attr("d", pathD)
+                    .style("stroke", "red")
+                    .style("fill", "none");
+                    
+            }
+            // this._rootG
+            //     .selectAll("g.leaf")
+            //     .each((d, i, node) => {
+            //         console.log(node[i].getBoundingClientRect());
+            //         const bound = node[i].getBoundingClientRect();
+            //         const tl = {x: bound.x * wRatio, y: bound.y * hRatio};
+            //         const tr = {x: (bound.x + bound.width) * wRatio, y: bound.y * hRatio};
+            //         const bl = {x: bound.x * wRatio, y: (bound.y + bound.height) * hRatio};
+            //         const br = {x: (bound.x + bound.width) * wRatio, y: (bound.y + bound.height) * hRatio};
+
+            //         if(i == 0){
+            //             pathD += `M ${tl.x} ${tl.y} L ${tr.x} ${tr.y} L ${br.x} ${br.y} L ${bl.x} ${bl.y}`;
+            //         }else{
+            //             pathD += `L ${tl.x} ${tl.y} L ${tr.x} ${tr.y} L ${br.x} ${br.y} L ${bl.x} ${bl.y}`;
+            //         }
+            //     })
             this._afterDraw();
     }
 
