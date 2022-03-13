@@ -12,6 +12,7 @@ class VennSquareGraph extends Graph {
     _coloredGroup = [];
     _minX = 0;
     _minY = 0;
+    _nodesByGroupByAngle = {}
     _onClickGroup = () => {};
     _colorGroup = (d, i, n) => {
         return this._defaultColorGroup(i);
@@ -124,7 +125,12 @@ class VennSquareGraph extends Graph {
                 d3
                 .forceLink(links)
                 .id((d) => d.data.id)
-                .distance(200)
+                .distance(d => {
+                    if(d.source.data.groups.length > 1){
+                        return 500;
+                    }
+                    return 20;
+                })
                 .strength(1)
             )
             // .force("center", d3.forceCenter().x(width * .5).y(height * .5))
@@ -149,6 +155,33 @@ class VennSquareGraph extends Graph {
         for (var i = 0; i < n; ++i) {
             simulation.tick();
         }
+        for (const link of links) {
+            if(!this._nodesByGroupByAngle[link.target.data.id]){
+                this._nodesByGroupByAngle[link.target.data.id] = {}
+            }
+            //CALCUL ANGLE and store
+            const dx = link.target.x - link.source.x;
+            const dy = link.target.y - link.source.y;
+            const angle = Math.round(Math.atan(dy/dx) * 18 / Math.PI) * 10;
+            if(this._nodesByGroupByAngle[link.target.data.id][angle]){
+                const currentAngle = this._nodesByGroupByAngle[link.target.data.id][angle];
+                if(Math.abs(dx) > Math.abs(dx) || Math.abs(dy) > Math.abs(dy)){
+                    this._nodesByGroupByAngle[link.target.data.id][angle] = {
+                        x: link.source.x,
+                        y: link.source.y,
+                        dx: dx,
+                        dy: dy,
+                    }
+                }
+            }else{
+                this._nodesByGroupByAngle[link.target.data.id][angle] = {
+                    x: link.source.x,
+                    y: link.source.y,
+                    dx: dx,
+                    dy: dy,
+                }
+            }
+        }
         return {
             data,
             links,
@@ -158,6 +191,10 @@ class VennSquareGraph extends Graph {
 
     draw(containerId) {
         super.draw(containerId);
+        this._rootG.append("path")
+            .classed("big-path", true)
+            .style("stroke", "red")
+            .style("fill", "yellow");
         this._update();
         this._afterDraw()
     }
@@ -305,6 +342,38 @@ class VennSquareGraph extends Graph {
                 nodeSvg.attr("transform", (d) => `translate(${d.x}, ${d.y})`);
                 this._addMouseEvent(this._leaves, this._groupsNode);
             });
+            const containerBound = this._rootSvg.node().getBoundingClientRect();
+            const currentViewBox = this._rootSvg.node().viewBox.baseVal;
+            
+            //ADAPT TRANSFORMATION INTO VIEWBOX SCOPE
+            const wRatio = currentViewBox.width / containerBound.width;
+            const hRatio = currentViewBox.height / containerBound.height;
+            //construct big path d
+            let pathD = '';
+            for (const groupAngle of this._nodesByGroupByAngle) {
+                const keys = Object.keys(groupAngle).map(d => Number(d)).sort();
+                for (const key of keys) {
+                    
+                }
+            }
+            this._rootG
+                .selectAll("g.leaf")
+                .each((d, i, node) => {
+                    console.log(node[i].getBoundingClientRect());
+                    const bound = node[i].getBoundingClientRect();
+                    const tl = {x: bound.x * wRatio, y: bound.y * hRatio};
+                    const tr = {x: (bound.x + bound.width) * wRatio, y: bound.y * hRatio};
+                    const bl = {x: bound.x * wRatio, y: (bound.y + bound.height) * hRatio};
+                    const br = {x: (bound.x + bound.width) * wRatio, y: (bound.y + bound.height) * hRatio};
+
+                    if(i == 0){
+                        pathD += `M ${tl.x} ${tl.y} L ${tr.x} ${tr.y} L ${br.x} ${br.y} L ${bl.x} ${bl.y}`;
+                    }else{
+                        pathD += `L ${tl.x} ${tl.y} L ${tr.x} ${tr.y} L ${br.x} ${br.y} L ${bl.x} ${bl.y}`;
+                    }
+                })
+            this._rootG.select("path.big-path")
+                .attr("d", pathD);
             this._afterDraw();
     }
 
