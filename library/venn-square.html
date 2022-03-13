@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="dist/css/graph.css">
+    <link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css">
+    <title>RELATION</title>
+
+</head>
+
+<body>
+        <div id="graph-container">
+
+        </div>
+    <script src="data/relation-data.js"></script>
+    <script src="data/circle-data.js"></script>
+    <script src="../d3.v6.min.js"></script>
+    <script src="../md5.js"></script>
+    <script src="../jquery-2.1.1.min.js"></script>
+    <script src="dist/js/graph.js"></script>
+    <script src="dist/js/graph-utils.js"></script>
+    <script src="dist/js/venn-square-graph.js"></script>
+    <script>
+        function randomizeData(data) {
+            const rawLen = data.length;
+            let len = Math.floor(rawLen / 2);
+            let resSet = new Set();
+            for (let i = 0; i < len; i++) {
+                resSet.add(data[Math.floor(Math.random() * rawLen)])
+            }
+            return Array.from(resSet)
+        }
+
+        var last = randomizeData(relationData);
+        var vennSquareGraph = new VennSquareGraph([], ["Formation"])
+        vennSquareGraph.draw("#graph-container")
+        vennSquareGraph.updateData(vennSquareGraph.preprocessResults(circleData))
+        var cont = false
+
+        function change(l = null) {
+            if (!l) {
+                last = randomizeData(relationData)
+                vennSquareGraph.updateData(last);
+            } else {
+                vennSquareGraph.updateData(l);
+            }
+            console.log("CHANGED")
+            if (cont)
+                setTimeout(change, 2000)
+        }
+        change()
+        //setTimeout(change, 2000)
+    </script>
+</body>
+
+</html>

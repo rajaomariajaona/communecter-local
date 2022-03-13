@@ -28,6 +28,7 @@ class CircleRelationGraph extends Graph {
   } M ${d.x} ${d.y - d.r + this._textPathPadding} A 1 1 0 1 1 ${d.x} ${
       d.y + d.r - this._textPathPadding
   } `;
+  _onClickNodeMobile = console.log
   /**
    *
    * @param {*} data array of obj {img?: url, text?: string, id: string | number}
@@ -347,7 +348,7 @@ class CircleRelationGraph extends Graph {
       .join((enter) => {
         const childrens = enter
           .append("xhtml:a")
-          .attr("href", d=> "#" + d.data[0] )
+          .attr("href", d=> "#" + GraphUtils.slugify(d.data[0]) )
           .attr("class", "list-group-item")
           .attr("data-toggle", "collapse")
           .html(d => `<i class="fa fa-chevron-right icon"></i>${d.data[1][0].group}`)
@@ -364,16 +365,19 @@ class CircleRelationGraph extends Graph {
               }
           })
 
-        enter.each(function(d) {
-          d3.select(this)
-            .insert("xhtml:div", `a[href="#${d.data[0]}"] + *`)
+        enter.each((d, i, n) => {
+          d3.select(n[i])
+            .insert("xhtml:div", `a[href="#${GraphUtils.slugify(d.data[0])}"] + *`)
             .attr("class","list-group collapse")
-            .attr("id",d => d.data[0])
+            .attr("id",d => GraphUtils.slugify(d.data[0]))
             .selectAll("a.list-group-item")
             .data(d => d.children)
             .join(node => {
               const a = node.append("xhmtl:a")
                 .classed("list-group-item", true)
+                .classed("lbh-preview-element", true)
+                .attr("href", d=>`#page.type.organizations.id.${d.data.id}`)
+                // .on('click', this._onClickNodeMobile)
               a.filter(d => d.data.img)
                 .append("xhtml:img")
                 .attr("src", (d) => d.data.img)
@@ -711,5 +715,8 @@ class CircleRelationGraph extends Graph {
   }
   setInitPosition(value){
     this._initPosition = value;
+  }
+  setOnClickNodeChildren(callback){
+    this._onClickNodeMobile = callback;
   }
 }
