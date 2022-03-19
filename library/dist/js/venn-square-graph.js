@@ -13,6 +13,7 @@ class VennSquareGraph extends Graph {
     _minX = 0;
     _minY = 0;
     _nodesByGroupByAngle = {}
+    simulation = null;
     _onClickGroup = () => {};
     _colorGroup = (d, i, n) => {
         return this._defaultColorGroup(i);
@@ -118,7 +119,7 @@ class VennSquareGraph extends Graph {
             d.x = Math.random() * 100;
             d.y = Math.random() * 100;
         }
-        var simulation = d3
+        this.simulation = d3
             .forceSimulation(data)
             .force(
                 "link",
@@ -147,14 +148,36 @@ class VennSquareGraph extends Graph {
             .force("y", d3.forceY())
             .stop();
         const n = Math.ceil(
-            Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())
+            Math.log(this.simulation.alphaMin()) / Math.log(1 - this.simulation.alphaDecay())
         );
         for (var i = 0; i < n; ++i) {
-            simulation.tick();
+            this.simulation.tick();
         }
         for (const link of links) {
             if(!this._nodesByGroupByAngle[link.target.data.id]){
+                const x = link.target.x
+                const y = link.target.y
                 this._nodesByGroupByAngle[link.target.data.id] = {}
+                this._nodesByGroupByAngle[link.target.data.id]["0"] = {
+                    x: x + this._groupRadius,
+                    y: y,
+                    d: this._groupRadius
+                }
+                this._nodesByGroupByAngle[link.target.data.id]["90"] = {
+                    x: x,
+                    y: y - this._groupRadius,
+                    d: this._groupRadius
+                }
+                this._nodesByGroupByAngle[link.target.data.id]["180"] = {
+                    x: x - this._groupRadius,
+                    y: y,
+                    d: this._groupRadius
+                }
+                this._nodesByGroupByAngle[link.target.data.id]["270"] = {
+                    x: x,
+                    y: y + this._groupRadius,
+                    d: this._groupRadius
+                }
             }
             //CALCUL ANGLE and store
             const dx = link.target.x - link.source.x;
@@ -237,6 +260,28 @@ class VennSquareGraph extends Graph {
                     .style("overflow", "visible")
                     .style("cursor", "pointer");
                 const node = nodeSvg
+                node.call(d3.drag()
+                        .on("start", dragstarted)
+                        .on("drag", dragged)
+                        .on("end", dragended)
+                    );
+                    function dragstarted(event, d) {
+                        console.log(d);
+                        if (!event.active) this.simulation?.alphaTarget(.03).restart();
+                        d.fx = d.x;
+                        d.fy = d.y;
+                      }
+                  
+                      function dragged(event, d) {
+                        d.fx = event.x;
+                        d.fy = event.y;
+                      }
+                  
+                      function dragended(event, d) {
+                        if (!event.active) this.simulation?.alphaTarget(.03);
+                        d.fx = null;
+                        d.fy = null;
+                      }
                 this._groupsNode = node.filter(
                     (d) => d.data.type && d.data.type == "group"
                 );
@@ -258,6 +303,7 @@ class VennSquareGraph extends Graph {
                 this._leaves = node.filter(
                     (d) => !d.data.type || d.data.type != "group"
                 );
+
                 const circle = this._leaves
                     .append("circle")
                     .attr("r", this._radius)
@@ -376,7 +422,7 @@ class VennSquareGraph extends Graph {
                     .classed("big-path", true)
                     .attr("d", pathD)
                     .style("stroke", "red")
-                    .style("fill", "#ff00003f");
+                    .style("fill", "#ff00005f");
                     
             }
             // this._rootG
