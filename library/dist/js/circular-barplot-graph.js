@@ -8,6 +8,10 @@ class CircularBarplotGraph extends Graph{
     _defaultColor = d3.scaleOrdinal([
         "#69b3a2"
     ]);
+    constructor(authorizedTags = []){
+        super();
+        super.setAuthorizedTags(authorizedTags);
+    }
     draw(containerId){
         super.draw(containerId);
         this._zoom = d3.zoom().on("zoom", (e) => {
@@ -48,12 +52,24 @@ class CircularBarplotGraph extends Graph{
         for (const [id,row] of Object.entries(result)) {
             if(row.tags){
                 for(const tag of row.tags){
-                    if(!Object.keys(data).includes(tag)){
-                        data[tag] = 0;
-                    }
-                    data[tag]++;
-                    if(this._max < data[tag]){
-                        this._max = data[tag];
+                    if(this._authorizedTags && Array.isArray(this._authorizedTags) && this._authorizedTags.length > 0){
+                        if(this._authorizedTags.includes(tag)){
+                            if(!Object.keys(data).includes(tag)){
+                                data[tag] = 0;
+                            }
+                            data[tag]++;
+                            if(this._max < data[tag]){
+                                this._max = data[tag];
+                            }
+                        }
+                    }else{
+                        if(!Object.keys(data).includes(tag)){
+                            data[tag] = 0;
+                        }
+                        data[tag]++;
+                        if(this._max < data[tag]){
+                            this._max = data[tag];
+                        }
                     }
                 }
             }
