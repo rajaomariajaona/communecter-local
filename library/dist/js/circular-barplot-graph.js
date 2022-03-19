@@ -1,0 +1,96 @@
+class CircularBarplotGraph extends Graph{
+    _margin = {top: 100, right: 0, bottom: 0, left: 0};
+    _width = 800 - this._margin.left - this._margin.right;
+    _height = 800 - this._margin.top - this._margin.bottom;
+    _innerRadius = 90
+    _outerRadius = Math.min(this._width, this._height) / 2; 
+    _max = 0;
+    _defaultColor = d3.scaleOrdinal([
+        "#69b3a2"
+    ]);
+    draw(containerId){
+        super.draw(containerId);
+        this._zoom = d3.zoom().on("zoom", (e) => {
+            this._rootG.attr("transform", e.transform);
+            this._onZoom(e);
+        });
+        this._rootSvg.call(this._zoom);
+    }
+    initZoom = () => {
+        if(!this._rootSvg) return;
+        const currentZoom = d3.zoomTransform(this._rootSvg.node());
+
+        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity)
+        const bound = this._rootG.node().getBoundingClientRect(); console.log(bound)
+        this._rootSvg.call(this._zoom.transform, currentZoom);
+
+        const containerBound = this._rootSvg.node().getBoundingClientRect();
+
+        const k1 = isFinite(containerBound.width / bound.width) ? ((containerBound.width - 50) / bound.width): 1;
+        const k2 = isFinite(containerBound.height / bound.height) ? ((containerBound.height - 50) / bound.height): 1;
+        const k = (k1 > k2 ? k2 : k1);
+
+        const currentViewBox = this._rootSvg.node().viewBox.baseVal;
+        
+        //ADAPT TRANSFORMATION INTO VIEWBOX SCOPE
+        const wRatio = currentViewBox.width / containerBound.width;
+        const hRatio = currentViewBox.height / containerBound.height;
+        let tx = (containerBound.width / 2) - (bound.width / 2) * k;
+        let ty = (containerBound.height / 2) - (bound.height / 2) * k + Math.abs(containerBound.y - bound.y) * k ;
+        tx *= wRatio;
+        ty *= hRatio;
+        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(k));
+    }
+    preprocessResults(result){
+        var result = super.preprocessResults(result);
+        var data = {};
+        this._max = 0;
+        for (const [id,row] of Object.entries(result)) {
+            if(row.tags){
+                for(const tag of row.tags){
+                    if(!Object.keys(data).includes(tag)){
+                        data[tag] = 0;
+                    }
+                    data[tag]++;
+                    if(this._max < data[tag]){
+                        this._max = data[tag];
+                    }
+                }
+            }
+        }
+        return data;
+    }
+    _update(data){
+        var x = d3.scaleBand()
+            .range([0, 2 * Math.PI])
+            .align(0)
+            .domain(Object.keys(data));
+        var y = d3.scaleRadial()
+            .range([this._innerRadius, this._outerRadius])
+            .domain([0, this._max * 10]);
+        this._rootG.append("g")
+            .selectAll("g.items")
+            .data(Object.entries(data))
+            .join(enter => {
+                const mainG = enter.append("g").classed("items", true)
+                mainG.append("path")
+                    .attr("fill", this._color)
+                    .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+                        .innerRadius(this._innerRadius)
+                        .outerRadius(function(d) { return y(d[1]); })
+                        .startAngle(function(d) { return x(d[0]); })
+                        .endAngle(function(d) { return x(d[0]) + x.bandwidth(); })
+                        .padAngle(0.01)
+                        .padRadius(this._innerRadius))
+                mainG.append("g")
+                .attr("text-anchor", function(d) { return (x(d[0]) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start"; })
+                .attr("transform", function(d) { return "rotate(" + ((x(d[0]) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")"+"translate(" + (y(d[1])+10) + ",0)"; })
+              .append("text")
+                .text(function(d){return(d[0])})
+                .attr("transform", function(d) { return (x(d[0]) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)"; })
+                .style("font-size", "9px")
+                .attr("alignment-baseline", "middle")
+            })
+            this.initZoom();
+    }
+}
