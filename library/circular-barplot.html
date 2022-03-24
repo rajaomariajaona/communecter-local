@@ -29,6 +29,7 @@
     <script>
         var circularBarplotGraph = new CircularBarplotGraph([]);
         circularBarplotGraph.draw("#graph-container")
+        circularBarplotGraph.setMax(30);
         circularBarplotGraph.updateData(circularBarplotGraph.preprocessResults(networkResults))
         var cont = false
 

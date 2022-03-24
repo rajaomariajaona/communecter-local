@@ -20,35 +20,35 @@ class CircularBarplotGraph extends Graph{
         });
         this._rootSvg.call(this._zoom);
     }
-    initZoom = () => {
+    initZoom = () => { 
         if(!this._rootSvg) return;
         const currentZoom = d3.zoomTransform(this._rootSvg.node());
 
-        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity)
-        const bound = this._rootG.node().getBoundingClientRect(); console.log(bound)
+        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity);
+        const bound = this._rootG.node().getBoundingClientRect();
         this._rootSvg.call(this._zoom.transform, currentZoom);
-
+        
         const containerBound = this._rootSvg.node().getBoundingClientRect();
-
+        
         const k1 = isFinite(containerBound.width / bound.width) ? ((containerBound.width - 50) / bound.width): 1;
         const k2 = isFinite(containerBound.height / bound.height) ? ((containerBound.height - 50) / bound.height): 1;
         const k = (k1 > k2 ? k2 : k1);
-
-        const currentViewBox = this._rootSvg.node().viewBox.baseVal;
         
-        //ADAPT TRANSFORMATION INTO VIEWBOX SCOPE
+        const currentViewBox = this._rootSvg.node().viewBox.baseVal;
+
         const wRatio = currentViewBox.width / containerBound.width;
         const hRatio = currentViewBox.height / containerBound.height;
-        let tx = (containerBound.width / 2) - (bound.width / 2) * k;
+        let tx = (containerBound.width / 2) - (bound.width / 2) * k + Math.abs(containerBound.x - bound.x) * k ;
         let ty = (containerBound.height / 2) - (bound.height / 2) * k + Math.abs(containerBound.y - bound.y) * k ;
         tx *= wRatio;
         ty *= hRatio;
-        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(k));
+
+        this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(k,k))
     }
     preprocessResults(result){
         var result = super.preprocessResults(result);
         var data = {};
-        this._max = 0;
+        var maxCount = 0;
         for (const [id,row] of Object.entries(result)) {
             if(row.tags){
                 for(const tag of row.tags){
@@ -58,8 +58,8 @@ class CircularBarplotGraph extends Graph{
                                 data[tag] = 0;
                             }
                             data[tag]++;
-                            if(this._max < data[tag]){
-                                this._max = data[tag];
+                            if(maxCount < data[tag]){
+                                maxCount = data[tag];
                             }
                         }
                     }else{
@@ -67,14 +67,27 @@ class CircularBarplotGraph extends Graph{
                             data[tag] = 0;
                         }
                         data[tag]++;
-                        if(this._max < data[tag]){
-                            this._max = data[tag];
+                        if(maxCount < data[tag]){
+                            maxCount = data[tag];
                         }
                     }
                 }
             }
         }
+        if(this._max > 0){
+            const entries = Object.entries(data);
+            entries.sort((a,b) => b[1] - a[1]);
+            console.log(entries);
+            const cleanedData = {}
+            for (let i = 0; i < this._max; i++) {
+                cleanedData[entries[i][0]] = entries[i][1]
+            }
+            data = cleanedData;
+        }
         return data;
+    }
+    setMax(value){
+        this._max = isNaN(Number(value)) ? this._max : Number(value);
     }
     _update(data){
         var x = d3.scaleBand()
