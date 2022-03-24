@@ -74,10 +74,9 @@ class CircularBarplotGraph extends Graph{
                 }
             }
         }
-        if(this._max > 0){
+        if(this._max > 0 && this._max < Object.keys(data).length){
             const entries = Object.entries(data);
             entries.sort((a,b) => b[1] - a[1]);
-            console.log(entries);
             const cleanedData = {}
             for (let i = 0; i < this._max; i++) {
                 cleanedData[entries[i][0]] = entries[i][1]
