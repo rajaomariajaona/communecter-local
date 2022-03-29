@@ -155,29 +155,29 @@ class VennSquareGraph extends Graph {
         }
         for (const link of links) {
             if(!this._nodesByGroupByAngle[link.target.data.id]){
-                const x = link.target.x
-                const y = link.target.y
+            //     const x = link.target.x
+            //     const y = link.target.y
                 this._nodesByGroupByAngle[link.target.data.id] = {}
-                this._nodesByGroupByAngle[link.target.data.id]["0"] = {
-                    x: x + this._groupRadius,
-                    y: y,
-                    d: this._groupRadius
-                }
-                this._nodesByGroupByAngle[link.target.data.id]["90"] = {
-                    x: x,
-                    y: y - this._groupRadius,
-                    d: this._groupRadius
-                }
-                this._nodesByGroupByAngle[link.target.data.id]["180"] = {
-                    x: x - this._groupRadius,
-                    y: y,
-                    d: this._groupRadius
-                }
-                this._nodesByGroupByAngle[link.target.data.id]["270"] = {
-                    x: x,
-                    y: y + this._groupRadius,
-                    d: this._groupRadius
-                }
+            //     // this._nodesByGroupByAngle[link.target.data.id]["0"] = {
+            //     //     x: x + this._groupRadius,
+            //     //     y: y,
+            //     //     d: this._groupRadius
+            //     // }
+            //     // this._nodesByGroupByAngle[link.target.data.id]["90"] = {
+            //     //     x: x,
+            //     //     y: y - this._groupRadius,
+            //     //     d: this._groupRadius
+            //     // }
+            //     // this._nodesByGroupByAngle[link.target.data.id]["180"] = {
+            //     //     x: x - this._groupRadius,
+            //     //     y: y,
+            //     //     d: this._groupRadius
+            //     // }
+            //     // this._nodesByGroupByAngle[link.target.data.id]["270"] = {
+            //     //     x: x,
+            //     //     y: y + this._groupRadius,
+            //     //     d: this._groupRadius
+            //     // }
             }
             //CALCUL ANGLE and store
             const dx = link.target.x - link.source.x;
@@ -195,21 +195,41 @@ class VennSquareGraph extends Graph {
             }else if(dx < 0){
                 angle = cos;
             }
+            let rawAngle = angle;
             angle = Math.round(Math.round(angle * 180 / Math.PI) / 10) * 10;
+            let changed = false
             if(this._nodesByGroupByAngle[link.target.data.id][angle]){
                 const currentAngle = this._nodesByGroupByAngle[link.target.data.id][angle];
                 if(hyp >= currentAngle.d){
+                    changed = true
                     this._nodesByGroupByAngle[link.target.data.id][angle] = {
                         x: link.source.x,
                         y: link.source.y,
+                        cx: link.source.x,
+                        cy: link.source.y,
                         d: hyp
                     }
                 }
             }else{
+                changed = true
                 this._nodesByGroupByAngle[link.target.data.id][angle] = {
                     x: link.source.x,
                     y: link.source.y,
+                    cx: link.source.x,
+                    cy: link.source.y,
                     d: hyp
+                }
+            }
+            if(changed){
+                if(dx > 0){
+                    this._nodesByGroupByAngle[link.target.data.id][angle].x -= this._radius;
+                }else{
+                    this._nodesByGroupByAngle[link.target.data.id][angle].x += this._radius;
+                }
+                if(dy > 0){
+                    this._nodesByGroupByAngle[link.target.data.id][angle].y -= this._radius;
+                }else{
+                    this._nodesByGroupByAngle[link.target.data.id][angle].y += this._radius;
                 }
             }
         }

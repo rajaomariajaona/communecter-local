@@ -45,7 +45,7 @@ class GraphTooltip {
                 </div>
                 <div class="row">
                 <div class="col-xs-12" style="text-align: center;">
-                <a class="btn btn-more lbh-preview-element" id="bulle-anchor" href="#page.type.organizations.id.60631a86c7f7b859ca733385">
+                <a class="btn btn-more" id="bulle-anchor" href="#page.type.organizations.id.60631a86c7f7b859ca733385">
                 En savoir plus
                 </a>
                 </div>
@@ -87,7 +87,7 @@ class GraphTooltip {
                 .style("transform", `translate(-50%,calc(-100% - 20px ))`)
         }
     }
-    setContent(data) {
+    setContent(data, modePreview = true) {
         if (data == this._last)
             return
         const d = data.data;
@@ -111,7 +111,13 @@ class GraphTooltip {
         }else if(d.collection){
             collection = d.collection;
         }
-        this._anchor.attr("href", `#page.type.${collection}.id.${d.id}`)
+        this._anchor
+            .attr("href", `#page.type.${collection}.id.${d.id}`)
+        if(modePreview){
+            this._anchor.classed("lbh-preview-element", true)
+        }else{
+            this._anchor.classed("lbh", true)
+        }
         this._last = data;
     }
     show() {
