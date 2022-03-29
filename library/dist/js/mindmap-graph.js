@@ -228,6 +228,9 @@ class MindmapGraph extends Graph {
         this._update(this._data);
         this._afterDraw()
         this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.translate(this._margin.left, (this._margin.top + this._height / 2)))
+        setTimeout(() => {
+            this.initZoom()
+        },500)
     }
 
     adaptViewBoxByRatio(ratio = 16/7){
@@ -259,6 +262,7 @@ class MindmapGraph extends Graph {
         let ty = (containerBound.height / 2) - (bound.height / 2) * k + Math.abs(containerBound.y - bound.y) * k ;
         tx *= wRatio;
         ty *= hRatio;
+        console.log("ZOOM", tx,ty, k)
         this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(k))
     }
     setColor(callback) {
