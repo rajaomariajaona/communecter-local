@@ -472,7 +472,7 @@ class BadgeGraph extends Graph {
                         var o = {
                             x: this._source.x,
                             y: this._source.y,
-                        };
+S                        };
                         return this._diagonal(o, o);
                     })
                     .style("stroke-width", 1)
