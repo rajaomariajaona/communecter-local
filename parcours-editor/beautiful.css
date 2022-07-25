@@ -153,17 +153,17 @@ cursor: pointer;
   border-right: 1px solid var(--border-color);
   z-index: 5;
 }
-.bar-zoom svg {
+.bar-zoom .fa {
   cursor: pointer;
   padding-left: 10px;
 }
-.bar-zoom svg:nth-child(1) {
+.bar-zoom .fa:nth-child(1) {
   padding-left: 0px;
 }
 
 #drawflow {
   position: relative;
-  width: calc(100vw - 301px);
+  width: 100vw;
   height: calc(100% - 50px);
   top: 40px;
   background: var(--background-color);
@@ -321,31 +321,6 @@ cursor: pointer;
 
 .drawflow .connection .point.selected, .drawflow .connection .point:hover {
   fill: #4ea9ff;
-}
-
-
-/* Modal */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 7;
-  left: 0;
-  top: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: auto;
-  background-color: rgb(0,0,0);
-  background-color: rgba(0,0,0,0.7);
-
-}
-
-.modal-content {
-  position: relative;
-  background-color: #fefefe;
-  margin: 15% auto; /* 15% from the top and centered */
-  padding: 20px;
-  border: 1px solid #888;
-  width: 400px; /* Could be more or less, depending on screen size */
 }
 
 /* The Close Button */
