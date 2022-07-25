@@ -24,11 +24,6 @@
     <h2>Drawflow</h2>
 
   </header>
-  <!-- Button trigger modal -->
-  <button id="add" type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
-    ADD
-  </button>
-
 <!-- Modal -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
@@ -39,41 +34,11 @@
       </div>
       <div class="modal-body">
         <div class="col">
-          <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="facebook">
-            <i class="fa fa-facebook"></i><span> Facebook</span>
+          <div class="drag-drawflow" onclick="addNodeToDrawFlow(10,10, false)">
+            <i class="fa fa-facebook"></i><span> NODE</span>
           </div>
-          <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="slack">
-            <i class="fa fa-slack"></i><span> Slack recive message</span>
-          </div>
-          <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="github">
-            <i class="fab fa-github"></i><span> Github Star</span>
-          </div>
-          <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="telegram">
-            <i class="fa fa-telegram"></i><span> Telegram send message</span>
-          </div>
-          <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="aws">
-            <i class="fa fa-aws"></i><span> AWS</span>
-          </div>
-          <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="log">
-            <i class="fas fa-file-signature"></i><span> File Log</span>
-          </div>
-          <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="google">
-            <i class="fab fa-google-drive"></i><span> Google Drive save</span>
-          </div>
-          <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="email">
-            <i class="fas fa-at"></i><span> Email send</span>
-          </div>
-          <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="template">
-            <i class="fas fa-code"></i><span> Template</span>
-          </div>
-          <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="multiple">
-            <i class="fas fa-code-branch"></i><span> Multiple inputs/outputs</span>
-          </div>
-          <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="personalized">
-            <i class="fas fa-fill"></i><span> Personalized</span>
-          </div>
-          <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="dbclick">
-            <i class="fas fa-mouse"></i><span> DBClick!</span>
+          <div class="drag-drawflow" onclick="addNodeToDrawFlow(10,10, true)">
+            <i class="fa fa-facebook"></i><span> HEAD</span>
           </div>
         </div>
       </div>
@@ -87,6 +52,7 @@
   <div class="wrapper">
     <div class="col-right">
       <div id="drawflow" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <button type="button" class="btn-add" data-toggle="modal" data-target="#myModal">Add</button>
         <div class="btn-export" onclick="console.log({ title: 'Export',
         html: '<pre><code>'+JSON.stringify(editor.export(), null,4)+'</code></pre>'
         })">Save</div>
@@ -192,176 +158,18 @@
       ev.preventDefault();
     }
 
-    function drag(ev) {
-      if (ev.type === "touchstart") {
-        mobile_item_selec = ev.target.closest(".drag-drawflow").getAttribute('data-node');
-      } else {
-      ev.dataTransfer.setData("node", ev.target.getAttribute('data-node'));
-      }
-    }
-
-    function drop(ev) {
-      if (ev.type === "touchend") {
-        var parentdrawflow = document.elementFromPoint( mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY).closest("#drawflow");
-        if(parentdrawflow != null) {
-          addNodeToDrawFlow(mobile_item_selec, mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY);
-        }
-        mobile_item_selec = '';
-      } else {
-        ev.preventDefault();
-        var data = ev.dataTransfer.getData("node");
-        addNodeToDrawFlow(data, ev.clientX, ev.clientY);
-      }
-
-    }
-
-    function addNodeToDrawFlow(name, pos_x, pos_y) {
+    function addNodeToDrawFlow(pos_x, pos_y) {
       if(editor.editor_mode === 'fixed') {
         return false;
       }
       pos_x = pos_x * ( editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)) - (editor.precanvas.getBoundingClientRect().x * ( editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)));
       pos_y = pos_y * ( editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)) - (editor.precanvas.getBoundingClientRect().y * ( editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)));
-
-
-      switch (name) {
-        case 'facebook':
-        var facebook = `
-        <div>
-          <div class="title-box"><i class="fab fa-facebook"></i> Facebook Message</div>
-        </div>
-        `;
-          editor.addNode('facebook', 0,  1, pos_x, pos_y, 'facebook', {}, facebook );
-          break;
-        case 'slack':
-          var slackchat = `
-          <div>
-            <div class="title-box"><i class="fab fa-slack"></i> Slack chat message</div>
-          </div>
-          `
-          editor.addNode('slack', 1, 0, pos_x, pos_y, 'slack', {}, slackchat );
-          break;
-        case 'github':
-          var githubtemplate = `
-          <div>
-            <div class="title-box"><i class="fab fa-github "></i> Github Stars</div>
-            <div class="box">
-              <p>Enter repository url</p>
-            <input type="text" df-name>
-            </div>
-          </div>
-          `;
-          editor.addNode('github', 0, 1, pos_x, pos_y, 'github', { "name": ''}, githubtemplate );
-          break;
-        case 'telegram':
-          var telegrambot = `
-          <div>
-            <div class="title-box"><i class="fab fa-telegram-plane"></i> Telegram bot</div>
-            <div class="box">
-              <p>Send to telegram</p>
-              <p>select channel</p>
-              <select df-channel>
-                <option value="channel_1">Channel 1</option>
-                <option value="channel_2">Channel 2</option>
-                <option value="channel_3">Channel 3</option>
-                <option value="channel_4">Channel 4</option>
-              </select>
-            </div>
-          </div>
-          `;
-          editor.addNode('telegram', 1, 0, pos_x, pos_y, 'telegram', { "channel": 'channel_3'}, telegrambot );
-          break;
-        case 'aws':
-          var aws = `
-          <div>
-            <div class="title-box"><i class="fab fa-aws"></i> Aws Save </div>
-            <div class="box">
-              <p>Save in aws</p>
-              <input type="text" df-db-dbname placeholder="DB name"><br><br>
-              <input type="text" df-db-key placeholder="DB key">
-              <p>Output Log</p>
-            </div>
-          </div>
-          `;
-          editor.addNode('aws', 1, 1, pos_x, pos_y, 'aws', { "db": { "dbname": '', "key": '' }}, aws );
-          break;
-        case 'log':
-            var log = `
-            <div>
-              <div class="title-box"><i class="fas fa-file-signature"></i> Save log file </div>
-            </div>
-            `;
-            editor.addNode('log', 1, 0, pos_x, pos_y, 'log', {}, log );
-            break;
-          case 'google':
-            var google = `
-            <div>
-              <div class="title-box"><i class="fab fa-google-drive"></i> Google Drive save </div>
-            </div>
-            `;
-            editor.addNode('google', 1, 0, pos_x, pos_y, 'google', {}, google );
-            break;
-          case 'email':
-            var email = `
-            <div>
-              <div class="title-box"><i class="fas fa-at"></i> Send Email </div>
-            </div>
-            `;
-            editor.addNode('email', 1, 0, pos_x, pos_y, 'email', {}, email );
-            break;
-
-          case 'template':
-            var template = `
-            <div>
-              <div class="title-box"><i class="fas fa-code"></i> Template</div>
-              <div class="box">
-                Ger Vars
-                <textarea df-template></textarea>
-                Output template with vars
-              </div>
-            </div>
-            `;
-            editor.addNode('template', 1, 1, pos_x, pos_y, 'template', { "template": 'Write your template'}, template );
-            break;
-          case 'multiple':
-            var multiple = `
-            <div>
-              <div class="box">
-                Multiple!
-              </div>
-            </div>
-            `;
-            editor.addNode('multiple', 3, 4, pos_x, pos_y, 'multiple', {}, multiple );
-            break;
-          case 'personalized':
-            var personalized = `
-            <div>
-              Personalized
-            </div>
-            `;
-            editor.addNode('personalized', 1, 1, pos_x, pos_y, 'personalized', {}, personalized );
-            break;
-          case 'dbclick':
-            var dbclick = `
-            <div>
-            <div class="title-box"><i class="fas fa-mouse"></i> Db Click</div>
-              <div class="box dbclickbox" ondblclick="showpopup(event)">
-                Db Click here
-                <div class="modal" style="display:none">
-                  <div class="modal-content">
-                    <span class="close" onclick="closemodal(event)">&times;</span>
-                    Change your variable {name} !
-                    <input type="text" df-name>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-            `;
-            editor.addNode('dbclick', 1, 1, pos_x, pos_y, 'dbclick', { name: ''}, dbclick );
-            break;
-
-        default:
-      }
+      var personalized = `
+      <div>
+        Personalized
+      </div>
+      `;
+      editor.addNode('personalized', 1, 1, pos_x, pos_y, 'personalized', {}, personalized );
     }
 
   var transform = '';

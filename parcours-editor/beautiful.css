@@ -61,7 +61,7 @@ header a {
   line-height: 50px;
   border-bottom: 1px solid var(--border-color);
   padding-left: 20px;
-  cursor: move;
+  cursor: pointer;
   user-select: none;
 }
 .menu {
@@ -95,6 +95,21 @@ cursor: pointer;
   position: absolute;
   top: 10px;
   right: 10px;
+  color: white;
+  font-weight: bold;
+  border: 1px solid #0e5ba3;
+  background: #4ea9ff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.btn-add {
+  float: right;
+  position: absolute;
+  top: 10px;
+  right: 160px;
   color: white;
   font-weight: bold;
   border: 1px solid #0e5ba3;
@@ -164,28 +179,13 @@ cursor: pointer;
 #drawflow {
   position: relative;
   width: 100vw;
-  height: calc(100% - 50px);
-  top: 40px;
+  height: 100%;
   background: var(--background-color);
   background-size: 25px 25px;
   background-image:
    linear-gradient(to right, #f1f1f1 1px, transparent 1px),
    linear-gradient(to bottom, #f1f1f1 1px, transparent 1px);
 }
-
-@media only screen and (max-width: 768px) {
-  .col {
-    width: 50px;
-  }
-  .col .drag-drawflow span {
-    display:none;
-  }
-  #drawflow {
-    width: calc(100vw - 51px);
-  }
-}
-
-
 
 /* Editing Drawflow */
 
