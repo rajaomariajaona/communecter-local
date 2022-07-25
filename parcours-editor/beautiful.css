@@ -46,15 +46,8 @@ header a {
 
 .wrapper {
   width: 100%;
-  height: calc(100vh - 67px);
+  height: 100vh;
   display: flex;
-}
-
-.col {
-  overflow: auto;
-  width: 300px;
-  height: 100%;
-  border-right: 1px solid var(--border-color);
 }
 
 .drag-drawflow {
@@ -195,7 +188,6 @@ cursor: pointer;
   -webkit-box-shadow: 0 2px 15px 2px var(--border-color);
   box-shadow: 0 2px 15px 2px var(--border-color);
   padding: 0px;
-  width: 200px;
 }
 
 .drawflow .drawflow-node.selected  {
@@ -272,45 +264,18 @@ cursor: pointer;
   margin-bottom: 5px;
 }
 
-.drawflow-node.welcome {
-  width: 250px;
-}
-
 .drawflow-node.slack .title-box {
   border-radius: 4px;
 }
 
-.drawflow-node input, .drawflow-node select, .drawflow-node textarea {
-  border-radius: 4px;
-  border: 1px solid var(--border-color);
-  height: 30px;
-  line-height: 30px;
-  font-size: 16px;
-  width: 158px;
-  color: #555555;
-}
-
-.drawflow-node textarea {
-  height: 100px;
-}
-
-
-.drawflow-node.personalized {
-  background: red;
-  height: 200px;
+.drawflow-node {
+  background: #bababa;
+  height: 80px!important;
+  width: 80px!important;
   text-align: center;
-  color: white;
-}
-.drawflow-node.personalized .input {
-  background: yellow;
-}
-.drawflow-node.personalized .output {
-  background: green;
+  color: black;
 }
 
-.drawflow-node.personalized.selected {
-  background: blue;
-}
 
 .drawflow .connection .point {
   stroke: var(--border-color);
@@ -330,10 +295,4 @@ cursor: pointer;
   font-size: 28px;
   font-weight: bold;
   cursor:pointer;
-}
-
-@media only screen and (max-width: 768px) {
-  .modal-content {
-    width: 80%;
-  }
 }

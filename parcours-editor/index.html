@@ -7,6 +7,7 @@
   <title>Drawflow</title>
 </head>
 <body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.4/underscore-min.min.js" integrity="sha512-5B2sl+/Nbe4Q1KY3csUeHRxjTPJJvCtGfNnIWVSShvIkeFhfRa54cGRkovghfyzoDNaj5cyvAGNfCEagZGikVg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
   <script src="../jquery-2.1.1.min.js"></script>
   <script src="../bootstrap/js/bootstrap.min.js"></script>
@@ -20,10 +21,6 @@
       top: 0;
     }
   </style>
-  <header>
-    <h2>Drawflow</h2>
-
-  </header>
 <!-- Modal -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
@@ -51,7 +48,7 @@
 </div>
   <div class="wrapper">
     <div class="col-right">
-      <div id="drawflow" ondrop="drop(event)" ondragover="allowDrop(event)">
+      <div id="drawflow">
         <button type="button" class="btn-add" data-toggle="modal" data-target="#myModal">Add</button>
         <div class="btn-export" onclick="console.log({ title: 'Export',
         html: '<pre><code>'+JSON.stringify(editor.export(), null,4)+'</code></pre>'
@@ -59,7 +56,7 @@
         <div class="btn-clear" onclick="editor.clearModuleSelected()">Clear</div>
         <div class="btn-lock">
           <i id="lock" class="fa fa-lock" onclick="editor.editor_mode='fixed'; changeMode('lock');"></i>
-          <i id="unlock" class="fa fa-lock-open" onclick="editor.editor_mode='edit'; changeMode('unlock');" style="display:none;"></i>
+          <i id="unlock" class="fa fa-unlock" onclick="editor.editor_mode='edit'; changeMode('unlock');" style="display:none;"></i>
         </div>
         <div class="bar-zoom">
           <i class="fa fa-search-minus" onclick="editor.zoom_out()"></i>
@@ -91,7 +88,13 @@
     editor.start();
     editor.on('nodeCreated', function(id) {
       console.log("Node created " + id);
+      const heads = editor.getNodesFromName('head');
+      if(heads.length > 1){
+        editor.removeNodeId('node-' + id);
+        console.error("YOU CAN ONLY HAVE ONE HEAD");
+      }
     })
+
 
     editor.on('nodeRemoved', function(id) {
       console.log("Node removed " + id);
@@ -112,6 +115,12 @@
     editor.on('connectionCreated', function(connection) {
       console.log('Connection created');
       console.log(connection);
+      const connections = editor.drawflow.drawflow.Home.data[connection.input_id].inputs[connection.input_class].connections;
+      if(connections.length > 1){
+        alert("THIS RELATION is tsy mety");
+        editor.removeSingleConnection(connection.output_id, connection.input_id, connection.output_class, connection.input_class);
+      }
+      //CHECK IF NORMAL ADD
     })
 
     editor.on('connectionRemoved', function(connection) {
@@ -138,38 +147,27 @@
       console.log("Reroute removed " + id);
     })
     /* DRAG EVENT */
-
-    /* Mouse and Touch Actions */
-
-    var elements = document.getElementsByClassName('drag-drawflow');
-    for (var i = 0; i < elements.length; i++) {
-      elements[i].addEventListener('touchend', drop, false);
-      elements[i].addEventListener('touchmove', positionMobile, false);
-      elements[i].addEventListener('touchstart', drag, false );
-    }
-
-    var mobile_item_selec = '';
-    var mobile_last_move = null;
-   function positionMobile(ev) {
-     mobile_last_move = ev;
-   }
-
-   function allowDrop(ev) {
-      ev.preventDefault();
-    }
-
-    function addNodeToDrawFlow(pos_x, pos_y) {
+    function addNodeToDrawFlow(pos_x, pos_y, isHead) {
       if(editor.editor_mode === 'fixed') {
         return false;
       }
       pos_x = pos_x * ( editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)) - (editor.precanvas.getBoundingClientRect().x * ( editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)));
       pos_y = pos_y * ( editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)) - (editor.precanvas.getBoundingClientRect().y * ( editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)));
-      var personalized = `
-      <div>
-        Personalized
-      </div>
-      `;
-      editor.addNode('personalized', 1, 1, pos_x, pos_y, 'personalized', {}, personalized );
+      if(isHead){
+        var head = `
+        <div>
+          HEAD
+        </div>
+        `;
+        editor.addNode('head', 0, 1, pos_x, pos_y, 'head', {}, head );
+      }else{
+        var node = `
+        <div>
+          Node
+        </div>
+        `;
+        editor.addNode('node', 1, 1, pos_x, pos_y, 'node', {}, node );
+      }
     }
 
   var transform = '';
