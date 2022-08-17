@@ -4,6 +4,11 @@ class BadgeGraph extends Graph {
         id: "root",
         label: "SEARCH"
     };
+    _onLabelClick = (e, d) => {
+        e.stopPropagation();
+        e.preventDefault();
+        console.log(d)
+    };
     _duration = 750;
     _nodePadding = {
         top: 5,
@@ -46,6 +51,10 @@ class BadgeGraph extends Graph {
     }
     setOnDeleteClicked(callback) {
         this._onDeleteClicked = callback;
+    }
+
+    setOnLabelClick(callback) {
+        this._onLabelClick = callback;
     }
 
     _preprocessResultsByTheme(results){
@@ -336,19 +345,29 @@ class BadgeGraph extends Graph {
                     .text(d => d.data.label)
                 const divNode = div.filter(d => d.data.id != "plus")
                 const imageNode = divNode.filter(d => d.data.profilMediumImageUrl)
-                    .append("xhtml:img")
+                imageNode.append("xhtml:img")
                     .attr("src", d => d.data.profilMediumImageUrl)
                     .style("height", "90%")
                     .style("width", "90%")
                     .style("pointer-events", "none")
+                imageNode.append("xhtml:div")
+                    .attr("class", "badge-graph-label")
+                    .style("position", "absolute")
+                    .style("top", "100%")
+                    .style("width", "100%")
+                    .style("text-align", "center")
+                    .text(d => d.data.name ? d.data.name : "badge")
+                    .on('click', (e, d) => this._onLabelClick(e, d));
                 const textNode = divNode.filter(d => !d.data.profilMediumImageUrl)
-                    .append("xhtml:div")
+                textNode.append("xhtml:div")
                     .style("max-height", "90%")
                     .style("max-width", "90%")
                     .style("overflow-wrap", "break-word")
                     .style("overflow", "hidden")
                     .style("text-align", "center")
-                    .text(d => d.data.name ? d.data.name : "Badge");
+                    .attr("class", "badge-graph-label")
+                    .text(d => d.data.name ? d.data.name : "Badge")
+                    .on('click', (e, d) => this._onLabelClick(e, d));
                 div.filter(d => d.data.locked)
                     .append("xhtml:div")
                     .style("height", "90%")
@@ -472,7 +491,7 @@ class BadgeGraph extends Graph {
                         var o = {
                             x: this._source.x,
                             y: this._source.y,
-S                        };
+                        };
                         return this._diagonal(o, o);
                     })
                     .style("stroke-width", 1)
