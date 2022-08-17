@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+</head>
+<body>
+    <div style="height: 100vh;width: 100vw;">
+        <svg id="svg" viewBox="0 0 800 800">
+
+        </svg>
+    </div>
+    
+    <script src="./d3.v7.min.js"></script>
+    <script src="./library/dist/js/graph-utils.js"></script>
+    <script>
+        var accent = d3.scaleOrdinal(d3.schemeAccent);
+        const svg = d3.select("#svg").append("g").attr("transform", "translate(400,400)");
+        const menu = 11
+        const innerRadius = 150;
+        const outerRadius = 300;
+        const cornerRadius = 5;
+        const padAngle = 0.03;
+        const scale = d3.scaleLinear().domain([0, menu]).range([0, 2 * Math.PI]);
+        
+
+        for (i = 0; i<11; i++){
+            const arc = d3.arc()
+                .innerRadius(innerRadius)
+                .outerRadius(outerRadius)
+                .cornerRadius(cornerRadius)
+                .startAngle(scale(i))
+                .padAngle(padAngle)
+                .endAngle(scale(i + 1));
+
+            svg.append("path")
+                .attr("d", arc())
+                .attr("fill", accent(i));
+            
+            const centroid = arc.centroid();
+            const diffAngle = (scale(i + 1) - scale(i))/2 
+            const distance = Math.sin(diffAngle - padAngle) * Math.sqrt(centroid[0] ** 2 + centroid[1] ** 2)
+
+            const rectParams = GraphUtils.squareInnerCircle(centroid[0], centroid[1], distance)
+            const foreign = svg.append("foreignObject")
+                .attr("x", rectParams.x)
+                .attr("y", rectParams.y)
+                .attr("width", rectParams.width)
+                .attr("height", rectParams.height)
+            const div = foreign.append("xhtml:div")
+                .style("width", "100%")
+                .style("height", "100%")
+                .style("display", "flex")
+                .style("justify-content", "center")
+                .style("align-items", "center")
+                .style("text-align", "center")
+                .style("color", "white")
+                .text("HELLO ALL")
+        }
+    </script>
+</body>
+</html>
