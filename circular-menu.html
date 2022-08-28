@@ -197,9 +197,10 @@
                 color: accent(5),
                 url: "https://www.google.com"
             },
-        ].slice(0,17)
+        ].slice(0,10)
 
-        const svg = d3.select("#svg").append("g").attr("transform", "translate(500,500)")
+        const svg = d3.select("#svg").append("g")
+            .attr("transform", "translate(500,500)")
         const menu = data.length
         const innerRadius = 300;
         const outerRadius = 450;
@@ -210,6 +211,7 @@
         for (let i = 0; i < data.length; i++) {
             const g = svg.append("g")
                 .classed("menu-item", true)
+                .style("cursor","pointer")
             const value = data[i];
             const arc = d3.arc()
                 .innerRadius(innerRadius)
@@ -229,22 +231,7 @@
                 const diffAngle = (scale(i + 1) - scale(i))/2 - padAngle
                 
                 const d2 = Math.sin(diffAngle) * Math.sqrt(centroid[0] ** 2 + centroid[1] ** 2)
-                const distance = Math.min(d2, diffRadius)
-                /*
-            g.append("circle")
-                .attr("cx", centroid[0])
-                .attr("cy", centroid[1])
-                .attr("r", distance)
-                .attr("fill", "none")
-                .attr("stroke", "red")
-            g.append("circle")
-                .attr("cx", centroid[0])
-                .attr("cy", centroid[1])
-                .attr("r", 5)
-                .attr("fill", "white")
-                .attr("stroke", "none")
-            */
-                
+                const distance = Math.min(d2, diffRadius)                
             const rectParams = GraphUtils.squareInnerCircle(centroid[0], centroid[1], distance)
             const foreign = g.append("foreignObject")
                 .attr("x", rectParams.x)
@@ -267,12 +254,10 @@
                 .style("text-align", "center")
                 .style("font-size", "1.2em")
             
-            const menuLabelContainer = div.append("xhtml:div")
-                .style("display", "flex")
-                .style("justify-content", "center")
+            const menuLabelContainer = div.append("xhtml:span")
             const number = menuLabelContainer.append("xhtml:span")
                 .classed("number", true)
-                .text(i + 1)
+                .text(i + 1 + " ")
             const label = menuLabelContainer.append("xhtml:span")
                 .classed("menu-label", true)
                 .text(value.label)
@@ -280,6 +265,8 @@
                 .attr("src", value.image)
                 .style("width", "50%")
                 .style("height", "auto")
+                .style("margin","0 auto")
+                .style("display", "block")
         }
     </script>
 </body>
