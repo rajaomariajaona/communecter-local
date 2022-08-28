@@ -129,7 +129,7 @@
                 .attr("fill", accent(i));
             
                 const centroid = arc.centroid();
-                const diffAngle = (scale(i + 1) - scale(i))/2 
+                const diffAngle = (scale(i + 1) - scale(i))/2 - padAngle
                 const distance = Math.sin(diffAngle) * Math.sqrt(centroid[0] ** 2 + centroid[1] ** 2)
             svg.append("circle")
                 .attr("cx", centroid[0])
