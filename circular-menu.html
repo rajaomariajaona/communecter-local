@@ -8,7 +8,7 @@
     
 </head>
 <body>
-    <div style="height: 100vh;width: 100vw;">
+    <div style="height: 100vh;width: 70vw;">
         <svg id="svg" viewBox="0 0 800 800">
 
         </svg>
@@ -17,17 +17,105 @@
     <script src="./d3.v7.min.js"></script>
     <script src="./library/dist/js/graph-utils.js"></script>
     <script>
+
         var accent = d3.scaleOrdinal(d3.schemeAccent);
+        const data = [
+            {
+                number: 1,
+                label: "Jessie Vega",
+                image: "https://picsum.photos/200",
+                color: accent(7),
+                url: "https://www.google.com"
+            },
+            {
+                number: 2,
+                label: "Henry Moore",
+                image: "https://picsum.photos/200",
+                color: accent(6),
+                url: "https://www.google.com"
+            },
+            {
+                number: 3,
+                label: "Russell Rivera",
+                image: "https://picsum.photos/200",
+                color: accent(8),
+                url: "https://www.google.com"
+            },
+            {
+                number: 4,
+                label: "Jean Luna",
+                image: "https://picsum.photos/200",
+                color: accent(10),
+                url: "https://www.google.com"
+            },
+            {
+                number: 5,
+                label: "Susan Gross",
+                image: "https://picsum.photos/200",
+                color: accent(1),
+                url: "https://www.google.com"
+            },
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+        ]
+
         const svg = d3.select("#svg").append("g").attr("transform", "translate(400,400)");
-        const menu = 11
+        const menu = data.length
         const innerRadius = 150;
         const outerRadius = 300;
         const cornerRadius = 5;
         const padAngle = 0.03;
         const scale = d3.scaleLinear().domain([0, menu]).range([0, 2 * Math.PI]);
-        
 
-        for (i = 0; i<11; i++){
+        for (let i = 0; i < data.length; i++) {
+            const value = data[i];
             const arc = d3.arc()
                 .innerRadius(innerRadius)
                 .outerRadius(outerRadius)
@@ -40,25 +128,54 @@
                 .attr("d", arc())
                 .attr("fill", accent(i));
             
-            const centroid = arc.centroid();
-            const diffAngle = (scale(i + 1) - scale(i))/2 
-            const distance = Math.sin(diffAngle - padAngle) * Math.sqrt(centroid[0] ** 2 + centroid[1] ** 2)
-
+                const centroid = arc.centroid();
+                const diffAngle = (scale(i + 1) - scale(i))/2 
+                const distance = Math.sin(diffAngle) * Math.sqrt(centroid[0] ** 2 + centroid[1] ** 2)
+            svg.append("circle")
+                .attr("cx", centroid[0])
+                .attr("cy", centroid[1])
+                .attr("r", distance)
+                .attr("fill", "none")
+                .attr("stroke", "red")
+                
+                
+                
             const rectParams = GraphUtils.squareInnerCircle(centroid[0], centroid[1], distance)
             const foreign = svg.append("foreignObject")
                 .attr("x", rectParams.x)
                 .attr("y", rectParams.y)
                 .attr("width", rectParams.width)
                 .attr("height", rectParams.height)
+                .style("overflow", "visible")
             const div = foreign.append("xhtml:div")
                 .style("width", "100%")
                 .style("height", "100%")
+                .style("max-width", "100%")
+                .style("max-height", "100%")
                 .style("display", "flex")
                 .style("justify-content", "center")
                 .style("align-items", "center")
                 .style("text-align", "center")
                 .style("color", "white")
-                .text("HELLO ALL")
+                .style("border","1px solid red")
+                .append("xhtml:div")
+                .style("text-align", "center")
+                /*
+            const menuLabelContainer = div.append("xhtml:div")
+                .style("display", "flex")
+            const number = menuLabelContainer.append("xhtml:h1")
+                .classed("number", true)
+                .text(value.number)
+            const label = menuLabelContainer.append("xhtml:h3")
+                .classed("menu-label", true)
+                .text(value.label)
+            const image = div.append("xhtml:img")
+                .attr("src", value.image)
+                .style("width", "60%")
+                .style("height", "auto")
+                .style("display", "block")
+
+            */
         }
     </script>
 </body>

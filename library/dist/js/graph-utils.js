@@ -257,7 +257,7 @@ class GraphUtils {
         const l = Math.sin(Math.PI / 4) * (r - padding);
         const x = cx - l;
         const y = cy - l
-        const width = l * 2;
+        const width = Math.abs(l * 2);
         const height = width;
         return {
             x,
