@@ -104,7 +104,91 @@
                 color: accent(5),
                 url: "https://www.google.com"
             },
-        ]
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+            {
+                number: 6,
+                label: "Herbert Morris",
+                image: "https://picsum.photos/200",
+                color: accent(5),
+                url: "https://www.google.com"
+            },
+        ].slice(0,17)
 
         const svg = d3.select("#svg").append("g").attr("transform", "translate(400,400)");
         const menu = data.length
@@ -113,7 +197,7 @@
         const cornerRadius = 5;
         const padAngle = 0.03;
         const scale = d3.scaleLinear().domain([0, menu]).range([0, 2 * Math.PI]);
-
+        const diffRadius  = (outerRadius - innerRadius) / 2;
         for (let i = 0; i < data.length; i++) {
             const value = data[i];
             const arc = d3.arc()
@@ -130,14 +214,21 @@
             
                 const centroid = arc.centroid();
                 const diffAngle = (scale(i + 1) - scale(i))/2 - padAngle
-                const distance = Math.sin(diffAngle) * Math.sqrt(centroid[0] ** 2 + centroid[1] ** 2)
+                
+                const d2 = Math.sin(diffAngle) * Math.sqrt(centroid[0] ** 2 + centroid[1] ** 2)
+                const distance = Math.min(d2, diffRadius)
             svg.append("circle")
                 .attr("cx", centroid[0])
                 .attr("cy", centroid[1])
                 .attr("r", distance)
                 .attr("fill", "none")
                 .attr("stroke", "red")
-                
+            svg.append("circle")
+                .attr("cx", centroid[0])
+                .attr("cy", centroid[1])
+                .attr("r", 5)
+                .attr("fill", "white")
+                .attr("stroke", "none")
                 
                 
             const rectParams = GraphUtils.squareInnerCircle(centroid[0], centroid[1], distance)
