@@ -484,7 +484,7 @@ class CircleRelationGraph extends Graph {
           .classed("links-line", true)
           .attr("stroke-width", 4)
           .attr("stroke-dasharray", "10 14")
-          .style("stroke", "red");
+          .style("stroke", "white");
       });
 
     this._rootSvg
