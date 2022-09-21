@@ -478,13 +478,13 @@ class CircleRelationGraph extends Graph {
       .data(this._links)
       .join((enter) => {
         enter
-          .append("g")
+          .insert("g", ":first-child")
           .classed("links", true)
           .append("line")
           .classed("links-line", true)
           .attr("stroke-width", 4)
           .attr("stroke-dasharray", "10 14")
-          .style("stroke", "white");
+          .style("stroke", "red");
       });
 
     this._rootSvg
