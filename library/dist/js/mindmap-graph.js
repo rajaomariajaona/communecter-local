@@ -218,19 +218,22 @@ class MindmapGraph extends Graph {
         this._beforeDraw()
         super.draw(containerId)
         this._zoom = d3.zoom().on("zoom", (e) => {
-            this._rootG.attr("transform", e.transform);
-            this._onZoom(e);
+            const transform = e.transform;
+            if(!(isNaN(transform.k) || isNaN(transform.x) || isNaN(transform.k))){
+                this._rootG.attr("transform", e.transform);
+                this._onZoom(e);
+            }
         });
         this._rootSvg.call(this._zoom);
         if(this._depth != null && this._depth >= 0){
             this.collapseAll(this._data, this._depth);
         }
         this._update(this._data);
-        this._afterDraw()
-        this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.translate(this._margin.left, (this._margin.top + this._height / 2)))
-        setTimeout(() => {
-            this.initZoom()
-        },500)
+        // this._afterDraw()
+        // this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.translate(this._margin.left, (this._margin.top + this._height / 2)))
+        // setTimeout(() => {
+        //     this.initZoom()
+        // },1500)
     }
 
     adaptViewBoxByRatio(ratio = 16/7){
@@ -356,19 +359,27 @@ class MindmapGraph extends Graph {
                 this._colored.push(rect)
                 this._leaves.push(node_g);
             },
-            (update) => {
+            async (update) => {
+                Promise.all([
                 node_g
                     .transition()
                     .duration(this._duration)
                     .attr("transform", (d) => {
                         return "translate(" + d.y + "," + d.x + ")";
-                    });
-                update
+                    }).end(),
+                    update
                     .transition()
                     .duration(this._duration)
                     .attr("transform", (d) => {
                         return "translate(" + d.y + "," + d.x + ")";
-                    });
+                    }).end()
+                ]).then(() => {
+                    // alert("MIUP");
+                    if(!this._isDrawed){
+                        this._afterDraw();
+                        this.initZoom()
+                    }
+                }).catch(console.log)
             },
             (exit) => {
                 exit
