@@ -29,6 +29,7 @@ class CircleRelationGraph extends Graph {
       d.y + d.r - this._textPathPadding
   } `;
   _onClickNodeMobile = console.log
+  _menuRigthContainer = null;
   /**
    *
    * @param {*} data array of obj {img?: url, text?: string, id: string | number}
@@ -308,9 +309,22 @@ class CircleRelationGraph extends Graph {
     parentTexts.style("font-size", `${30 * k}px`);
   }
 
+  drawRightMenu(containerId){
+    const container = d3.select(containerId);
+    container.style("display", "flex")
+    container.select("svg")
+    this._menuRigthContainer = container.append("xhtml:div")
+      .style("height", "100%")
+      .style("width", "30%")
+      .style("background-color", "white")
+      .style("display", "flex")
+      .style("flex-direction", "column")
+      .style("align-items","center")
+  }
+
   draw(containerId) {
     super.draw(containerId);
-    // d3.select(containerId).attr("data-graph", "circle-relation")
+    this.drawRightMenu(containerId);
     this._rootG.attr("id", "circle-root");
     this._zoom = d3.zoom().on("zoom", (e) => {
       this._rootG.attr("transform", e.transform);
@@ -341,11 +355,13 @@ class CircleRelationGraph extends Graph {
     this._leaves = [];
     this._colored = [];
     this._textColored = [];
+    console.log(data)
     this._mobileSection
       .select("div.list-group.list-group-root.well")
       .selectAll("a.list-group-item")
       .data(data, (d) => JSON.stringify(d.data))
       .join((enter) => {
+        //MOBILE
         const childrens = enter
           .append("xhtml:a")
           .attr("href", d=> "#" + GraphUtils.slugify(d.data[0]) )
@@ -387,7 +403,24 @@ class CircleRelationGraph extends Graph {
             })
         })
       })
-      
+
+    this._menuRigthContainer
+      .selectAll("div.sections")
+      .data(data)
+      .join((enter) => {
+        enter.append("xhtml:div")
+          .classed("sections",true)
+          .style("width", "90%")
+          .style("margin-top", "20px")
+          .style("background-color", "white")
+          .style("border-radius", "5px  ")
+          .style("box-shadow", "0 0 0 1px rgba(0,0,0,.25)")
+          .style("display", "flex")
+          .style("align-items", "center")
+          .style("padding", "15px")
+          .style("justify-content", "center")
+          .text(d => d.data[1][0].group)
+      })
     this._rootG
       .selectAll("g")
       .data(data, (d) => JSON.stringify(d.data) + d.x + d.y + d.r)
