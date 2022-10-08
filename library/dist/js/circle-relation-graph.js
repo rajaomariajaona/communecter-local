@@ -350,6 +350,51 @@ class CircleRelationGraph extends Graph {
     this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.translate(0, 50));
   }
 
+  async _boundZoomToGroup(target, padding=30) {
+    const currentZoom = d3.zoomTransform(this._rootSvg.node());
+
+    this._rootSvg.call(this._zoom.transform, d3.zoomIdentity)
+    const bound = this._rootG.node().getBoundingClientRect(); console.log(bound)
+    const targetBound = this._rootSvg.select(target).node().getBoundingClientRect();
+    console.log(targetBound)
+    this._rootSvg.call(this._zoom.transform, currentZoom);
+
+    const containerBound = this._rootSvg.node().getBoundingClientRect();
+
+    const k1 = isFinite(containerBound.width / bound.width) ? ((containerBound.width - 50) / bound.width): 1;
+    const k2 = isFinite(containerBound.height / bound.height) ? ((containerBound.height - 50) / bound.height): 1;
+    const k = (k1 > k2 ? k2 : k1);
+
+    const l1 = isFinite(containerBound.width / targetBound.width) ? ((containerBound.width - padding * 2) / targetBound.width): 1;
+    const l2 = isFinite(containerBound.height / targetBound.height) ? ((containerBound.height - padding * 2) / targetBound.height): 1;
+    const l = (l1 > l2 ? l2 : l1);
+
+    const currentViewBox = this._rootSvg.node().viewBox.baseVal;
+    
+    //ADAPT TRANSFORMATION INTO VIEWBOX SCOPE
+    const wRatio = currentViewBox.width / containerBound.width;
+    const hRatio = currentViewBox.height / containerBound.height;
+
+    let tx = Math.abs(containerBound.x - bound.x) * k + (containerBound.width / 2 - (bound.width / 2) * k);
+    let ty = Math.abs(containerBound.y - bound.y) * k + (containerBound.height / 2 - (bound.height / 2) * k);
+    tx *= wRatio;
+    ty *= hRatio;
+    tx += currentViewBox.x
+    ty += currentViewBox.y
+
+    let ux = (containerBound.x - targetBound.x) * l + (containerBound.width / 2 - (targetBound.width / 2) * l);
+    let uy = (containerBound.y - targetBound.y) * l + (containerBound.height / 2 - (targetBound.height / 2) * l);
+    ux *= wRatio;
+    uy *= hRatio;
+    ux += currentViewBox.x
+    uy += currentViewBox.y
+
+    return this._rootSvg.transition().duration(750)
+    .call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(k))
+    .call(this._zoom.transform, d3.zoomIdentity.translate(ux,uy).scale(l))
+    .end()
+}
+
 
   _update(data) {
     this._leaves = [];
@@ -422,6 +467,7 @@ class CircleRelationGraph extends Graph {
           .text(d => d.data[1][0].group)
           .on('click', (e,d) => {
             console.log("ZOOM TO", GraphUtils.slugify(d.data[0]))
+            this._boundZoomToGroup("[data-group=" + GraphUtils.slugify(d.data[0]) + "]")
           })
       })
     this._rootG
