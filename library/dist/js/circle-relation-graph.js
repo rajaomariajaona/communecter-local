@@ -420,13 +420,17 @@ class CircleRelationGraph extends Graph {
           .style("padding", "15px")
           .style("justify-content", "center")
           .text(d => d.data[1][0].group)
+          .on('click', (e,d) => {
+            console.log("ZOOM TO", GraphUtils.slugify(d.data[0]))
+          })
       })
     this._rootG
       .selectAll("g")
       .data(data, (d) => JSON.stringify(d.data) + d.x + d.y + d.r)
       .join((enter) => {
         const parent_g = enter.append("g");
-        parent_g.classed("divide", true);
+        parent_g.classed("divide", true)
+          .attr("data-group", d => GraphUtils.slugify(d.data[0]))
         const circle_parent = parent_g
           .append("circle")
           .attr("cx", (d) => d.x)
