@@ -16,6 +16,7 @@ class CircleRelationGraph extends Graph {
   _savedLinks = [];
   _draggable = null;
   _mobileSection = null;
+  _transition = 750;
   _color = () => "white";
   _relationSimulation = null;
   _onTickEnd = () => {};
@@ -39,12 +40,19 @@ class CircleRelationGraph extends Graph {
   _lastZoom = null;
   unfocus = async () => {
     if(this._focusMode){
+      const container = d3.select(this._containerId);
+      container.selectAll("#mobile-section > .list-group-item").each((d,i,n) => {
+        n[i].classList.remove("force-hide");
+      })
+      container.selectAll("#mobile-section > .list-group").each((d,i,n) => {
+        n[i].classList.remove("force-hide");
+      })
       this._onFocusChange(null);
       this._focusMode = false
       if(this._zoom){
         this._rootSvg.call(this._zoom)
         if(this._lastZoom){
-          return this._rootSvg.transition().duration(600).call(this._zoom.transform, this._lastZoom).end().then(() => {
+          return this._rootSvg.transition().duration(this._transition).call(this._zoom.transform, this._lastZoom).end().then(() => {
             this._lastZoom = null;
           })
         }else{
@@ -349,11 +357,13 @@ class CircleRelationGraph extends Graph {
         this._buttonList.classed("active", false);
         document.querySelector(containerId).classList.remove("mode-list");
         this._currentMode = mode;
+        this._transition = 750;
       }else if(mode == "list"){
         document.querySelector(containerId).classList.add("mode-list");
         this._buttonGraph.classed("active", false);
         this._buttonList.classed("active", true);
         this._currentMode = mode;
+        this._transition = 0
       }else{
         console.error("MODE UNKNOWN");
       }
@@ -393,6 +403,17 @@ class CircleRelationGraph extends Graph {
       this.boundZoomToGroup(target).then(() => {
         this._onFocusChange(target);
       })
+      const container = d3.select(this._containerId);
+      container.selectAll("#mobile-section > .list-group-item").each((d,i,n) => {
+        n[i].classList.add("force-hide");
+      })
+      container.selectAll("#mobile-section > .list-group").each((d,i,n) => {
+        n[i].classList.add("force-hide");
+      })
+      container.select("#mobile-section > .list-group-item[href='#" + GraphUtils.slugify(target) + "']")
+        .classed("force-hide", false);
+      container.select("#mobile-section > .list-group#" + GraphUtils.slugify(target))
+        .classed("force-hide", false);
     })
 
   }
@@ -436,7 +457,7 @@ class CircleRelationGraph extends Graph {
     ux += currentViewBox.x
     uy += currentViewBox.y
 
-    return this._rootSvg.transition().duration(750)
+    return this._rootSvg.transition().duration(this._transition)
     .call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(k))
     .call(this._zoom.transform, d3.zoomIdentity.translate(ux,uy).scale(l))
     .end().then(() => {

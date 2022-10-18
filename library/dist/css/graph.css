@@ -128,16 +128,22 @@ button.button-delete-badge-parcours:hover{
 .button-switcher-mode.active svg {
     fill: white;
 }
+.force-hide{
+    display: none!important;
+}
 
 @media(max-width:767px){
     [data-graph="CircleRelationGraph"] div.list-group.list-group-root.well{
         z-index: 0;
         position: initial;
     }
-    [data-graph="CircleRelationGraph"] div.list-group.list-group-root.well .list-group-item,
+    /* [data-graph="CircleRelationGraph"] div.list-group.list-group-root.well .list-group-item,
     [data-graph="CircleRelationGraph"] div.list-group.list-group-root.well .list-group.collapse.in
     {
         display: block!important;
+    } */
+    .force-hide{
+        display: unset;
     }
     [data-graph="CircleRelationGraph"] div.navigation, 
     [data-graph="CircleRelationGraph"] div.group-button-switcher, 
