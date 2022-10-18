@@ -109,18 +109,35 @@ button.button-delete-badge-parcours:hover{
     position: initial;
 }
 [data-graph="CircleRelationGraph"].mode-list div.navigation, 
-[data-graph="CircleRelationGraph"].mode-list svg{
+[data-graph="CircleRelationGraph"].mode-list svg#graph{
     z-index: -1000!important;
     position: absolute;
     top: 0;
     left: 0;
 }
+.button-switcher-mode:hover {
+    background-color: #d1d1d1;
+}
+.button-switcher-mode {
+    border-radius: 4px;
+    fill: #455a64;
+}
+.button-switcher-mode.active{
+    background-color: #455a64;
+}
+.button-switcher-mode.active svg {
+    fill: white;
+}
+
 @media(max-width:767px){
     [data-graph="CircleRelationGraph"] div.list-group.list-group-root.well{
         z-index: 0;
         position: initial;
     }
-    [data-graph="CircleRelationGraph"] div.navigation, [data-graph="CircleRelationGraph"] svg{
+    [data-graph="CircleRelationGraph"] div.navigation, 
+    [data-graph="CircleRelationGraph"] div.group-button-switcher, 
+    [data-graph="CircleRelationGraph"] svg#graph
+    {
         z-index: -1000!important;
         position: absolute;
         top: 0;

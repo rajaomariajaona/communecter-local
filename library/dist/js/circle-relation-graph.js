@@ -25,7 +25,10 @@ class CircleRelationGraph extends Graph {
   _initPosition = null;
   _currentMode = "graph";
   switchMode = (mode) => {}
+  _onFocusChange = (newFocus) => {console.log(`FOCUS: ${newFocus}`)}
   _focusMode = false;
+  _buttonGraph = null;
+  _buttonList = null;
   toggleMode = () => {
     if(this._currentMode === "graph") {
       this.switchMode("list")
@@ -33,10 +36,19 @@ class CircleRelationGraph extends Graph {
       this.switchMode("graph")
     }
   }
+  _lastZoom = null;
   unfocus = () => {
-    this._focusMode = false
-    if(this._zoom){
-      this._rootSvg.call(this._zoom)
+    if(this._focusMode){
+      this._focusMode = false
+      if(this._zoom){
+        this._rootSvg.call(this._zoom)
+        if(this._lastZoom){
+          this._rootSvg.transition().duration(600).call(this._zoom.transform, this._lastZoom).end().then(() => {
+            this._lastZoom = null;
+          })
+        }
+      }
+      this._onFocusChange(null);
     }
   };
   _pathGenerator = (d) =>
@@ -327,12 +339,17 @@ class CircleRelationGraph extends Graph {
 
   draw(containerId) {
     super.draw(containerId);
+    this._drawModeSwitcher(containerId);
     this.switchMode = (mode) => {
       if (mode == "graph"){
+        this._buttonGraph.classed("active", true);
+        this._buttonList.classed("active", false);
         document.querySelector(containerId).classList.remove("mode-list");
         this._currentMode = mode;
       }else if(mode == "list"){
         document.querySelector(containerId).classList.add("mode-list");
+        this._buttonGraph.classed("active", false);
+        this._buttonList.classed("active", true);
         this._currentMode = mode;
       }else{
         console.error("MODE UNKNOWN");
@@ -363,12 +380,20 @@ class CircleRelationGraph extends Graph {
     this._update(this._data);
     this._afterDraw();
     this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.translate(0, 50));
+    this._rootSvg.on('click', () => {
+      this.unfocus();
+    })
   }
-
+  async focus(target){
+    this.unfocus();
+    this.boundZoomToGroup(target).then(() => {
+      this._onFocusChange(target);
+    })
+  }
   async boundZoomToGroup(target, padding=30) {
     target = "[data-group=" + GraphUtils.slugify(target) + "]"
     const currentZoom = d3.zoomTransform(this._rootSvg.node());
-
+    this._lastZoom = currentZoom;
     this._rootSvg.call(this._zoom.transform, d3.zoomIdentity)
     const bound = this._rootG.node().getBoundingClientRect(); console.log(bound)
     const targetBound = this._rootSvg.select(target).node().getBoundingClientRect();
@@ -483,6 +508,11 @@ class CircleRelationGraph extends Graph {
           .attr("stroke", "none")
           .attr("fill", (d, i) => this._color(d, i))
           .attr("filter", "url(#ombre" + this._id + ")");
+        circle_parent.on("click", (e, d) => {
+          if(!this._draggable){
+            this.focus(d.data[0])
+          }
+        })
           circle_parent.call(
             d3
               .drag()
@@ -774,6 +804,69 @@ class CircleRelationGraph extends Graph {
   _restartSimulation(){
     this._relationSimulation.alphaTarget(0.3).restart();
   }
+  _drawModeSwitcher(containerId) {
+    const container = d3.select(containerId)
+    this._navigationNode = container
+            .append("xhtml:div")
+            .style("border-radius", "4px")
+            .style("box-shadow", "rgb(0 0 0 / 50%) 0px 0px 5px 0px")
+            .style("background-color", "white")
+            .style("z-index", 20000)
+            .style("border-color", "#acacaa")
+            .style("position", "absolute")
+            .style("top", "10px")
+            .style("right", "10px")
+            .style("display", "flex")
+            .style("align-items", "center")
+            .style("justify-content", "space-around")
+            .classed("group-button-switcher", true)
+    const iconSize = 20;
+    const svgListIcon = `
+      <svg style="height: ${iconSize}px; width: ${iconSize}px;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="svg-list-icon" x="0px" y="0px" viewBox="0 0 297 297" style="enable-background:new 0 0 297 297;" xml:space="preserve">
+            <path d="M66.102,0H15.804C7.089,0,0,7.089,0,15.804v50.298c0,8.715,7.089,15.804,15.804,15.804h50.298     c8.715,0,15.804-7.089,15.804-15.804V15.804C81.907,7.089,74.817,0,66.102,0z"/>
+            <path d="M173.649,0h-50.298c-8.715,0-15.804,7.089-15.804,15.804v50.298c0,8.715,7.089,15.804,15.804,15.804h50.298     c8.715,0,15.804-7.089,15.804-15.804V15.804C189.453,7.089,182.364,0,173.649,0z"/>
+            <path d="M66.102,107.547H15.804C7.089,107.547,0,114.636,0,123.351v50.298c0,8.715,7.089,15.804,15.804,15.804h50.298     c8.715,0,15.804-7.089,15.804-15.804v-50.298C81.907,114.636,74.817,107.547,66.102,107.547z"/>
+            <path d="M173.649,107.547h-50.298c-8.715,0-15.804,7.089-15.804,15.804v50.298c0,8.715,7.089,15.804,15.804,15.804h50.298     c8.715,0,15.804-7.089,15.804-15.804v-50.298C189.453,114.636,182.364,107.547,173.649,107.547z"/>
+            <path d="M281.196,0h-50.298c-8.715,0-15.804,7.089-15.804,15.804v50.298c0,8.715,7.089,15.804,15.804,15.804h50.298     c8.715,0,15.804-7.089,15.804-15.804V15.804C297,7.089,289.911,0,281.196,0z"/>
+            <path d="M281.196,107.547h-50.298c-8.715,0-15.804,7.089-15.804,15.804v50.298c0,8.715,7.089,15.804,15.804,15.804h50.298     c8.715,0,15.804-7.089,15.804-15.804v-50.298C297,114.636,289.911,107.547,281.196,107.547z"/>
+            <path d="M66.102,215.093H15.804C7.089,215.093,0,222.183,0,230.898v50.298C0,289.911,7.089,297,15.804,297h50.298     c8.715,0,15.804-7.089,15.804-15.804v-50.298C81.907,222.183,74.817,215.093,66.102,215.093z"/>
+            <path d="M173.649,215.093h-50.298c-8.715,0-15.804,7.089-15.804,15.804v50.298c0,8.715,7.089,15.804,15.804,15.804h50.298     c8.715,0,15.804-7.089,15.804-15.804v-50.298C189.453,222.183,182.364,215.093,173.649,215.093z"/>
+            <path d="M281.196,215.093h-50.298c-8.715,0-15.804,7.089-15.804,15.804v50.298c0,8.715,7.089,15.804,15.804,15.804h50.298     c8.715,0,15.804-7.089,15.804-15.804v-50.298C297,222.183,289.911,215.093,281.196,215.093z"/>
+      </svg>
+    `
+    const svgGraphIcon = `
+    <svg style="height: ${iconSize}px; width: ${iconSize}px;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="svg-graph-icon" x="0px" y="0px" viewBox="0 0 349.899 349.898" style="enable-background:new 0 0 349.899 349.898;" xml:space="preserve">
+      <path d="M175.522,12.235c-42.6,0-77.256,34.649-77.256,77.25c0,42.6,34.656,77.255,77.256,77.255    c42.591,0,77.257-34.656,77.257-77.255C252.779,46.895,218.113,12.235,175.522,12.235z"/>
+      <path d="M77.255,337.663c42.599,0,77.255-34.641,77.255-77.251c0-42.594-34.656-77.25-77.255-77.25    C34.653,183.162,0,217.818,0,260.412C0,303.012,34.653,337.663,77.255,337.663z"/>
+      <path d="M272.648,183.151c-42.603,0-77.256,34.65-77.256,77.256c0,42.604,34.653,77.25,77.256,77.25    c42.6,0,77.251-34.646,77.251-77.25C349.909,217.818,315.248,183.151,272.648,183.151z"/>
+    </svg>
+    `
+    this._buttonGraph = this._navigationNode.append("xhtml:div")
+      .style("padding", "10px")
+      .classed("button-switcher-mode", true)
+      .classed("active", true)
+      .style("display", "flex")
+      .style("justify-content", "center")
+      .style("align-items", "center")
+      .html(svgGraphIcon)
+      .on("click", () => {
+        if(this._currentMode != "graph"){
+          this.switchMode("graph");
+        }
+      })
+    this._buttonList = this._navigationNode.append("xhtml:div")
+      .style("padding", "10px")
+      .classed("button-switcher-mode", true)
+      .style("display", "flex")
+      .style("justify-content", "center")
+      .style("align-items", "center")
+      .html(svgListIcon)
+      .on("click", () => {
+        if(this._currentMode != "list"){
+          this.switchMode("list");
+        }
+      })
+  }
   setColor(callback) {
     super.setColor(callback);
     for (const text of this._textColored) {
@@ -799,5 +892,8 @@ class CircleRelationGraph extends Graph {
   }
   setOnClickNodeChildren(callback){
     this._onClickNodeMobile = callback;
+  }
+  setOnFocusChange(callback){
+    this._onFocusChange = callback;
   }
 }

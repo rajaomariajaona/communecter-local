@@ -250,7 +250,7 @@ class Graph {
     }
     drawNavigation(containerId){
         const container = d3.select(containerId)
-        .style("background-color", "white")
+            .style("background-color", "white")
             .style("position", "relative");
         
         this._navigationNode = container

@@ -96,7 +96,7 @@
             }
             return Array.from(resSet)
         }
-        var circleRelationGraph = new CircleRelationGraph([],d => GraphUtils.slugify(d.group), ["Recherche", "ESS", "Finance"], [{source: "a", target: "b"},{source: "ess", target: "finance"}])
+        var circleRelationGraph = new CircleRelationGraph([],d => GraphUtils.slugify(d.group), ["Recherche", "ESS", "Finance"], [{source: "a", target: "b"},{source: "ess", target: "finance"}], false)
         circleRelationGraph.setInitPosition({ess: {
             x: 100, y: 100
         }, recherche: {
