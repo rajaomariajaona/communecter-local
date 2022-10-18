@@ -134,6 +134,11 @@ button.button-delete-badge-parcours:hover{
         z-index: 0;
         position: initial;
     }
+    [data-graph="CircleRelationGraph"] div.list-group.list-group-root.well .list-group-item,
+    [data-graph="CircleRelationGraph"] div.list-group.list-group-root.well .list-group.collapse.in
+    {
+        display: block!important;
+    }
     [data-graph="CircleRelationGraph"] div.navigation, 
     [data-graph="CircleRelationGraph"] div.group-button-switcher, 
     [data-graph="CircleRelationGraph"] svg#graph

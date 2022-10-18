@@ -37,18 +37,21 @@ class CircleRelationGraph extends Graph {
     }
   }
   _lastZoom = null;
-  unfocus = () => {
+  unfocus = async () => {
     if(this._focusMode){
+      this._onFocusChange(null);
       this._focusMode = false
       if(this._zoom){
         this._rootSvg.call(this._zoom)
         if(this._lastZoom){
-          this._rootSvg.transition().duration(600).call(this._zoom.transform, this._lastZoom).end().then(() => {
+          return this._rootSvg.transition().duration(600).call(this._zoom.transform, this._lastZoom).end().then(() => {
             this._lastZoom = null;
           })
+        }else{
+          return this.initZoom();
         }
       }
-      this._onFocusChange(null);
+      
     }
   };
   _pathGenerator = (d) =>
@@ -385,13 +388,16 @@ class CircleRelationGraph extends Graph {
     })
   }
   async focus(target){
-    this.unfocus();
-    this.boundZoomToGroup(target).then(() => {
-      this._onFocusChange(target);
+    if(this._focusMode == GraphUtils.slugify(target)) return;
+    this.unfocus().then(() => {
+      this.boundZoomToGroup(target).then(() => {
+        this._onFocusChange(target);
+      })
     })
+
   }
-  async boundZoomToGroup(target, padding=30) {
-    target = "[data-group=" + GraphUtils.slugify(target) + "]"
+  async boundZoomToGroup(t, padding=30) {
+    const target = "[data-group=" + GraphUtils.slugify(t) + "]"
     const currentZoom = d3.zoomTransform(this._rootSvg.node());
     this._lastZoom = currentZoom;
     this._rootSvg.call(this._zoom.transform, d3.zoomIdentity)
@@ -434,7 +440,7 @@ class CircleRelationGraph extends Graph {
     .call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(k))
     .call(this._zoom.transform, d3.zoomIdentity.translate(ux,uy).scale(l))
     .end().then(() => {
-      this._focusMode = GraphUtils.slugify(target);
+      this._focusMode = GraphUtils.slugify(t);
       this._rootSvg.on('.zoom', null)
     })
 }
@@ -444,7 +450,6 @@ class CircleRelationGraph extends Graph {
     this._leaves = [];
     this._colored = [];
     this._textColored = [];
-    console.log(data)
     this._mobileSection
       .select("div.list-group.list-group-root.well")
       .selectAll("a.list-group-item")
