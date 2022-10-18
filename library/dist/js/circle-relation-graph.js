@@ -20,8 +20,25 @@ class CircleRelationGraph extends Graph {
   _relationSimulation = null;
   _onTickEnd = () => {};
   _onDragEnd = () => {};
+  _modeListing = false;
   _beforeDrag = () => {};
   _initPosition = null;
+  _currentMode = "graph";
+  switchMode = (mode) => {}
+  _focusMode = false;
+  toggleMode = () => {
+    if(this._currentMode === "graph") {
+      this.switchMode("list")
+    }else{
+      this.switchMode("graph")
+    }
+  }
+  unfocus = () => {
+    this._focusMode = false
+    if(this._zoom){
+      this._rootSvg.call(this._zoom)
+    }
+  };
   _pathGenerator = (d) =>
   `M ${d.x} ${d.y + d.r - this._textPathPadding} A 1 1 0 1 1 ${d.x} ${
       d.y - d.r + this._textPathPadding
@@ -310,11 +327,24 @@ class CircleRelationGraph extends Graph {
 
   draw(containerId) {
     super.draw(containerId);
+    this.switchMode = (mode) => {
+      if (mode == "graph"){
+        document.querySelector(containerId).classList.remove("mode-list");
+        this._currentMode = mode;
+      }else if(mode == "list"){
+        document.querySelector(containerId).classList.add("mode-list");
+        this._currentMode = mode;
+      }else{
+        console.error("MODE UNKNOWN");
+      }
+    }
     this._rootG.attr("id", "circle-root");
     this._zoom = d3.zoom().on("zoom", (e) => {
-      this._rootG.attr("transform", e.transform);
-      this._correctTextParentSize();
-      this._onZoom(e);
+      if(!this._focusMode){
+        this._rootG.attr("transform", e.transform);
+        this._correctTextParentSize();
+        this._onZoom(e);
+      }
     });
     this._rootSvg.call(this._zoom);
     const filter_ombre = this._rootSvg
@@ -378,7 +408,10 @@ class CircleRelationGraph extends Graph {
     return this._rootSvg.transition().duration(750)
     .call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(k))
     .call(this._zoom.transform, d3.zoomIdentity.translate(ux,uy).scale(l))
-    .end()
+    .end().then(() => {
+      this._focusMode = GraphUtils.slugify(target);
+      this._rootSvg.on('.zoom', null)
+    })
 }
 
 
