@@ -514,6 +514,7 @@ class CircleRelationGraph extends Graph {
           .attr("fill", (d, i) => this._color(d, i))
           .attr("filter", "url(#ombre" + this._id + ")");
         circle_parent.on("click", (e, d) => {
+          e.stopPropagation()
           if(!this._draggable){
             this.focus(d.data[0])
           }
@@ -646,7 +647,10 @@ class CircleRelationGraph extends Graph {
           .style("border", "2px solid rgba(69, 90, 100, 0.5)")
           .style("border-radius", "5px")
           .text((d) => d.data.label)
-          .on("click", this._onClickNode);
+          .on("click", (...args) => {
+            args[0].stopPropagation();
+            this._onClickNode(...args);
+          });
 
         foreign
           .filter((d) => d.data.img)
