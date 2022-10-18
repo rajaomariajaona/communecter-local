@@ -29,7 +29,6 @@ class CircleRelationGraph extends Graph {
       d.y + d.r - this._textPathPadding
   } `;
   _onClickNodeMobile = console.log
-  _menuRigthContainer = null;
   /**
    *
    * @param {*} data array of obj {img?: url, text?: string, id: string | number}
@@ -309,22 +308,8 @@ class CircleRelationGraph extends Graph {
     parentTexts.style("font-size", `${30 * k}px`);
   }
 
-  drawRightMenu(containerId){
-    const container = d3.select(containerId);
-    container.style("display", "flex")
-    container.select("svg")
-    this._menuRigthContainer = container.append("xhtml:div")
-      .style("height", "100%")
-      .style("width", "30%")
-      .style("background-color", "white")
-      .style("display", "flex")
-      .style("flex-direction", "column")
-      .style("align-items","center")
-  }
-
   draw(containerId) {
     super.draw(containerId);
-    this.drawRightMenu(containerId);
     this._rootG.attr("id", "circle-root");
     this._zoom = d3.zoom().on("zoom", (e) => {
       this._rootG.attr("transform", e.transform);
@@ -350,7 +335,8 @@ class CircleRelationGraph extends Graph {
     this._rootSvg.call(this._zoom.transform, d3.zoomIdentity.translate(0, 50));
   }
 
-  async _boundZoomToGroup(target, padding=30) {
+  async boundZoomToGroup(target, padding=30) {
+    target = "[data-group=" + GraphUtils.slugify(target) + "]"
     const currentZoom = d3.zoomTransform(this._rootSvg.node());
 
     this._rootSvg.call(this._zoom.transform, d3.zoomIdentity)
@@ -449,27 +435,6 @@ class CircleRelationGraph extends Graph {
         })
       })
 
-    this._menuRigthContainer
-      .selectAll("div.sections")
-      .data(data)
-      .join((enter) => {
-        enter.append("xhtml:div")
-          .classed("sections",true)
-          .style("width", "90%")
-          .style("margin-top", "20px")
-          .style("background-color", "white")
-          .style("border-radius", "5px  ")
-          .style("box-shadow", "0 0 0 1px rgba(0,0,0,.25)")
-          .style("display", "flex")
-          .style("align-items", "center")
-          .style("padding", "15px")
-          .style("justify-content", "center")
-          .text(d => d.data[1][0].group)
-          .on('click', (e,d) => {
-            console.log("ZOOM TO", GraphUtils.slugify(d.data[0]))
-            this._boundZoomToGroup("[data-group=" + GraphUtils.slugify(d.data[0]) + "]")
-          })
-      })
     this._rootG
       .selectAll("g")
       .data(data, (d) => JSON.stringify(d.data) + d.x + d.y + d.r)

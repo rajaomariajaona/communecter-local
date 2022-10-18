@@ -61,6 +61,9 @@ class Graph {
     _onMouseoutNode = (event,data) => {
         console.log("MOUSEOUT", data);
     }
+    _onFullScreenChanged = () => {
+        console.log("FULLSCREEN QUIT")
+    }
     _onZoom = () => {};
     _defaultColor = d3.scaleOrdinal([
         "#F9C1C8",
