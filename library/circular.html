@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="dist/css/graph.css">
+    <link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css">
+    <title>NETWORK</title>
+    <style>
+        #graph-container{
+            width: 1300px;
+            border: 1px solid black;
+        }
+    </style>
+
+</head>
+<body>
+    <div id="graph-container">
+
+    </div>
+    <script src="../d3.v7.min.js"></script>
+    <script src="../jquery-2.1.1.min.js"></script>
+    <script src="dist/js/graph.js"></script>
+    <script src="dist/js/graph-utils.js"></script>
+    <script src="dist/js/circular-graph.js"></script>
+    <script>
+        const internalData = ["water", "food","health","education","income & work","peace & justice","political voice","social equity","gender equality","housing","networks","energy"]
+
+        const data = {}
+
+        for(const d of internalData){
+            data[d] = []
+            for(let i = 0; i < 2; i++){
+                data[d].push(Math.floor(Math.random() * 230))
+            }
+        }
+
+        var circularGraph = new CircularGraph([]);
+        circularGraph.draw("#graph-container")
+        circularGraph.updateData(circularGraph.preprocessResults({internalData: data}))
+        var cont = false
+
+        function change(l = null) {
+            console.log("CHANGED")
+            circularGraph.updateData(networkData2);
+            if (cont)
+                setTimeout(change, 2000)
+        }
+    </script>
+</body>
+
+</html>
