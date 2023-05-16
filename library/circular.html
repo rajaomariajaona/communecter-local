@@ -27,7 +27,18 @@
     <script src="dist/js/circular-graph.js"></script>
     <script>
         const internalData = ["water", "food","health","education","income & work","peace & justice","political voice","social equity","gender equality","housing","networks","energy"]
-
+        const externalDataLabel = [
+            "Ozone layer depletion",
+            "Air Polution",
+            "Biodiversity loss",
+            "Land conversion",
+            "Freshwater withdrawals",
+            "Nitrogen & phosphorus loading",
+            "Chemical pollution",
+            "Ocean acidification",
+            "Climate change",
+        ]
+        const externalData = {}
         const data = {}
 
         for(const d of internalData){
@@ -37,9 +48,13 @@
             }
         }
 
+        for(const d of externalDataLabel){
+            externalData[d] = Math.floor(Math.random() * 50)
+        }
+
         var circularGraph = new CircularGraph([]);
         circularGraph.draw("#graph-container")
-        circularGraph.updateData(circularGraph.preprocessResults({internalData: data}))
+        circularGraph.updateData(circularGraph.preprocessResults({internalData: data, externalData}))
         var cont = false
 
         function change(l = null) {
