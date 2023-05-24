@@ -24,7 +24,7 @@
     <script src="../jquery-2.1.1.min.js"></script>
     <script src="dist/js/graph.js"></script>
     <script src="dist/js/graph-utils.js"></script>
-    <script src="dist/js/circular-graph.js"></script>
+    <script src="dist/js/multi-graph.js"></script>
     <script>
         const internalData = ["water", "food","health","education","income & work","peace & justice","political voice","social equity","gender equality","housing","networks","energy"]
         const externalDataLabel = [
@@ -52,7 +52,7 @@
             externalData[d] = Math.floor(Math.random() * 50)
         }
 
-        var circularGraph = new CircularGraph([]);
+        var circularGraph = new MultiGraph([]);
         circularGraph.draw("#graph-container")
         circularGraph.updateData(circularGraph.preprocessResults({internalData: data, externalData}))
         var cont = false

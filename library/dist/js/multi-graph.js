@@ -1,4 +1,4 @@
-class CircularGraph extends Graph{
+class MultiGraph extends Graph{
     _margin = {top: 100, right: 0, bottom: 0, left: 0};
     _width = 800 - this._margin.left - this._margin.right;
     _height = 800 - this._margin.top - this._margin.bottom;
