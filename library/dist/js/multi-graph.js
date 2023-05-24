@@ -20,6 +20,7 @@ class MultiGraph extends Graph{
     _labelCircleColor = "#77B82A"
     _barplotCircleRadius = 250
     _defaultInternalColor = "#E5E5E5"
+    _labelFontSize = 10
     _internalColor = (d,i,n) => {
         return d3.scaleOrdinal([this._defaultInternalColor])(d,i,n)
     };
@@ -125,7 +126,8 @@ class MultiGraph extends Graph{
         const internalGroup = this._rootG.append("g")
             .classed("internal",true)
             
-        //Label Circle
+        //Label 
+            //circle
         internalGroup.append("g")
             .classed("label", true)
             .append("circle")
@@ -143,7 +145,7 @@ class MultiGraph extends Graph{
             .style("filter", "drop-shadow(0px 0px 5px rgb(0 0 0 / 0.2))")
         const r = this._internalCircleRadius + 3
             //path
-        const path = internalGroup
+        internalGroup
             .append("path")
             .attr("stroke", "none")
             .attr("fill", "none")
@@ -153,7 +155,7 @@ class MultiGraph extends Graph{
                 this._generateTextPath(0,0,r)
             );
             //text
-        const text = internalGroup
+        internalGroup
             .append("text")
             .append("textPath")
             .style("font-size", "20px")
@@ -188,12 +190,61 @@ class MultiGraph extends Graph{
             .data(data)
             .join((enter) => {
                 const mainG = enter.append("g").classed("items", true)
+                const textGroup = mainG.append("g")
+                    .classed("texts", true)
+                // PATH TEXT
+                textGroup.append("path")
+                    .attr("id", d=> `path-${GraphUtils.slugify(d.label)}`)
+                    .attr("d", (d,i,n) => {
+                        let cosAngle = Math.cos(x(d.label) + Math.PI)
+                        let cosNextAngle = Math.cos(x(d.label) + x.bandwidth() + Math.PI)
+                        const isSouth = cosAngle > 0 && cosNextAngle > 0;
+                        const finalTarget = this._internalCircleRadius + this._titleCircleWidth + 11;
+                        let pathValue
+                        if(isSouth){
+                            pathValue = d3.arc()
+                            .innerRadius(finalTarget + this._labelFontSize / 2)
+                            .outerRadius(finalTarget + this._labelFontSize + 1)
+                            .startAngle(function(d, i) { return x(d.label)})
+                            .endAngle(function(d, i) { return x(d.label) + x.bandwidth() })(d,i,n)
+                        }else{
+                            pathValue = d3.arc()
+                            .innerRadius(0)
+                            .outerRadius(finalTarget)
+                            .startAngle(function(d, i) { return x(d.label)})
+                            .endAngle(function(d, i) { return x(d.label) + x.bandwidth() })(d,i,n)
+                        }
+                        let res = ""
+                        if(isSouth){
+                            res = "M" + pathValue.substring(pathValue.lastIndexOf("L") + 1, pathValue.length - 1)
+                        }else{
+                            res = pathValue.substring(0, pathValue.lastIndexOf("L"))
+                        }
+                        return res
+                    }
+                    )
+                    .attr("stroke", "none")
+                    .attr("fill", "none")
+                //TEXT
+                 textGroup
+                    .append("text")
+                    .append("textPath")
+                    .style("font-size", this._labelFontSize + "px")
+                    .classed("svg-text", true)
+                    .classed("parent-text", true)
+                    .attr(
+                        "xlink:href",
+                        d => `#path-${GraphUtils.slugify(d.label)}`
+                    )
+                    .text(d => d.label)
+                    .attr("fill", "white")
+                    .attr("text-anchor", "middle")
+                    .attr("startOffset", "50%");
                 mainG
+                    .append("g")
+                    .classed("arc-data", true)
                     .selectAll("path")
-                    .data(d => {
-                        console.log(d.value)
-                        return d.value
-                    })
+                    .data(d => d.value)
                     .join((pathEnter) => {
                         pathEnter
                             .append("path")
@@ -242,7 +293,7 @@ class MultiGraph extends Graph{
             .classed("external", true)
         
         //TITLE 
-        //circle
+            //circle
         externalGroup.append("g")
             .classed("title", true)
             .append("circle")
