@@ -1,3 +1,4 @@
+//TODO: Label interior, Label exterior, Function to create Specifique Rounded path
 class MultiGraph extends Graph{
     _margin = {top: 100, right: 0, bottom: 0, left: 0};
     _width = 800 - this._margin.left - this._margin.right;
@@ -10,7 +11,7 @@ class MultiGraph extends Graph{
     _maxInternalMargin = 0.05;
     _internalTitleBackgroundColor = "#00723F"
     _externalTitleBackgroundColor = "#00723F"
-    _exteriorColor = "#FF0014"
+    _internalBackgroundColor = "#FF0014"
     _internalBorderColor = "#ffffff"
     _internalBorderWidth = 1
     _internalCircleRadius = 100
@@ -95,6 +96,11 @@ class MultiGraph extends Graph{
             this._internalTitleBackgroundColor = color
         }
     }
+    setInternalBackgroundColor(color) {
+        if(color){
+            this._internalBackgroundColor = color
+        }
+    }
     setExternalTitleBackgroundColor(color) {
         if(color){
             this._externalTitleBackgroundColor = color
@@ -172,7 +178,7 @@ class MultiGraph extends Graph{
             .attr("cx", 0)
             .attr("cy", 0)
             .attr("r", this._internalCircleRadius)
-            .attr("fill", this._exteriorColor)
+            .attr("fill", this._internalBackgroundColor)
 
             
         // DATA PART
