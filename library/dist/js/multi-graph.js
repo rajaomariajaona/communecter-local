@@ -8,7 +8,8 @@ class MultiGraph extends Graph{
     _maxExternal = 0;
     //Percentage of margin
     _maxInternalMargin = 0.05;
-    _titleCircleColor = "#00723F"
+    _internalTitleBackgroundColor = "#00723F"
+    _externalTitleBackgroundColor = "#00723F"
     _exteriorColor = "#FF0014"
     _internalBorderColor = "#ffffff"
     _internalBorderWidth = 1
@@ -89,6 +90,21 @@ class MultiGraph extends Graph{
     setMaxExternal(value){
         this._maxExternal = isNaN(Number(value)) ? this._maxExternal : Number(value);
     }
+    setInternalTitleBackgroundColor(color) {
+        if(color){
+            this._internalTitleBackgroundColor = color
+        }
+    }
+    setExternalTitleBackgroundColor(color) {
+        if(color){
+            this._externalTitleBackgroundColor = color
+        }
+    }
+    setLabelCircleColor(color) {
+        if(color){
+            this._labelCircleColor = color
+        }
+    }
     _generateTextPath = (x,y,r) => 
     `M ${x} ${y + r} A 1 1 0 1 1 ${x} ${
         y - r
@@ -117,7 +133,7 @@ class MultiGraph extends Graph{
             .classed("title", true)
             .append("circle")
             .attr("r", this._titleCircleWidth + this._internalCircleRadius)
-            .attr("fill", this._titleCircleColor)
+            .attr("fill", this._internalTitleBackgroundColor)
             .style("filter", "drop-shadow(0px 0px 5px rgb(0 0 0 / 0.2))")
         const r = this._internalCircleRadius + 3
             //path
@@ -225,7 +241,7 @@ class MultiGraph extends Graph{
             .classed("title", true)
             .append("circle")
             .attr("r", internalRadius)
-            .attr("fill", this._titleCircleColor)
+            .attr("fill", this._externalTitleBackgroundColor)
             .style("filter", "drop-shadow(0px 0px 5px rgb(0 0 0 / 0.2))")
         const r = this._internalCircleRadius + this._titleCircleWidth + this._labelCircleWidth + 3
             //path
