@@ -21,6 +21,8 @@ class MultiGraph extends Graph{
     _barplotCircleRadius = 250
     _defaultInternalColor = "#E5E5E5"
     _labelFontSize = 10
+    _labelInternalMargin = 11;
+    _labelExternalMargin = 7;
     _internalColor = (d,i,n) => {
         return d3.scaleOrdinal([this._defaultInternalColor])(d,i,n)
     };
@@ -199,7 +201,7 @@ class MultiGraph extends Graph{
                         let cosAngle = Math.cos(x(d.label) + Math.PI)
                         let cosNextAngle = Math.cos(x(d.label) + x.bandwidth() + Math.PI)
                         const isSouth = cosAngle > 0 && cosNextAngle > 0;
-                        const finalTarget = this._internalCircleRadius + this._titleCircleWidth + 11;
+                        const finalTarget = this._internalCircleRadius + this._titleCircleWidth + this._labelInternalMargin;
                         let pathValue
                         if(isSouth){
                             pathValue = d3.arc()
@@ -342,6 +344,7 @@ class MultiGraph extends Graph{
             .data(data)
             .join(enter => {
                 const mainG = enter.append("g").classed("items", true)
+
                 mainG.append("path")
                     .attr("fill", this._externalColor)
                     .style("fill", d => d.color)
@@ -352,14 +355,57 @@ class MultiGraph extends Graph{
                         .endAngle(function(d) { return x(d.label) + x.bandwidth(); })
                         .padAngle(0.01)
                         .padRadius(internalRadius))
-            mainG.append("g")
-                .attr("text-anchor", function(d) { return (x(d.label) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start"; })
-                .attr("transform", function(d) { return "rotate(" + ((x(d.label) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")"+"translate(" + (y(d.value)+10) + ",0)"; })
-              .append("text")
-                .text(function(d){return(d.label)})
-                .attr("transform", function(d) { return (x(d.label) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)"; })
-                .style("font-size", "9px")
-                .attr("alignment-baseline", "middle")
+
+                const textGroup = mainG.append("g")
+                    .classed("texts", true)
+                // PATH TEXT
+                textGroup.append("path")
+                    .attr("id", d=> `path-${GraphUtils.slugify(d.label)}`)
+                    .attr("d", (d,i,n) => {
+                        let cosAngle = Math.cos(x(d.label) + Math.PI)
+                        let cosNextAngle = Math.cos(x(d.label) + x.bandwidth() + Math.PI)
+                        const isSouth = cosAngle > 0 && cosNextAngle > 0;
+                        const finalTarget = y(d.value) + this._labelExternalMargin
+                        let pathValue
+                        if(isSouth){
+                            pathValue = d3.arc()
+                            .innerRadius(finalTarget + this._labelFontSize / 2)
+                            .outerRadius(finalTarget + this._labelFontSize + 1)
+                            .startAngle(function(d, i) { return x(d.label)})
+                            .endAngle(function(d, i) { return x(d.label) + x.bandwidth() })(d,i,n)
+                        }else{
+                            pathValue = d3.arc()
+                            .innerRadius(0)
+                            .outerRadius(finalTarget)
+                            .startAngle(function(d, i) { return x(d.label)})
+                            .endAngle(function(d, i) { return x(d.label) + x.bandwidth() })(d,i,n)
+                        }
+                        let res = ""
+                        if(isSouth){
+                            res = "M" + pathValue.substring(pathValue.lastIndexOf("L") + 1, pathValue.length - 1)
+                        }else{
+                            res = pathValue.substring(0, pathValue.lastIndexOf("L"))
+                        }
+                        return res
+                    }
+                    )
+                    .attr("stroke", "none")
+                    .attr("fill", "none")
+                //TEXT
+                 textGroup
+                    .append("text")
+                    .append("textPath")
+                    .style("font-size", this._labelFontSize + "px")
+                    .classed("svg-text", true)
+                    .classed("parent-text", true)
+                    .attr(
+                        "xlink:href",
+                        d => `#path-${GraphUtils.slugify(d.label)}`
+                    )
+                    .text(d => d.label)
+                    .attr("fill", "black")
+                    .attr("text-anchor", "middle")
+                    .attr("startOffset", "50%");
             })
     }
     _update(data){
