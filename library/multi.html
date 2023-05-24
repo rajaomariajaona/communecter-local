@@ -78,7 +78,7 @@
 
         var circularGraph = new MultiGraph([]);
         circularGraph.draw("#graph-container")
-        circularGraph.updateData(circularGraph.preprocessResults({internalData, externalData}))
+        circularGraph.updateData(circularGraph.preprocessResults({internalData, internalTitle: "test int", externalData, externalTitle: "test ext",}))
         var cont = false
 
         function change(l = null) {

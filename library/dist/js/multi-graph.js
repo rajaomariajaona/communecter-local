@@ -13,7 +13,7 @@ class MultiGraph extends Graph{
     _internalBorderColor = "#ffffff"
     _internalBorderWidth = 1
     _internalCircleRadius = 100
-    _titleCircleWidth = 15
+    _titleCircleWidth = 25
     _labelCircleWidth = 45
     _labelCircleColor = "#77B82A"
     _barplotCircleRadius = 250
@@ -89,7 +89,13 @@ class MultiGraph extends Graph{
     setMaxExternal(value){
         this._maxExternal = isNaN(Number(value)) ? this._maxExternal : Number(value);
     }
-    _updateInternal(data){
+    _generateTextPath = (x,y,r) => 
+    `M ${x} ${y + r} A 1 1 0 1 1 ${x} ${
+        y - r
+    } M ${x} ${y - r} A 1 1 0 1 1 ${x} ${
+        y + r
+    } `
+    _updateInternal(data, title = "title internal"){
         var x = d3.scaleBand()
             .range([0, 2 * Math.PI])
             .align(0)
@@ -105,13 +111,41 @@ class MultiGraph extends Graph{
             .attr("fill", this._labelCircleColor)
             .style("filter", "drop-shadow(0px 0px 5px rgb(0 0 0 / 0.2))")
 
-        //TITLE CIRCLE
+        //TITLE 
+            //circle
         internalGroup.append("g")
             .classed("title", true)
             .append("circle")
             .attr("r", this._titleCircleWidth + this._internalCircleRadius)
             .attr("fill", this._titleCircleColor)
             .style("filter", "drop-shadow(0px 0px 5px rgb(0 0 0 / 0.2))")
+        const r = this._internalCircleRadius + 3
+            //path
+        const path = internalGroup
+            .append("path")
+            .attr("stroke", "none")
+            .attr("fill", "none")
+            .attr("id", "title-path-internal")
+            .attr(
+                "d",
+                this._generateTextPath(0,0,r)
+            );
+            //text
+        const text = internalGroup
+            .append("text")
+            .append("textPath")
+            .style("font-size", "20px")
+            .classed("svg-text", true)
+            .classed("parent-text", true)
+            .attr(
+                "xlink:href",
+                "#title-path-internal"
+            )
+            .text(title)
+            .attr("fill", "white")
+            .attr("text-anchor", "middle")
+            .attr("startOffset", "50%");
+        
 
         //CIRCULAR INTERIOR
         //RED PART
@@ -180,18 +214,47 @@ class MultiGraph extends Graph{
                 .attr("stroke-width", this._internalBorderWidth)
         })
     }
-    _updateExternal(data){
+    _updateExternal(data, title = "external title"){
         const internalRadius = this._internalCircleRadius + this._titleCircleWidth * 2 + this._labelCircleWidth
         const externalGroup = this._rootG.append("g")
             .classed("external", true)
         
-        //TITLE CIRCLE
+        //TITLE 
+        //circle
         externalGroup.append("g")
             .classed("title", true)
             .append("circle")
             .attr("r", internalRadius)
             .attr("fill", this._titleCircleColor)
             .style("filter", "drop-shadow(0px 0px 5px rgb(0 0 0 / 0.2))")
+        const r = this._internalCircleRadius + this._titleCircleWidth + this._labelCircleWidth + 3
+            //path
+        const path = externalGroup
+            .append("path")
+            .attr("stroke", "none")
+            .attr("fill", "none")
+            .attr("id", "title-path-external")
+            .attr(
+                "d",
+                this._generateTextPath(0,0,r)
+            );
+            //text
+        const text = externalGroup
+            .append("text")
+            .append("textPath")
+            .style("font-size", "20px")
+            .classed("svg-text", true)
+            .classed("parent-text", true)
+            .attr(
+                "xlink:href",
+                "#title-path-external"
+            )
+            .text(title)
+            .attr("fill", "white")
+            .attr("text-anchor", "middle")
+            .attr("startOffset", "50%");
+
+
 
 
         var x = d3.scaleBand()
@@ -227,8 +290,8 @@ class MultiGraph extends Graph{
             })
     }
     _update(data){
-        this._updateExternal(data.externalData)
-        this._updateInternal(data.internalData)
+        this._updateExternal(data.externalData, data.externalTitle)
+        this._updateInternal(data.internalData, data.internalTitle)
         this.initZoom();
     }
 }
