@@ -14,16 +14,11 @@ class MultiGraph extends Graph{
     _internalCircleRadius = 100
     _secondCircleRadius = 150
     _barplotCircleRadius = 250
-    _barplotColor = d3.scaleOrdinal([
-        "#F9C1C8",
-        "#DCEEC2",
-        "#FBE5C1",
-        "#B6C5F0",
-        "#CCEFFC",
-    ])
-    _defaultColor = d3.scaleOrdinal([
-        "#E5E5E5"
-    ]);
+    _defaultInternalColor = "#E5E5E5"
+    _internalColor = (d,i,n) => {
+        return d3.scaleOrdinal([this._defaultInternalColor])(d,i,n)
+    };
+    _externalColor = d3.scaleOrdinal(d3.schemeSet3)
     constructor(authorizedTags = []){
         super();
         super.setAuthorizedTags(authorizedTags);
@@ -64,18 +59,18 @@ class MultiGraph extends Graph{
     preprocessResults(result){
         var result = super.preprocessResults(result);
         var data = result;
-        var maxCount = 0;
         if(this._maxInternal <= 0){
-            for(const [index, values] of Object.entries(data.internalData)){
-                for(const value of values){
-                    if(value > this._maxInternal){
-                        this._maxInternal = value
+            for(const currentInternalData of data.internalData){
+                currentInternalData.value = currentInternalData.value.split(";").map((d) => Number(d)).filter(d => !isNaN(d))
+                for(const v of currentInternalData.value){
+                    if(v > this._maxInternal){
+                        this._maxInternal = v
                     }
                 }
             }
         }
         if(this._maxExternal <= 0){
-            for(const [index, value] of Object.entries(data.externalData)){
+            for(const {value} of data.externalData){
                 if(value > this._maxExternal){
                     this._maxExternal = value
                 }
@@ -95,7 +90,7 @@ class MultiGraph extends Graph{
         var x = d3.scaleBand()
             .range([0, 2 * Math.PI])
             .align(0)
-            .domain(Object.keys(data));
+            .domain(data.map(d => d.label));
         //SECOND CIRCLE
         this._rootG.append("g")
         .classed("second-circle", true)
@@ -118,25 +113,26 @@ class MultiGraph extends Graph{
         this._rootG.append("g")
             .classed("circle-interior", true)
             .selectAll("g.items")
-            .data(Object.entries(data))
+            .data(data)
             .join((enter) => {
                 const mainG = enter.append("g").classed("items", true)
-                mainG.each(([current, values]) => {
+                mainG.each(({label, value, color}) => {
+                    const current = label
                     mainG
                         .append("g")
                         .classed("content", true)
                         .selectAll("path")
-                        .data(values)
+                        .data(value)
                         .join((pathEnter) => {
                             pathEnter
                                 .append("path")
-                                .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+                                .attr("d", d3.arc()
                                 .innerRadius(this._innerRadius)
                                 .outerRadius((d) => d * this._internalCircleRadius / this._maxInternal)
-                                .startAngle(function(d, i) { return x(current) + (x.bandwidth() / values.length) * i; })
-                                .endAngle(function(d, i) { return x(current) + (x.bandwidth() / values.length) * (i + 1); })
+                                .startAngle(function(d, i) { return x(current) + (x.bandwidth() / value.length) * i; })
+                                .endAngle(function(d, i) { return x(current) + (x.bandwidth() / value.length) * (i + 1); })
                                 )
-                                .attr("fill", this._defaultColor)
+                                .attr("fill", color ?? this._internalColor)
                         })
                 })
                 
@@ -147,14 +143,14 @@ class MultiGraph extends Graph{
         this._rootG.append("g")
         .classed("borders", true)
         .selectAll("g.items")
-        .data(Object.entries(data))
+        .data(data)
         .join((enter) => {
             const mainG = enter.append("g").classed("items", true)
             const line = mainG.append("line")
                 .attr("x1", 0)
                 .attr("y1", 0)
-                .attr("x2", (d) => Math.cos(x(d[0])) * this._internalCircleRadius)
-                .attr("y2", (d) => Math.sin(x(d[0])) * this._internalCircleRadius)
+                .attr("x2", (d) => Math.cos(x(d.label)) * this._internalCircleRadius)
+                .attr("y2", (d) => Math.sin(x(d.label)) * this._internalCircleRadius)
                 .attr("stroke", this._internalBorderColor)
                 .attr("stroke-width", this._internalBorderWidth)
         })
@@ -163,31 +159,32 @@ class MultiGraph extends Graph{
         var x = d3.scaleBand()
             .range([0, 2 * Math.PI])
             .align(0)
-            .domain(Object.keys(data));
+            .domain(data.map(d => d.label));
         var y = d3.scaleRadial()
             .range([this._secondCircleRadius, this._barplotCircleRadius])
             .domain([0, this._maxExternal]);
         this._rootG.append("g")
             .classed("external", true)
             .selectAll("g.items")
-            .data(Object.entries(data))
+            .data(data)
             .join(enter => {
                 const mainG = enter.append("g").classed("items", true)
                 mainG.append("path")
-                    .attr("fill", this._barplotColor)
-                    .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+                    .attr("fill", this._externalColor)
+                    .style("fill", d => d.color)
+                    .attr("d", d3.arc()
                         .innerRadius(this._secondCircleRadius)
-                        .outerRadius(function(d) { return y(d[1]); })
-                        .startAngle(function(d) { return x(d[0]); })
-                        .endAngle(function(d) { return x(d[0]) + x.bandwidth(); })
+                        .outerRadius(function(d) { return y(d.value); })
+                        .startAngle(function(d) { return x(d.label); })
+                        .endAngle(function(d) { return x(d.label) + x.bandwidth(); })
                         .padAngle(0.01)
                         .padRadius(this._secondCircleRadius))
             mainG.append("g")
-                .attr("text-anchor", function(d) { return (x(d[0]) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start"; })
-                .attr("transform", function(d) { return "rotate(" + ((x(d[0]) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")"+"translate(" + (y(d[1])+10) + ",0)"; })
+                .attr("text-anchor", function(d) { return (x(d.label) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start"; })
+                .attr("transform", function(d) { return "rotate(" + ((x(d.label) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")"+"translate(" + (y(d.value)+10) + ",0)"; })
               .append("text")
-                .text(function(d){return(d[0])})
-                .attr("transform", function(d) { return (x(d[0]) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)"; })
+                .text(function(d){return(d.label)})
+                .attr("transform", function(d) { return (x(d.label) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)"; })
                 .style("font-size", "9px")
                 .attr("alignment-baseline", "middle")
             })
