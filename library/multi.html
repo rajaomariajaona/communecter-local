@@ -46,7 +46,7 @@
             data.label = d
             data.value = []
             for(let i = 0; i < 2; i++){
-                data.value.push(Math.floor(Math.random() * 230))
+                data.value.push(Math.floor(Math.random() * 5))
             }
             data.value = data.value.join(";")
             if(Math.random() > 0.5){
@@ -58,7 +58,7 @@
         for(const d of externalDataLabel){
             const data = {}
             data.label = d
-            data.value = Math.floor(Math.random() * 50)
+            data.value = Math.floor(Math.random() * 10)
             if(Math.random() > 0.5){
                 data.color = "#777f4e"
             }

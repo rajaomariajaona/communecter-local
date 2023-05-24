@@ -6,7 +6,8 @@ class MultiGraph extends Graph{
     _outerRadius = Math.min(this._width, this._height) / 2; 
     _maxInternal = 0;
     _maxExternal = 0;
-    _maxInternalMargin = 10;
+    //Percentage of margin
+    _maxInternalMargin = 0.05;
     _secondCircleColor = "#00FF28"
     _exteriorColor = "#FF0014"
     _internalBorderColor = "#ffffff"
@@ -76,12 +77,12 @@ class MultiGraph extends Graph{
                 }
             }
         }
-        this._maxInternal += this._maxInternalMargin
+        this._maxInternal += this._maxInternal * this._maxInternalMargin
         return data;
     }
     setMaxInternal(value){
         this._maxInternal = isNaN(Number(value)) ? this._maxInternal : Number(value);
-        this._maxInternal += this._maxInternalMargin
+        this._maxInternal += this._maxInternal * this._maxInternalMargin
     }
     setMaxExternal(value){
         this._maxExternal = isNaN(Number(value)) ? this._maxExternal : Number(value);
