@@ -26,7 +26,18 @@
     <script src="dist/js/graph-utils.js"></script>
     <script src="dist/js/multi-graph.js"></script>
     <script>
-        const internalDataLabel = ["water", "food","health","education","income & work","peace & justice","political voice","social equity","gender equality","housing","networks","energy"]
+        const internalDataLabel = [
+            //"water", 
+            "food",
+            "health",
+            "education",
+            "income & work",
+            "peace & justice",
+            "political voice",
+            "social equity",
+            "gender equality",
+            "housing","networks","energy"
+        ]
         const externalDataLabel = [
             "Ozone layer depletion",
             "Air Polution",
@@ -46,7 +57,7 @@
             data.label = d
             data.value = []
             for(let i = 0; i < 2; i++){
-                data.value.push(Math.floor(Math.random() * 5))
+                data.value.push(Math.floor(Math.random() * 20) + 5)
             }
             data.value = data.value.join(";")
             if(Math.random() > 0.5){
@@ -58,7 +69,7 @@
         for(const d of externalDataLabel){
             const data = {}
             data.label = d
-            data.value = Math.floor(Math.random() * 10)
+            data.value = Math.floor(Math.random() * 100 ) + 10
             if(Math.random() > 0.5){
                 data.color = "#777f4e"
             }

@@ -119,6 +119,7 @@ class MultiGraph extends Graph{
                 const mainG = enter.append("g").classed("items", true)
                 mainG.each(({label, value, color}) => {
                     const current = label
+                    console.log(x(current))
                     mainG
                         .append("g")
                         .classed("content", true)
@@ -128,10 +129,10 @@ class MultiGraph extends Graph{
                             pathEnter
                                 .append("path")
                                 .attr("d", d3.arc()
-                                .innerRadius(this._innerRadius)
-                                .outerRadius((d) => d * this._internalCircleRadius / this._maxInternal)
-                                .startAngle(function(d, i) { return x(current) + (x.bandwidth() / value.length) * i; })
-                                .endAngle(function(d, i) { return x(current) + (x.bandwidth() / value.length) * (i + 1); })
+                                    .innerRadius(this._innerRadius)
+                                    .outerRadius((d) => d * this._internalCircleRadius / this._maxInternal)
+                                    .startAngle(function(d, i) { return x(current) + (x.bandwidth() / value.length) * i; })
+                                    .endAngle(function(d, i) { return x(current) + (x.bandwidth() / value.length) * (i + 1); })
                                 )
                                 .attr("fill", color ?? this._internalColor)
                         })
@@ -150,8 +151,8 @@ class MultiGraph extends Graph{
             const line = mainG.append("line")
                 .attr("x1", 0)
                 .attr("y1", 0)
-                .attr("x2", (d) => Math.cos(x(d.label)) * this._internalCircleRadius)
-                .attr("y2", (d) => Math.sin(x(d.label)) * this._internalCircleRadius)
+                .attr("x2", (d) => Math.sin(x(d.label) + Math.PI) * this._internalCircleRadius)
+                .attr("y2", (d) => Math.cos(x(d.label) + Math.PI) * this._internalCircleRadius)
                 .attr("stroke", this._internalBorderColor)
                 .attr("stroke-width", this._internalBorderWidth)
         })
