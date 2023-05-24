@@ -8,12 +8,14 @@ class MultiGraph extends Graph{
     _maxExternal = 0;
     //Percentage of margin
     _maxInternalMargin = 0.05;
-    _secondCircleColor = "#00FF28"
+    _titleCircleColor = "#00723F"
     _exteriorColor = "#FF0014"
     _internalBorderColor = "#ffffff"
     _internalBorderWidth = 1
     _internalCircleRadius = 100
-    _secondCircleRadius = 150
+    _titleCircleWidth = 15
+    _labelCircleWidth = 45
+    _labelCircleColor = "#77B82A"
     _barplotCircleRadius = 250
     _defaultInternalColor = "#E5E5E5"
     _internalColor = (d,i,n) => {
@@ -92,18 +94,31 @@ class MultiGraph extends Graph{
             .range([0, 2 * Math.PI])
             .align(0)
             .domain(data.map(d => d.label));
-        //SECOND CIRCLE
-        this._rootG.append("g")
-        .classed("second-circle", true)
-        .append("circle")
-        .attr("r", this._secondCircleRadius)
-        .attr("fill", this._secondCircleColor)
-        .style("filter", "drop-shadow(0px 0px 5px rgb(0 0 0 / 0.2))")
+        const internalGroup = this._rootG.append("g")
+            .classed("internal",true)
+            
+        //Label Circle
+        internalGroup.append("g")
+            .classed("label", true)
+            .append("circle")
+            .attr("r", this._titleCircleWidth + this._internalCircleRadius + this._labelCircleWidth)
+            .attr("fill", this._labelCircleColor)
+            .style("filter", "drop-shadow(0px 0px 5px rgb(0 0 0 / 0.2))")
+
+        //TITLE CIRCLE
+        internalGroup.append("g")
+            .classed("title", true)
+            .append("circle")
+            .attr("r", this._titleCircleWidth + this._internalCircleRadius)
+            .attr("fill", this._titleCircleColor)
+            .style("filter", "drop-shadow(0px 0px 5px rgb(0 0 0 / 0.2))")
 
         //CIRCULAR INTERIOR
         //RED PART
-        this._rootG.append("circle")
-            .classed("circle-red-part", true)
+        internalGroup
+            .append("g")
+            .classed("background", true)
+            .append("circle")
             .attr("cx", 0)
             .attr("cy", 0)
             .attr("r", this._internalCircleRadius)
@@ -111,44 +126,52 @@ class MultiGraph extends Graph{
 
             
         // DATA PART
-        this._rootG.append("g")
-            .classed("circle-interior", true)
+        internalGroup.append("g")
+            .classed("data", true)
             .selectAll("g.items")
             .data(data)
             .join((enter) => {
                 const mainG = enter.append("g").classed("items", true)
-                mainG.each(({label, value, color}) => {
-                    const current = label
-                    console.log(x(current))
-                    mainG
-                        .append("g")
-                        .classed("content", true)
-                        .selectAll("path")
-                        .data(value)
-                        .join((pathEnter) => {
-                            pathEnter
-                                .append("path")
-                                .attr("d", d3.arc()
+                mainG
+                    .selectAll("path")
+                    .data(d => {
+                        console.log(d.value)
+                        return d.value
+                    })
+                    .join((pathEnter) => {
+                        pathEnter
+                            .append("path")
+                            .attr("d", (d,i,n) => {
+                                const parentData = d3.select(n[0].parentNode).datum();
+                                const current = parentData.label
+                                const {value} = parentData
+                                return d3.arc()
                                     .innerRadius(this._innerRadius)
                                     .outerRadius((d) => d * this._internalCircleRadius / this._maxInternal)
                                     .startAngle(function(d, i) { return x(current) + (x.bandwidth() / value.length) * i; })
-                                    .endAngle(function(d, i) { return x(current) + (x.bandwidth() / value.length) * (i + 1); })
-                                )
-                                .attr("fill", color ?? this._internalColor)
-                        })
-                })
-                
-                
+                                    .endAngle(function(d, i) { return x(current) + (x.bandwidth() / value.length) * (i + 1); })(d,i,n)
+                            }
+                            )
+                            .attr("fill", (d,i,n) => {
+                                const parentData = d3.select(n[0].parentNode).datum();
+                                const { color} = parentData
+                                return color ?? this._internalColor(d,i,n)
+                            })
+                            .attr("stroke", (d,i,n) => {
+                                const parentData = d3.select(n[0].parentNode).datum();
+                                const { color} = parentData
+                                return color ?? this._internalColor(d,i,n)
+                            })
+                    })
             })
 
         //BORDER
-        this._rootG.append("g")
+        internalGroup.append("g")
         .classed("borders", true)
-        .selectAll("g.items")
+        .selectAll("line")
         .data(data)
         .join((enter) => {
-            const mainG = enter.append("g").classed("items", true)
-            const line = mainG.append("line")
+            enter.append("line")
                 .attr("x1", 0)
                 .attr("y1", 0)
                 .attr("x2", (d) => Math.sin(x(d.label) + Math.PI) * this._internalCircleRadius)
@@ -158,16 +181,28 @@ class MultiGraph extends Graph{
         })
     }
     _updateExternal(data){
+        const internalRadius = this._internalCircleRadius + this._titleCircleWidth * 2 + this._labelCircleWidth
+        const externalGroup = this._rootG.append("g")
+            .classed("external", true)
+        
+        //TITLE CIRCLE
+        externalGroup.append("g")
+            .classed("title", true)
+            .append("circle")
+            .attr("r", internalRadius)
+            .attr("fill", this._titleCircleColor)
+            .style("filter", "drop-shadow(0px 0px 5px rgb(0 0 0 / 0.2))")
+
+
         var x = d3.scaleBand()
             .range([0, 2 * Math.PI])
             .align(0)
             .domain(data.map(d => d.label));
         var y = d3.scaleRadial()
-            .range([this._secondCircleRadius, this._barplotCircleRadius])
+            .range([internalRadius, this._barplotCircleRadius])
             .domain([0, this._maxExternal]);
-        this._rootG.append("g")
-            .classed("external", true)
-            .selectAll("g.items")
+
+        externalGroup.selectAll("g.items")
             .data(data)
             .join(enter => {
                 const mainG = enter.append("g").classed("items", true)
@@ -175,12 +210,12 @@ class MultiGraph extends Graph{
                     .attr("fill", this._externalColor)
                     .style("fill", d => d.color)
                     .attr("d", d3.arc()
-                        .innerRadius(this._secondCircleRadius)
+                        .innerRadius(internalRadius)
                         .outerRadius(function(d) { return y(d.value); })
                         .startAngle(function(d) { return x(d.label); })
                         .endAngle(function(d) { return x(d.label) + x.bandwidth(); })
                         .padAngle(0.01)
-                        .padRadius(this._secondCircleRadius))
+                        .padRadius(internalRadius))
             mainG.append("g")
                 .attr("text-anchor", function(d) { return (x(d.label) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start"; })
                 .attr("transform", function(d) { return "rotate(" + ((x(d.label) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")"+"translate(" + (y(d.value)+10) + ",0)"; })
@@ -192,8 +227,8 @@ class MultiGraph extends Graph{
             })
     }
     _update(data){
-        this._updateInternal(data.internalData)
         this._updateExternal(data.externalData)
+        this._updateInternal(data.internalData)
         this.initZoom();
     }
 }
