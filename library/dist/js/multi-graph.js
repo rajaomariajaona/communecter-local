@@ -69,7 +69,7 @@ class MultiGraph extends Graph{
         var data = result;
         if(this._maxInternal <= 0){
             for(const currentInternalData of data.internalData){
-                currentInternalData.value = currentInternalData.value.split(";").map((d) => Number(d)).filter(d => !isNaN(d))
+                currentInternalData.value = (currentInternalData.value ?? "").split(";").map((d) => Number(d)).filter(d => !isNaN(d))
                 for(const v of currentInternalData.value){
                     if(v > this._maxInternal){
                         this._maxInternal = v
