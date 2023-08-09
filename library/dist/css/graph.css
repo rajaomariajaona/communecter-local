@@ -155,3 +155,10 @@ button.button-delete-badge-parcours:hover{
         left: 0;
     }
 }
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+    #mobile-section{
+        display:none;
+    }
+}
