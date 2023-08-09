@@ -1,4 +1,3 @@
-//TODO: Label interior, Label exterior, Function to create Specifique Rounded path
 class MultiGraph extends Graph{
     _margin = {top: 100, right: 0, bottom: 0, left: 0};
     _width = 800 - this._margin.left - this._margin.right;

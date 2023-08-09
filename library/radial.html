@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="dist/css/graph.css">
+    <link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css">
+    <title>RADIAL</title>
+    <style>
+        #graph-container{
+            width: 1300px;
+            border: 1px solid black;
+        }
+    </style>
+
+</head>
+<body>
+    <div id="graph-container">
+
+    </div>
+    <script src="../d3.v7.min.js"></script>
+    <script src="../jquery-2.1.1.min.js"></script>
+    <script src="dist/js/graph.js"></script>
+    <script src="dist/js/graph-utils.js"></script>
+    <script src="dist/js/radial-graph.js"></script>
+    <script>
+        const data = {
+            "categories": ["Category X", "Category Y"],
+            "items": [
+              {
+                "name": "Nunc dignissim tristique eros vel luctus.",
+                "scores": [8, 6]
+              },
+              {
+                "name": "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae.",
+                "scores": [7, 8]
+              },
+              {
+                "name": "Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.",
+                "scores": [9, 7]
+              },
+              {
+                "name": "Sed malesuada ex in odio fringilla, ac vestibulum purus dictum.",
+                "scores": [6, 5]
+              },
+              {
+                "name": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                "scores": [8, 9]
+              },
+              {
+                "name": "Fusce eleifend neque sit amet lectus facilisis, eu sollicitudin risus convallis.",
+                "scores": [5, 7]
+              },
+              {
+                "name": "Quisque lacinia mauris eu erat hendrerit, a dignissim justo ultrices.",
+                "scores": [7, 8]
+              },
+              {
+                "name": "Nam eu felis bibendum, auctor tellus nec, auctor tellus.",
+                "scores": [6, 6]
+              },
+              {
+                "name": "Nulla facilisi. Vestibulum lacinia sagittis justo nec ultrices.",
+                "scores": [9, 8]
+              },
+              {
+                "name": "Cras vel justo vel augue mattis ultrices id in odio.",
+                "scores": [4, 9]
+              }
+            ]
+          }
+          
+        var radialGraph = new RadialGraph([]);
+        radialGraph.draw("#graph-container")
+        radialGraph.updateData(radialGraph.preprocessResults(data))
+        var cont = false
+
+        function change(l = null) {
+            console.log("CHANGED")
+            radialGraph.updateData(networkData2);
+            if (cont)
+                setTimeout(change, 2000)
+        }
+    </script>
+</body>
+
+</html>
