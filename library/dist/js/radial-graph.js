@@ -4,14 +4,14 @@ class RadialGraph extends Graph{
     _height = 800 - this._margin.top - this._margin.bottom;
     _radius = Math.min(this._width, this._height) / 2; 
     _labelFontSize = 10
-    _levels = 3			//How many levels or inner circles should there be drawn
+    _levels = 4			//How many levels or inner circles should there be drawn
 	_maxValue = 0 			//What is the value that the biggest circle will represent
 	_labelFactor = 1.25 	//How much farther than the radius of the outer circle should the labels be placed
-	_wrapWidth = 60 		//The number of pixels after which a label needs to be given a new line
+	_wrapWidth = 80 		//The number of pixels after which a label needs to be given a new line
 	_opacityArea = 0.35 	//The opacity of the area of the blob
-	_dotRadius = 4 			//The size of the colored circles of each blog
+	_dotRadius = 6 			//The size of the colored circles of each blog
 	_opacityCircles = 0.1 	//The opacity of the circles of each blob
-	_strokeWidth = 2 		//The width of the stroke around each blob
+	_strokeWidth = 3 		//The width of the stroke around each blob
 	_roundStrokes = true	//If true the area and stroke will follow a round path (cardinal-closed)
 	_color = null
 
@@ -89,7 +89,7 @@ class RadialGraph extends Graph{
             .attr("x", 4)
             .attr("y", d=> -d*this._radius/this._levels)
             .attr("dy", "0.4em")
-            .style("font-size", "10px")
+            .style("font-size", "15px")
             .attr("fill", "#737373")
             .text((d,i) => this._maxValue * d/this._levels);
     }
@@ -113,7 +113,7 @@ class RadialGraph extends Graph{
         //Append the labels at each axis
         axis.append("text")
             .attr("class", "legend")
-            .style("font-size", "11px")
+            .style("font-size", "18px")
             .attr("text-anchor", "middle")
             .attr("dy", "0.35em")
             .attr("x", (d, i) => rScale(this._maxValue * this._labelFactor) * Math.cos(angleSlice*i - Math.PI/2))
