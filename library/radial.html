@@ -27,50 +27,31 @@
     <script src="dist/js/radial-graph.js"></script>
     <script>
         const data = {
-            "categories": ["Category X", "Category Y"],
-            "items": [
-              {
-                "name": "Nunc dignissim tristique eros vel luctus.",
-                "values": [8, 6]
-              },
-              {
-                "name": "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae.",
-                "values": [7, 8]
-              },
-              {
-                "name": "Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.",
-                "values": [9, 7]
-              },
-              {
-                "name": "Sed malesuada ex in odio fringilla, ac vestibulum purus dictum.",
-                "values": [6, 5]
-              },
-              {
-                "name": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                "values": [8, 9]
-              },
-              {
-                "name": "Fusce eleifend neque sit amet lectus facilisis, eu sollicitudin risus convallis.",
-                "values": [5, 7]
-              },
-              {
-                "name": "Quisque lacinia mauris eu erat hendrerit, a dignissim justo ultrices.",
-                "values": [7, 8]
-              },
-              {
-                "name": "Nam eu felis bibendum, auctor tellus nec, auctor tellus.",
-                "values": [6, 6]
-              },
-              {
-                "name": "Nulla facilisi. Vestibulum lacinia sagittis justo nec ultrices.",
-                "values": [9, 8]
-              },
-              {
-                "name": "Cras vel justo vel augue mattis ultrices id in odio.",
-                "values": [4, 9]
-              }
-            ]
-          }
+          "Category X": [
+            { "name": "Nunc dignissim tristique eros vel luctus.", "value": 8 },
+            { "name": "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae.", "value": 7 },
+            { "name": "Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.", "value": 9 },
+            { "name": "Sed malesuada ex in odio fringilla, ac vestibulum purus dictum.", "value": 6 },
+            { "name": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", "value": 8 },
+            { "name": "Fusce eleifend neque sit amet lectus facilisis, eu sollicitudin risus convallis.", "value": 5 },
+            { "name": "Quisque lacinia mauris eu erat hendrerit, a dignissim justo ultrices.", "value": 7 },
+            { "name": "Nam eu felis bibendum, auctor tellus nec, auctor tellus.", "value": 6 },
+            { "name": "Nulla facilisi. Vestibulum lacinia sagittis justo nec ultrices.", "value": 9 },
+            { "name": "Cras vel justo vel augue mattis ultrices id in odio.", "value": 4 }
+          ],
+          "Category Y": [
+            { "name": "Nunc dignissim tristique eros vel luctus.", "value": 6 },
+            { "name": "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae.", "value": 8 },
+            { "name": "Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.", "value": 7 },
+            { "name": "Sed malesuada ex in odio fringilla, ac vestibulum purus dictum.", "value": 5 },
+            { "name": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", "value": 9 },
+            { "name": "Fusce eleifend neque sit amet lectus facilisis, eu sollicitudin risus convallis.", "value": 7 },
+            { "name": "Quisque lacinia mauris eu erat hendrerit, a dignissim justo ultrices.", "value": 8 },
+            { "name": "Nam eu felis bibendum, auctor tellus nec, auctor tellus.", "value": 6 },
+            { "name": "Nulla facilisi. Vestibulum lacinia sagittis justo nec ultrices.", "value": 8 },
+            { "name": "Cras vel justo vel augue mattis ultrices id in odio.", "value": 9 }
+          ]
+        }        
           
         var radialGraph = new RadialGraph([]);
         radialGraph.draw("#graph-container")

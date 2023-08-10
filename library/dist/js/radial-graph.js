@@ -12,7 +12,7 @@ class RadialGraph extends Graph{
 	_dotRadius = 4 			//The size of the colored circles of each blog
 	_opacityCircles = 0.1 	//The opacity of the circles of each blob
 	_strokeWidth = 2 		//The width of the stroke around each blob
-	_roundStrokes = false	//If true the area and stroke will follow a round path (cardinal-closed)
+	_roundStrokes = true	//If true the area and stroke will follow a round path (cardinal-closed)
 	_color = null
 
     constructor(authorizedTags = []){
@@ -55,31 +55,10 @@ class RadialGraph extends Graph{
         this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(k,k))
     }
     preprocessResults(result){
-        // var result = super.preprocessResults(result);
-        // var data = result;
-        // if(this._maxInternal <= 0){
-        //     for(const currentInternalData of data.internalData){
-        //         currentInternalData.value = (currentInternalData.value ?? "").split(";").map((d) => Number(d)).filter(d => !isNaN(d))
-        //         for(const v of currentInternalData.value){
-        //             if(v > this._maxInternal){
-        //                 this._maxInternal = v
-        //             }
-        //         }
-        //     }
-        // }
-        // if(this._maxExternal <= 0){
-        //     for(const {value} of data.externalData){
-        //         if(value > this._maxExternal){
-        //             this._maxExternal = value
-        //         }
-        //     }
-        // }
-        // this._maxInternal += this._maxInternal * this._maxInternalMargin
-        // return data;
         return result;
     }
-    _computeMaxValue(){
-        this._maxValue = Math.max(this._maxValue, d3.max(data.items, item => d3.max(item.values)));
+    _computeMaxValue(data){
+        this._maxValue = Math.max(this._maxValue, d3.max(Object.values(data), datum => d3.max(datum.map(item => item.value))));
     }
     _addSVGFilters(){
         //Filter for the outside glow
@@ -142,16 +121,25 @@ class RadialGraph extends Graph{
             .text(function(d){return d})
             .call(GraphUtils.wrap, this._wrapWidth);
     }
+    _getAllAxis(data){
+        const uniqueAxis = new Set()
+        for(const datum of Object.values(data)){
+            for(const item of datum){
+                uniqueAxis.add(item.name)
+            }
+        }
+        return [...uniqueAxis]
+    }
     _update(data){
-        this._computeMaxValue()
-        let allAxis = (data.items.map(function(i, j){return i.name})),	//Names of each axis
+        this._computeMaxValue(data)
+        let allAxis = this._getAllAxis(data),	//Names of each axis
             total = allAxis.length,     			//The number of different axes
             Format = d3.format('%'),			 	//Percentage formatting
             angleSlice = Math.PI * 2 / total;
         //Scale for the radius
         const rScale = d3.scaleLinear()
-        .range([0, this._radius])
-        .domain([0, this._maxValue]);
+            .range([0, this._radius])
+            .domain([0, this._maxValue]);
 
         //Wrapper for the grid & axes
 	    this._axisGrid = this._rootG.append("g").attr("class", "axisWrapper");
@@ -172,95 +160,35 @@ class RadialGraph extends Graph{
         this._rootG.selectAll(".radarWrapper").remove()
         var blobWrapper = 
             this._rootG.append("g")
-            .attr("class", "radarWrapper")        
+            .attr("class", "radarWrapper")
         //Append the backgrounds
         blobWrapper
-            .data(data.items)
             .selectAll("path")
-            .enter()
-            .append("path")
-            .attr("class", "radarArea")
-            .attr("d", function(d,i) { console.log(d); return radarLine(d); })
-            .style("fill", (d,i) => this._color(i))
-            .style("fill-opacity", this._opacityArea)
-            .on('mouseover', function (d,i){
-                //Dim all blobs
-                d3.selectAll(".radarArea")
-                    .transition().duration(200)
-                    .style("fill-opacity", 0.1); 
-                //Bring back the hovered over blob
-                d3.select(this)
-                    .transition().duration(200)
-                    .style("fill-opacity", 0.7);	
+            .data(Object.values(data))
+            .join((enter) => {
+                enter
+                    .append("path")
+                    .attr("class", "radarArea")
+                    .attr("d", (d,i) => { return radarLine(d); })
+                    .style("stroke", (d,i) => this._color(i))
+                    .style("stroke-width", this._strokeWidth + "px")
+                    .style("fill", "none")
+                    .style("filter" , "url(#glow)");  
+                const groupCircle = enter.append("g")
+                    .attr("data-index", (d,i) => i)
+                groupCircle.selectAll(".radarCircle")
+                    .data(function(d,i) { console.log(d);return d; })
+                    .enter().append("circle")
+                    .attr("class", "radarCircle")
+                    .attr("r", this._dotRadius)
+                    .attr("cx", function(d,i){ return rScale(d.value) * Math.cos(angleSlice*i - Math.PI/2); })
+                    .attr("cy", function(d,i){ return rScale(d.value) * Math.sin(angleSlice*i - Math.PI/2); })
+                    .style("fill", (d,i,j) => {
+                        const index = +j[0].parentNode.getAttribute("data-index");
+                        return this._color(index)
+                    })
+                    .style("fill-opacity", 0.8);         
             })
-            .on('mouseout', function(){
-                //Bring back all blobs
-                d3.selectAll(".radarArea")
-                    .transition().duration(200)
-                    .style("fill-opacity", this._opacityArea);
-            });
-            
-        //Create the outlines	
-        blobWrapper.append("path")
-            .attr("class", "radarStroke")
-            .attr("d", function(d,i) { return radarLine(d); })
-            .style("stroke-width", this._strokeWidth + "px")
-            .style("stroke", (d,i) => this._color(i))
-            .style("fill", "none")
-            .style("filter" , "url(#glow)");		
-
-        //Append the circles
-        blobWrapper.selectAll(".radarCircle")
-            .data(function(d,i) { return d; })
-            .enter().append("circle")
-            .attr("class", "radarCircle")
-            .attr("r", this._dotRadius)
-            .attr("cx", function(d,i){ return rScale(d.value) * Math.cos(angleSlice*i - Math.PI/2); })
-            .attr("cy", function(d,i){ return rScale(d.value) * Math.sin(angleSlice*i - Math.PI/2); })
-            .style("fill", (d,i,j) => this._color(j))
-            .style("fill-opacity", 0.8);
-
-        /////////////////////////////////////////////////////////
-        //////// Append invisible circles for tooltip ///////////
-        /////////////////////////////////////////////////////////
-
-        //Wrapper for the invisible circles on top
-        var blobCircleWrapper = this._rootG.selectAll(".radarCircleWrapper")
-            .data(data)
-            .enter().append("g")
-            .attr("class", "radarCircleWrapper");
-            
-        //Append a set of invisible circles on top for the mouseover pop-up
-        blobCircleWrapper.selectAll(".radarInvisibleCircle")
-            .data(function(d,i) { return d; })
-            .enter().append("circle")
-            .attr("class", "radarInvisibleCircle")
-            .attr("r", this._dotRadius*1.5)
-            .attr("cx", function(d,i){ return rScale(d.value) * Math.cos(angleSlice*i - Math.PI/2); })
-            .attr("cy", function(d,i){ return rScale(d.value) * Math.sin(angleSlice*i - Math.PI/2); })
-            .style("fill", "none")
-            .style("pointer-events", "all")
-            .on("mouseover", function(d,i) {
-                newX =  parseFloat(d3.select(this).attr('cx')) - 10;
-                newY =  parseFloat(d3.select(this).attr('cy')) - 10;
-                        
-                tooltip
-                    .attr('x', newX)
-                    .attr('y', newY)
-                    .text(Format(d.value))
-                    .transition().duration(200)
-                    .style('opacity', 1);
-            })
-            .on("mouseout", function(){
-                tooltip.transition().duration(200)
-                    .style("opacity", 0);
-            });
-            
-        //Set up the small tooltip for when you hover over a circle
-        var tooltip = this._rootG.append("text")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
-        
         this.initZoom();
     }
 }
