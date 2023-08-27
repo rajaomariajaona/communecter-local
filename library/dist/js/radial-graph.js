@@ -86,7 +86,6 @@ class RadialGraph extends Graph{
         for(const categoryName of Object.keys(result)){
             result[categoryName] = [...names].map((name) => result[categoryName][name])
         }
-        console.log(result)
         return result;
     }
     _computeMaxValue(data){
@@ -209,7 +208,7 @@ class RadialGraph extends Graph{
                 const groupCircle = enter.append("g")
                     .attr("data-index", (d,i) => i)
                 groupCircle.selectAll(".radarCircle")
-                    .data(function(d,i) { console.log(d);return d; })
+                    .data(function(d,i) { return d; })
                     .enter().append("circle")
                     .attr("class", "radarCircle")
                     .attr("r", this._dotRadius)
