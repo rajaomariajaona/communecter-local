@@ -19,6 +19,12 @@ class RadialGraph extends Graph{
         super();
         super.setAuthorizedTags(authorizedTags);
     }
+    setLevels(levels){
+        levels = Number(levels);
+        if(!isNaN(levels)){
+            this._levels = levels
+        }
+    }
     draw(containerId){
         this._color = this._defaultColor
         super.draw(containerId);
@@ -55,6 +61,32 @@ class RadialGraph extends Graph{
         this._rootSvg.transition().call(this._zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(k,k))
     }
     preprocessResults(result){
+        const names = new Set()
+        const categoryNames = {}
+        for(const [categoryName, categoryValues] of Object.entries(result)){
+            categoryNames[categoryName] = new Set()
+            const obj = {}
+            result[categoryName].length = categoryValues.length
+            for(const item of categoryValues){
+                names.add(item.name)
+                categoryNames[categoryName].add(item.name)
+                obj[item.name] = item
+            }
+            result[categoryName] = obj
+        }
+        for(const categoryName of Object.keys(categoryNames)){
+            if(names.size !== result[categoryName].length){
+                for(const name of [...names]){
+                    if(!result[categoryName].hasOwnProperty(name)){
+                        result[categoryName][name] = {name, value: 0}
+                    }
+                }
+            } 
+        }  
+        for(const categoryName of Object.keys(result)){
+            result[categoryName] = [...names].map((name) => result[categoryName][name])
+        }
+        console.log(result)
         return result;
     }
     _computeMaxValue(data){
